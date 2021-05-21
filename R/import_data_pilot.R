@@ -17,3 +17,4 @@ dfx$data <- as.character(dfx$data)
 
 dfx[1:10,]
 table(dfx$data)
+plot(dfx$cantimestamp)
