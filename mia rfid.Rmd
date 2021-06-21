@@ -1,0 +1,68 @@
+---
+title: "mia rfid"
+output: html_document
+---
+loading in packages
+```{r, message=FALSE}
+library(tidyverse)
+```
+
+loading in data
+```{r, message=FALSE}
+df <- read_csv2("raw_data/Tracking/rawdata20210610.csv")
+df$data <- as.character(df$data)
+```
+
+tunnel order:
+3 -> 17 -> 19 -> 9
+it is impossible for a mouse to go from 3 to 19 or 17 to 9
+looking for these impossible connections
+```{r}
+mouse2 <- df %>% 
+  filter(data==900133000459722 | data==900133000459721) %>%
+  as.data.frame()
+z <- mouse2$deviceid
+rle(z)$values
+```
+
+these connections correspond to rows 116-131, 137-151, 167-172, 180-189 
+``` {r}
+as.data.frame(mouse2)
+```
+
+noticed that at the first impossible connection in row 116, there is an 18 min delay since the previous entry
+my thoughts: could NA values correct for these?
+look at row 5211
+```{r, message=FALSE}
+df
+```
+
+converting 'datetimestamp' into a milliseconds column
+```{r}
+range(df$cantimestamp)
+df$time <- df$cantimestamp - min(df$cantimestamp)
+df[1:10,]
+
+plot(df$cantimestamp, type="l")
+```
+
+why does the time keep resetting back back to 0? was filming paused?
+using this subtraction method won't work for the time elapsed column 
+
+look at row 976
+```{r}
+df
+```
+
+trying to figure out how to make the starting time 0 and every entry after that the time elapsed since
+
+```{r}
+library(lubridate)
+x <- strptime(as.character(df$datetimestamp),'%d.%m.%Y %H:%M:%S:%OS')
+time_elapsed <- x[1] %--% x[50]
+time_elapsed <- as.duration(time_elapsed)
+time_period <- as.period(time_elapsed)
+time_period
+```
+
+need to figure this out but with milliseconds
