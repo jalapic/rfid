@@ -12,7 +12,6 @@ antennaID= what number in that channel
 data = microchip tag
 
 
-
   backtag | rightlegtag
 
   mouse 4 = 900133000459724 | 900133000459725
