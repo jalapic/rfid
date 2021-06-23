@@ -27,14 +27,14 @@ rle(z)$values
 
 these connections correspond to rows 116-131, 137-151, 167-172, 180-189 
 ``` {r}
-as.data.frame(mouse2)
+head(as.data.frame(mouse2))
 ```
 
 noticed that at the first impossible connection in row 116, there is an 18 min delay since the previous entry
 my thoughts: could NA values correct for these?
 look at row 5211
-```{r, message=FALSE}
-df
+```{r}
+head(df)
 ```
 
 converting 'datetimestamp' into a milliseconds column
@@ -66,3 +66,50 @@ time_period
 ```
 
 need to figure this out but with milliseconds
+
+
+parsing out each section of the timestamp, converting into milliseconds, then taking the sum
+
+```{r}
+df$date <- format(as.POSIXct(df$datetimestamp,format="%m.%d.%Y %H:%M:%S"),"%m.%d.%Y")
+  
+df$time <- sub("^\\S+\\s+", '', df$datetimestamp)
+  
+#hours
+df$hours <- sub("\\:.*:.*:.*", "", df$time) 
+
+#minutes
+df$minutes <- format(strptime(df$time,"%H:%M:%S"),'%M')
+
+#seconds
+df$seconds <- format(strptime(df$time,"%H:%M:%S"),'%S')
+
+#milliseconds
+```
+
+```{r, message=FALSE}
+df
+```
+QUESTIONS:
+(1)how to multiply every row by a conversion factor to get milliseconds
+(2)how to get millisecond notation b/c %OS is not working
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
