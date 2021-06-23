@@ -93,6 +93,7 @@ df
 QUESTIONS:
 (1)how to multiply every row by a conversion factor to get milliseconds
 (2)how to get millisecond notation b/c %OS is not working
+(3)
 
 
 
