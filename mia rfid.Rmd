@@ -71,20 +71,27 @@ need to figure this out but with milliseconds
 parsing out each section of the timestamp, converting into milliseconds, then taking the sum
 
 ```{r}
-df$date <- format(as.POSIXct(df$datetimestamp,format="%m.%d.%Y %H:%M:%S"),"%m.%d.%Y")
+df$date <- format(as.POSIXct(df$datetimestamp,format="%m.%d.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
   
 df$time <- sub("^\\S+\\s+", '', df$datetimestamp)
   
-#hours
-df$hours <- sub("\\:.*:.*:.*", "", df$time) 
 
-#minutes
-df$minutes <- format(strptime(df$time,"%H:%M:%S"),'%M')
+xx <- strsplit(df$time, split=":")
 
-#seconds
-df$seconds <- format(strptime(df$time,"%H:%M:%S"),'%S')
+xx
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+xxx[,1]
+xxx[,2]
+xxx[,3]
+as.numeric(xxx[,4])
 
-#milliseconds
+ms<-
+  (3600000 * as.numeric(xxx[,1])) +
+(60000 * as.numeric(xxx[,2])) +
+(1000 * as.numeric(xxx[,3])) +
+(1 * as.numeric(xxx[,4]))
+
+
 ```
 
 ```{r, message=FALSE}
@@ -101,7 +108,31 @@ QUESTIONS:
 
 
 
+```{r}
 
+x <- c(17, 19, 17 , 3  ,9 , 3, 17, 19, 17,  3 , 9 , 3, 17 ,19, 17,  3 ,17,
+       19 , 3 , 9 , 3 ,19,  3, 17,  3, 17,  9 , 3, 17, 19,  3, 17, 19  ,9 , 3)
+
+#17-9
+#3-19
+
+# how do you identify "bad" combinations?
+
+z <- c("a", "b", "a", "c", "d", "b")
+
+#find row numbers in the original dataset (or number of element) that fail a criteria.
+# e.g. a->c transitions
+
+
+### use differences between values that trigger some criteria e.g. can't be -16 / +16
+## use a transition matrix......   
+# before-> after table - identify bad things.
+
+
+
+
+
+```
 
 
 
