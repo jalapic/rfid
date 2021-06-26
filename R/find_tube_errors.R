@@ -89,6 +89,8 @@ df
 # this requires you to provide the two pairs of numbers as vectors
 # it requires the column with the tube numbers to be called tube
 
+
+
 tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   
   ids <- c(pair1,pair2)
