@@ -31,4 +31,10 @@ ggplot(df1, aes(x=totalmins)) +
   geom_histogram(binwidth=20,fill='lightseagreen', color='darkgreen') +
   theme_classic()+
   xlab("Time of Day in Minutes") +
- geom_vline(xintercept=660, color='black', lwd=1,lty=2)  
+ geom_vline(xintercept=660, color='black', lwd=1,lty=2) 
+
+ggplot(df1, aes(x=totalmins)) + 
+  geom_histogram(binwidth=1,fill='lightseagreen', color='darkgreen') +
+  theme_classic()+
+  xlab("Time of Day in Minutes") +
+  geom_vline(xintercept=660, color='black', lwd=1,lty=2)  
