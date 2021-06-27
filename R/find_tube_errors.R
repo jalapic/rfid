@@ -78,6 +78,13 @@ df1
 
 
 
+
+# let's pretend the pairs of bad tube crossings are 3&15, 10&21.
+# this requires you to provide the two pairs of numbers as vectors
+# it requires the column with the tube numbers to be called tube
+
+library(tidyverse)
+
 set.seed(1)
 df <- data.frame(
   row_number = 1:40, 
@@ -85,32 +92,26 @@ df <- data.frame(
 )
 df
 
-# let's pretend the pairs of bad tube crossings are 3&15, 10&21.
-# this requires you to provide the two pairs of numbers as vectors
-# it requires the column with the tube numbers to be called tube
-
-
-
 tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   
   ids <- c(pair1,pair2)
-  codes <- c("A","C","B","D")
+  codes <- c("A","C", "B", "D")
   
   x <- codes[match(df$tube, ids)]
   
   row.inds <-
-    c(intersect(which(x == "A"),which(lead(x) == "C")),
-      intersect(which(x == "B"),which(lead(x) == "D"))
-    )
+    c(intersect(which(x == "A"),which(lead(x) == "C" | lag(x) == "C")),
+      intersect(which(x == "B"),which(lead(x) == "D" | lag(x) == "C"))
+       )
   
   df$error <- FALSE
   df[row.inds,"error"]<-TRUE
   
   return(df)
-}
+  }
 
 df
 
-tube_errors(df, pair1 = c(3,15), pair2 = c(10,21))
+tube_errors(df, pair1 = c(3,15), pair2 = c(21, 10))
 
 #  seems to work.

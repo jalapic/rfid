@@ -2,6 +2,9 @@
 title: "mia rfid"
 output: html_document
 ---
+
+<br>
+
 loading in packages
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -26,24 +29,10 @@ df[1:10,]
 plot(df$cantimestamp, type="l")
 ```
 
-what is going on here?
-
-(1) time keeps resetting close to 0
-
-(2) was filming paused?
-
-(3) is there a pattern between this and the milliseconds column?
-
-tracking to see when `cantimestamp` goes back to 0
-```{r}
-
-```
-
 <br>
 
 looking at `datetimestamp`
-(1) Why is it running at midnight?
-(2) Why are some hours not included or missing? Are mice sleeping, did filming stop? did mice escape?
+(1) Why are some hours not included or missing? Are mice sleeping, did filming stop? did mice escape?
 ```{r}
 time <- sub("^\\S+\\s+", '', df$datetimestamp)
 hours <- sub("\\:.*", "", time)
@@ -51,8 +40,6 @@ table(hours)
 ```
 
 <br>
-
-working on milliseconds column
 
 ```{r, warning=FALSE, message=FALSE, results='hide'}
 df$date <- format(as.POSIXct(df$datetimestamp,format="%m.%d.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
@@ -79,15 +66,13 @@ df$ms<-
 head(df)
 ```
 
-this df is from 6-10-21 but filming began 6-4-21 
-would need to add the amount of ms between the 1st entry on 6-4 to the entries on 6-10
-
-(1) why is `cantimestamp` not 0 to begin with?
+<br>
 
 ```{r, warning=FALSE, message=FALSE}
 df2 <- read_csv2("raw_data/Tracking/rawdata20210604.csv")
 head(df2)
 ```
+
 ```{r, results='hide'}
 
 df2$date <- format(as.POSIXct(df2$datetimestamp,format="%m.%d.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
@@ -114,56 +99,37 @@ df$ms <- df$ms * 8.64e+7 * 6
 df$ms <- as.character(df$ms - 40089792)
 ```
 
-```{r}
-head(as.character(df$ms))
-```
-
 <br>
 
-tunnel order:
-3 -> 17 -> 19 -> 9
-it is impossible for a mouse to go from 3 to 19 or 17 to 9
-looking for these impossible connections
-
-```{r}
-mouse2 <- df %>% 
-  filter(data==900133000459722 | data==900133000459721) %>%
-  as.data.frame()
-z <- mouse2$deviceid
-rle(z)$values
-```
-
-these connections correspond to rows 116-131, 137-151, 167-172, 180-189 
-noticed that at the first impossible connection in row 116, there is an 18 min delay since the previous entry
-theory: the correct tube connections (`data`) are being read as NA so the mouse ID isn't being recognized even though the device ID is being read
-
-looking for an automatic not manual way to find these impossible connections 
 ```{r}
 
-x <- c(17, 19, 17 , 3  ,9 , 3, 17, 19, 17,  3 , 9 , 3, 17 ,19, 17,  3 ,17,
-       19 , 3 , 9 , 3 ,19,  3, 17,  3, 17,  9 , 3, 17, 19,  3, 17, 19  ,9 , 3)
+tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
+  
+  ids <- c(pair1,pair2)
+  codes <- c("3","19", "17", "9")
+  
+  x <- codes[match(df$deviceid, ids)]
+  
+  row.inds <-
+    c(intersect(which(x == "3"),which(lead(x) == "19" | lag(x) == "19")),
+      intersect(which(x == "17"),which(lead(x) == "9" | lag(x) == "9"))
+       )
+  
+  df$error <- FALSE
+  df[row.inds,"error"]<-TRUE
+  
+  return(df)
+  }
 
-#17-9
-#3-19
+df <- as.data.frame(tube_errors(df, pair1 = c(3,19), pair2 = c(17,9)))
 
-# how do you identify "bad" combinations?
+filter(df, error==TRUE)
 
-z <- c("a", "b", "a", "c", "d", "b")
-
-#find row numbers in the original dataset (or number of element) that fail a criteria.
-# e.g. a->c transitions
-
-
-### use differences between values that trigger some criteria e.g. can't be -16 / +16
-## use a transition matrix......   
-# before-> after table - identify bad things.
-
+## return row numbers coming from original
 ```
 
 
-
-
-
+Look into NAs
 
 
 
