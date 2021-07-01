@@ -2,10 +2,15 @@
 title: "mia rfid"
 output: html_document
 ---
+
+<br>
+
 loading in packages
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 ```
+
+<br>
 
 loading in data
 ```{r, message=FALSE}
@@ -13,31 +18,9 @@ df <- read_csv2("raw_data/Tracking/rawdata20210610.csv")
 df$data <- as.character(df$data)
 ```
 
-tunnel order:
-3 -> 17 -> 19 -> 9
-it is impossible for a mouse to go from 3 to 19 or 17 to 9
-looking for these impossible connections
-```{r}
-mouse2 <- df %>% 
-  filter(data==900133000459722 | data==900133000459721) %>%
-  as.data.frame()
-z <- mouse2$deviceid
-rle(z)$values
-```
+<br>
 
-these connections correspond to rows 116-131, 137-151, 167-172, 180-189 
-``` {r}
-head(as.data.frame(mouse2))
-```
-
-noticed that at the first impossible connection in row 116, there is an 18 min delay since the previous entry
-my thoughts: could NA values correct for these?
-look at row 5211
-```{r}
-head(df)
-```
-
-converting 'datetimestamp' into a milliseconds column
+looking at `cantimestamp`
 ```{r}
 range(df$cantimestamp)
 df$time <- df$cantimestamp - min(df$cantimestamp)
@@ -46,31 +29,19 @@ df[1:10,]
 plot(df$cantimestamp, type="l")
 ```
 
-why does the time keep resetting back back to 0? was filming paused?
-using this subtraction method won't work for the time elapsed column 
+<br>
 
-look at row 976
+looking at `datetimestamp`
+(1) Why are some hours not included or missing? Are mice sleeping, did filming stop? did mice escape?
 ```{r}
-df
+time <- sub("^\\S+\\s+", '', df$datetimestamp)
+hours <- sub("\\:.*", "", time)
+table(hours)
 ```
 
-trying to figure out how to make the starting time 0 and every entry after that the time elapsed since
+<br>
 
-```{r}
-library(lubridate)
-x <- strptime(as.character(df$datetimestamp),'%d.%m.%Y %H:%M:%S:%OS')
-time_elapsed <- x[1] %--% x[50]
-time_elapsed <- as.duration(time_elapsed)
-time_period <- as.period(time_elapsed)
-time_period
-```
-
-need to figure this out but with milliseconds
-
-
-parsing out each section of the timestamp, converting into milliseconds, then taking the sum
-
-```{r}
+```{r, warning=FALSE, message=FALSE, results='hide'}
 df$date <- format(as.POSIXct(df$datetimestamp,format="%m.%d.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
   
 df$time <- sub("^\\S+\\s+", '', df$datetimestamp)
@@ -85,59 +56,80 @@ xxx[,2]
 xxx[,3]
 as.numeric(xxx[,4])
 
-ms<-
+df$ms<-
+  (3600000 * as.numeric(xxx[,1])) +
+(60000 * as.numeric(xxx[,2])) +
+(1000 * as.numeric(xxx[,3])) +
+(1 * as.numeric(xxx[,4]))
+```
+```{r}
+head(df)
+```
+
+<br>
+
+```{r, warning=FALSE, message=FALSE}
+df2 <- read_csv2("raw_data/Tracking/rawdata20210604.csv")
+head(df2)
+```
+
+```{r, results='hide'}
+
+df2$date <- format(as.POSIXct(df2$datetimestamp,format="%m.%d.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+  
+df2$time <- sub("^\\S+\\s+", '', df2$datetimestamp)
+  
+
+xx <- strsplit(df2$time, split=":")
+
+xx
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+xxx[,1]
+xxx[,2]
+xxx[,3]
+as.numeric(xxx[,4])
+
+df2$ms<-
   (3600000 * as.numeric(xxx[,1])) +
 (60000 * as.numeric(xxx[,2])) +
 (1000 * as.numeric(xxx[,3])) +
 (1 * as.numeric(xxx[,4]))
 
-
+df$ms <- df$ms * 8.64e+7 * 6
+df$ms <- as.character(df$ms - 40089792)
 ```
 
-```{r, message=FALSE}
-df
-```
-QUESTIONS:
-(1)how to multiply every row by a conversion factor to get milliseconds
-(2)how to get millisecond notation b/c %OS is not working
-(3)
-
-
-
-
-
-
+<br>
 
 ```{r}
 
-x <- c(17, 19, 17 , 3  ,9 , 3, 17, 19, 17,  3 , 9 , 3, 17 ,19, 17,  3 ,17,
-       19 , 3 , 9 , 3 ,19,  3, 17,  3, 17,  9 , 3, 17, 19,  3, 17, 19  ,9 , 3)
+tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
+  
+  ids <- c(pair1,pair2)
+  codes <- c("3","19", "17", "9")
+  
+  x <- codes[match(df$deviceid, ids)]
+  
+  row.inds <-
+    c(intersect(which(x == "3"),which(lead(x) == "19" | lag(x) == "19")),
+      intersect(which(x == "17"),which(lead(x) == "9" | lag(x) == "9"))
+       )
+  
+  df$error <- FALSE
+  df[row.inds,"error"]<-TRUE
+  
+  return(df)
+  }
 
-#17-9
-#3-19
+df <- as.data.frame(tube_errors(df, pair1 = c(3,19), pair2 = c(17,9)))
 
-# how do you identify "bad" combinations?
+filter(df, error==TRUE)
 
-z <- c("a", "b", "a", "c", "d", "b")
-
-#find row numbers in the original dataset (or number of element) that fail a criteria.
-# e.g. a->c transitions
-
-
-### use differences between values that trigger some criteria e.g. can't be -16 / +16
-## use a transition matrix......   
-# before-> after table - identify bad things.
-
-
-
-
-
+## return row numbers coming from original
 ```
 
 
-
-
-
+Look into NAs
 
 
 
