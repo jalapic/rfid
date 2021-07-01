@@ -6,6 +6,8 @@ ms <- c(12,15,16,17,18,19,25,26,27,30,33,36,36,37,39,40,41,43,45)
 ctime
 plot(ctime, type='l')
 
+# find the drops in ctime by row index:
 which(lead(ctime)<ctime) + 1 
 
+# which of these row indices refer to what ms time?
 ms[which(lead(ctime)<ctime) + 1 ]
