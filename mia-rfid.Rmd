@@ -1,11 +1,14 @@
 ---
 title: "mia-rfid"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 loading in packages
 ```{r, warning=FALSE, message=FALSE, results='hide'}
 library(tidyverse)
+
 ```
 
 loading in data
@@ -58,43 +61,67 @@ day_1 <- df %>% filter(date == "06.04.2021")
 
 day_2 <- df %>% filter(date == "06.05.2021")
 
-  day_2$ms <- (as.numeric(unlist(day_2$ms)) * 8.64e+7) - 40089792
+  day_2$ms <- (as.numeric(unlist(day_2$ms)) + (8.64e+7 * 1)) - 40089792
 
 day_3 <- df %>% filter(date == "06.06.2021")
 
-  day_3$ms <- (as.numeric(unlist(day_3$ms)) * 8.64e+7 * 2) - 40089792
+  day_3$ms <- (as.numeric(unlist(day_3$ms)) + (8.64e+7 * 2)) - 40089792
 
 day_4 <- df %>% filter(date == "06.07.2021")
 
-  day_4$ms <- (as.numeric(unlist(day_4$ms)) * 8.64e+7 * 3) - 40089792
+  day_4$ms <- (as.numeric(unlist(day_4$ms)) + (8.64e+7 * 3)) - 40089792
 
 day_5 <- df %>% filter(date == "06.08.2021")
 
-  day_5$ms <- (as.numeric(unlist(day_5$ms)) * 8.64e+7 * 4) - 40089792
+  day_5$ms <- (as.numeric(unlist(day_5$ms)) + (8.64e+7 * 4)) - 40089792
   
 day_6 <- df %>% filter(date == "06.09.2021")
 
-  day_6$ms <- (as.numeric(unlist(day_6$ms)) * 8.64e+7 * 5) - 40089792
+  day_6$ms <- (as.numeric(unlist(day_6$ms)) + (8.64e+7 * 5)) - 40089792
 
 day_7 <- df %>% filter(date == "06.10.2021")
 
-  day_7$ms <- (as.numeric(unlist(day_7$ms)) * 8.64e+7 * 6) - 40089792
+  day_7$ms <- (as.numeric(unlist(day_7$ms)) + (8.64e+7 * 6)) - 40089792
 
 df <- rbind(day_1, day_2, day_3, day_4, day_5, day_6, day_7)
 
 df$ms <- as.character(df$ms)
+
+as.data.frame(df[37200:37300, ])
 ```
 
 comparing `cantimestamp` with `milliseconds`
 ```{r}
 plot(df$cantimestamp, type = "l")
-
 plot(df$ms, type = "l")
+
+```
+```{r}
+head(df)
+df %>% 
+  group_by(date) %>%
+  arrange(ms) %>%
+  mutate(rowid=row_number()) %>%
+  ggplot(., aes(x=rowid, y=cantimestamp)) +
+  geom_line() +
+  facet_wrap(~date)
 ```
 
+comparing cantimestamp restarting points to ms
+```{r}
+which(lead(df$cantimestamp)<df$cantimestamp) + 1 
 
+drops <- df$ms[which(lead(df$cantimestamp)<df$cantimestamp) + 1 ]
+
+drops <- as.data.frame(as.numeric(drops))
+colnames(drops) <- c("delta_drops")
+
+drops <- tail(drops, -1) - head(drops, -1)
+
+drops
+```
+making a function to report impossible tube connections
 ```{r, warning=FALSE, message=FALSE, results='hide'}
-
 tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   
   ids <- c(pair1,pair2)
@@ -117,33 +144,44 @@ df <- as.data.frame(tube_errors(df, pair1 = c(3,19), pair2 = c(17,9)))
 
 filter(df, error==TRUE)
 
-## return row numbers coming from original
 ```
 
-
-
----
-
-
-
-<br>
-
-looking at `cantimestamp`
+dealing with NAs
 ```{r}
-range(df$cantimestamp)
-df$time <- df$cantimestamp - min(df$cantimestamp)
-df[1:10,]
+df$row <- seq.int(nrow(df)) 
 
-plot(df$cantimestamp, type="l")
+Match <- function(row) {
+  subset(df, device == row$deviceid & 
+                antenna == row$antennaID &
+                ms > row$ms &
+                is.na(data))[1, "ms"]
+}
+
+f <- function(x) df[c(sapply(1:nrow(x), function(i) c(x$ms[i], Match(x[i, ])))), ]
+lapply(split(df, df$data), f)
 ```
 
-<br>
 
-looking at `datetimestamp`
-(1) Why are some hours not included or missing? Are mice sleeping, did filming stop? did mice escape?
-```{r}
-time <- sub("^\\S+\\s+", '', df$datetimestamp)
-hours <- sub("\\:.*", "", time)
-table(hours)
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
