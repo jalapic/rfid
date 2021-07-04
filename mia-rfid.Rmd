@@ -119,7 +119,14 @@ colnames(drops) <- c("delta_drops")
 drops <- tail(drops, -1) - head(drops, -1)
 
 drops
+
+table(drops)
+
+hist(drops$delta_drops)
+
+hist(df$cantimestamp)
 ```
+
 making a function to report impossible tube connections
 ```{r, warning=FALSE, message=FALSE, results='hide'}
 tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
