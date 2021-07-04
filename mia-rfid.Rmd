@@ -39,12 +39,12 @@ df$time <- sub("^\\S+\\s+", '', df$datetimestamp)
 
 xx <- strsplit(df$time, split=":")
 
-xx
+#xx
 xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
-xxx[,1]
-xxx[,2]
-xxx[,3]
-as.numeric(xxx[,4])
+#xxx[,1]
+#xxx[,2]
+#xxx[,3]
+#as.numeric(xxx[,4])
 
 df$ms<-
   (3600000 * as.numeric(xxx[,1])) +
@@ -155,17 +155,43 @@ filter(df, error==TRUE)
 
 dealing with NAs
 ```{r}
-df$row <- seq.int(nrow(df)) 
+df$row <- 1:nrow(df)
+
+
+# 
+# Match <- function(row) {
+#   subset(df, deviceid == row$deviceid & 
+#                 antennaID == row$antennaID &
+#                 ms > row$ms &
+#                 is.na(data))[1, "ms"]
+# }
+# 
+# 
+# 
+# 
+# f <- function(x) df[c(sapply(1:nrow(x), function(i) c(x$ms[i], Match(x[i, ])))), ]
+# lapply(split(df, df$data), f)
+
+ddf <- df[1:100,c('ms','deviceid','antennaID','data')]
+colnames(ddf)<- c('time', 'device', 'antenna',   'ID')
+
+ddf$time <- as.integer(ddf$time)
+
+head(ddf)
 
 Match <- function(row) {
-  subset(df, device == row$deviceid & 
-                antenna == row$antennaID &
-                ms > row$ms &
-                is.na(data))[1, "ms"]
+  subset(df, device == row$device & 
+                antenna == row$antenna &
+                time > row$time &
+                is.na(ID))[1, "time"]
 }
 
-f <- function(x) df[c(sapply(1:nrow(x), function(i) c(x$ms[i], Match(x[i, ])))), ]
-lapply(split(df, df$data), f)
+f <- function(x) ddf[c(sapply(1:nrow(x), function(i) c(x$time[i], Match(x[i, ])))), ]
+
+
+lapply(split(ddf, ddf$ID), f)
+
+
 ```
 
 
