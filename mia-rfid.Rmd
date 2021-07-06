@@ -1,8 +1,8 @@
 ---
 title: "mia-rfid"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 loading in packages
@@ -118,8 +118,6 @@ colnames(drops) <- c("delta_drops")
 
 drops <- tail(drops, -1) - head(drops, -1)
 
-drops
-
 table(drops)
 
 hist(drops$delta_drops)
@@ -157,61 +155,43 @@ dealing with NAs
 ```{r}
 df$row <- 1:nrow(df)
 
+dd <- df %>%
+  arrange(ms)
+z <- dd == df
+sum(z[,1] == FALSE)
 
-# 
-# Match <- function(row) {
-#   subset(df, deviceid == row$deviceid & 
-#                 antennaID == row$antennaID &
-#                 ms > row$ms &
-#                 is.na(data))[1, "ms"]
-# }
-# 
-# 
-# 
-# 
-# f <- function(x) df[c(sapply(1:nrow(x), function(i) c(x$ms[i], Match(x[i, ])))), ]
-# lapply(split(df, df$data), f)
-
-ddf <- df[1:100,c('ms','deviceid','antennaID','data')]
-colnames(ddf)<- c('time', 'device', 'antenna',   'ID')
-
-ddf$time <- as.integer(ddf$time)
-
-head(ddf)
+df$ms <- as.integer(df$ms)
 
 Match <- function(row) {
-  subset(df, device == row$device & 
-                antenna == row$antenna &
-                time > row$time &
-                is.na(ID))[1, "time"]
-}
+  subset(df, deviceid == df$deviceid & 
+                antennaID == df$antennaID &
+                row > df$row &
+                is.na(data))[1, "row"]
+  }
 
-f <- function(x) ddf[c(sapply(1:nrow(x), function(i) c(x$time[i], Match(x[i, ])))), ]
+f <- function(x) df[c(sapply(1:nrow(x), function(i) c(x$row[i], Match(x[i, ])))), ]
 
-
-lapply(split(ddf, ddf$ID), f)
-
-
+ddf <- lapply(split(df, df$data), f)
 ```
 
+```{r}
+m4_1 <- ddf[["900133000459724"]]
+m4_2 <- ddf[["900133000459725"]]
+m4 <- (m4_1, m4_2, 'ms') ???
 
+m3_1 <- ddf[["900133000459723"]]
+m3_2 <- ddf[["900133000459727"]]
+m3 <- 
+  
+m2_1 <- ddf[["900133000459721"]]
+m2_2 <- ddf[["900133000459722"]] 
+m2 <- 
+  
+m1_1 <- ddf[["900133000459719"]] 
+m1_2 <- ddf[["900133000459693"]]
+m1 <- 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
