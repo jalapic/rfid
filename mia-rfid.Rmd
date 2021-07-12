@@ -125,6 +125,42 @@ hist(drops$delta_drops)
 hist(df$cantimestamp)
 ```
 
+for Fri 7/9 meeting
+----
+
+organizing
+```{r}
+a1 <- df[,c(6,7,8,5,3,4)]
+
+a2 <- a1[!is.na(a1$data),]
+
+head(a2)
+```
+
+
+subsetting data by mouse
+```{r}
+dfx<-data.frame(data=c("900133000459724", "900133000459725",
+                   "900133000459723","900133000459727",
+                   "900133000459722", "900133000459721",
+                   "900133000459719", "900133000459693"),
+            mouse = c(4,4,3,3,2,2,1,1)
+            )
+ getwd()
+ write.csv(dfx,"raw_data/mouseids.csv", row.names = F)
+
+dfx <- read_csv("raw_data/mouseids.csv")
+dfx
+
+## Extract individual dataframes for each animal.
+
+mouse1 <- subset(a2, data %in% dfx[dfx$mouse==1,]$data) %>% mutate(mouse = 1)
+mouse2 <- subset(a2, data %in% dfx[dfx$mouse==2,]$data) %>% mutate(mouse = 2)
+mouse3 <- subset(a2, data %in% dfx[dfx$mouse==3,]$data) %>% mutate(mouse = 3)
+mouse4 <- subset(a2, data %in% dfx[dfx$mouse==4,]$data) %>% mutate(mouse = 4)
+```
+
+
 making a function to report impossible tube connections
 ```{r, warning=FALSE, message=FALSE, results='hide'}
 tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
@@ -137,61 +173,73 @@ tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   row.inds <-
     c(intersect(which(x == "3"),which(lead(x) == "19" | lag(x) == "19")),
       intersect(which(x == "17"),which(lead(x) == "9" | lag(x) == "9"))
-       )
+      )
   
   df$error <- FALSE
   df[row.inds,"error"]<-TRUE
+
   
   return(df)
   }
 
-df <- as.data.frame(tube_errors(df, pair1 = c(3,19), pair2 = c(17,9)))
+mouse1 <- as.data.frame(tube_errors(mouse1, pair1 = c(3,19), pair2 = c(17,9)))
 
-filter(df, error==TRUE)
+filter(mouse1, error==TRUE)
+ 
+mouse2 <- as.data.frame(tube_errors(mouse2, pair1 = c(3,19), pair2 = c(17,9)))
 
+filter(mouse2, error==TRUE)
+
+mouse3 <- as.data.frame(tube_errors(mouse3, pair1 = c(3,19), pair2 = c(17,9)))
+
+filter(mouse3, error==TRUE)
+
+mouse4 <- as.data.frame(tube_errors(mouse4, pair1 = c(3,19), pair2 = c(17,9)))
+
+filter(mouse4, error==TRUE)
+
+## look at tube errors - how long are locations unknown for?
 ```
 
-dealing with NAs
+
+figuring out how much time a mouse spends in each tube
 ```{r}
-df$row <- 1:nrow(df)
+m1 <- mouse1[1:65,]
 
-dd <- df %>%
-  arrange(ms)
-z <- dd == df
-sum(z[,1] == FALSE)
+m1_1 <- rle(m1$deviceid)
 
-df$ms <- as.integer(df$ms)
+m1_1$values
 
-Match <- function(row) {
-  subset(df, deviceid == df$deviceid & 
-                antennaID == df$antennaID &
-                row > df$row &
-                is.na(data))[1, "row"]
-  }
-
-f <- function(x) df[c(sapply(1:nrow(x), function(i) c(x$row[i], Match(x[i, ])))), ]
-
-ddf <- lapply(split(df, df$data), f)
+## how much time in each tube (value) ??
 ```
 
 ```{r}
-m4_1 <- ddf[["900133000459724"]]
-m4_2 <- ddf[["900133000459725"]]
-m4 <- (m4_1, m4_2, 'ms') ???
+##look at rev
 
-m3_1 <- ddf[["900133000459723"]]
-m3_2 <- ddf[["900133000459727"]]
-m3 <- 
-  
-m2_1 <- ddf[["900133000459721"]]
-m2_2 <- ddf[["900133000459722"]] 
-m2 <- 
-  
-m1_1 <- ddf[["900133000459719"]] 
-m1_2 <- ddf[["900133000459693"]]
-m1 <- 
+m1_2 <- rle(m1$deviceid)
+m1_3 <- cumsum(c(1, m1_2$lengths[-length(m1_2$lengths -1)]))
+
+m1_4 <- m1[m1_3,]
+
+str(m1_4)
+
+m1_4$ms <- as.numeric(m1_4$ms)
+
+m1_4$length <- -m1_4$ms + lead(m1_4$ms)
+
+head(m1_4)
+
+# so, mouse 1 spent 18488ms in tube 3 and cage 2, 15018597ms in tube 9 and cage 2, etc
+```
+
+figuring out how to separate time spent in tube versus cage
+```{r}
 
 ```
+
+
+
+
 
 
 
