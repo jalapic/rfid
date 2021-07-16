@@ -105,4 +105,29 @@ setkey(y, start, end)
 foverlaps(x, y, type="any") ## return overlap join
 
 
+#### 3 datasets into a plot
 
+dx <- data.frame(zone = c("A","A","B","C"),
+           start = c(0,5,6,8),
+           end = c(3,6,7,10),
+           id = "1-2"
+)
+
+
+# id=1 unique:
+
+dx1 <- data.frame(zone = c("A","A","B"),
+           start = c(3,7,10), 
+           end = c(5,8,11))
+
+# id=2 unique:
+
+dx2 <- data.frame(zone = c("B","C","C"),
+           start = c(3,7,10), 
+           end = c(5,8,11))
+
+ggplot() +
+  geom_segment(data=dx, aes(x=start, xend=end, y=zone, yend=zone), color='purple', size=15) +
+  geom_segment(data=dx1, aes(x=start, xend=end, y=zone, yend=zone),color='red', size=15) +
+  geom_segment(data=dx2, aes(x=start, xend=end, y=zone, yend=zone), color='blue', size=15) +
+  theme_classic()
