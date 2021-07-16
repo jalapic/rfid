@@ -69,6 +69,8 @@ df$end[10]<-11
 df <- df[c(2,3,1,4)]
 df
 
+
+dput(df)
 split(df,df$zone)
 
 ## desired output - together:
@@ -91,3 +93,16 @@ data.frame(zone = c("A","A","B"),
 data.frame(zone = c("B","C","C"),
            start = c(3,7,10), 
            end = c(5,8,11))
+
+
+A <- split(df,df$zone)$A
+Asp <- split(A,A$id)
+x <- setDT(Asp[[1]])
+y <- setDT(Asp[[2]])
+
+setkey(y, start, end)
+
+foverlaps(x, y, type="any") ## return overlap join
+
+
+
