@@ -118,7 +118,7 @@ split(df,df$zone)
 
 
 
-#### Another solution:
+#### BETTER solution:
 
 # this one is cleaner, but doesn't include times of length 1 to be shared
 # but this isn't a big deal.
@@ -142,3 +142,58 @@ oDT[zone == i.zone, .(ids = '1-2', zone, ostart, oend)]
 
 # apart
 oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
+
+
+
+### Functions.
+
+# get overlaps
+get_overlaps <- function(df){
+  DT = data.table(df)
+setkey(DT, start, end)
+oDT0 = foverlaps(DT[id==1], DT[id==2])
+oDT0[, `:=`(
+  ostart = pmax(start, i.start),
+  oend = pmin(end, i.end)
+)]
+oDT = oDT0[ostart < oend]
+return(oDT)
+}
+
+
+# together
+together <- function(df){
+oDT <- get_overlaps(df)
+oDT[zone == i.zone, .(ids = '1-2', zone, ostart, oend)]
+}
+
+# apart
+apart <- function(df){
+oDT <- get_overlaps(df)
+oDTapt <- oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
+return(rbindlist(list(oDTapt[,c(1,2,5,6)],oDTapt[,3:6])))
+}
+
+
+### Example:
+df2
+apart(df2)
+together(df2)
+
+df
+apart(df)
+together(df)
+
+
+
+# Plot
+
+df.ap <- apart(df)
+df.to <- together(df)
+
+
+ggplot() + 
+  geom_segment(data=df.ap, aes(x=ostart, xend=oend, y=zone, yend=zone, color=factor(id)), size=15) +
+  geom_segment(data=df.to, aes(x=ostart, xend=oend, y=zone, yend=zone), color = "#571e16", size=15) +
+  theme_classic() +
+  scale_color_manual(values=c("#f2b03d", "#4287f5"))
