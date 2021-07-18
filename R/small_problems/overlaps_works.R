@@ -114,3 +114,31 @@ df
 f2(df)
 
 split(df,df$zone)
+
+
+
+
+#### Another solution:
+
+# this one is cleaner, but doesn't include times of length 1 to be shared
+# but this isn't a big deal.
+
+# this also produces an output of times when not together.
+
+
+df
+
+DT = data.table(df)
+setkey(DT, start, end)
+oDT0 = foverlaps(DT[id==1], DT[id==2])
+oDT0[, `:=`(
+  ostart = pmax(start, i.start),
+  oend = pmin(end, i.end)
+)]
+oDT = oDT0[ostart < oend]
+
+# together
+oDT[zone == i.zone, .(ids = '1-2', zone, ostart, oend)]
+
+# apart
+oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
