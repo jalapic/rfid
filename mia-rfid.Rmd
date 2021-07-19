@@ -53,6 +53,7 @@ df$ms<-
 (1 * as.numeric(xxx[,4]))
 ```
 
+
 editing ms column to account for number days past
 ```{r, warning=FALSE, message=FALSE, results='hide'}
 day_1 <- df %>% filter(date == "06.04.2021")
@@ -89,57 +90,9 @@ df$ms <- as.character(df$ms)
 
 as.data.frame(df[37200:37300, ])
 ```
-
-comparing `cantimestamp` with `milliseconds`
 ```{r}
-plot(df$cantimestamp, type = "l")
-plot(df$ms, type = "l")
+df <- df[!is.na(df$data),]
 
-```
-```{r}
-head(df)
-df %>% 
-  group_by(date) %>%
-  arrange(ms) %>%
-  mutate(rowid=row_number()) %>%
-  ggplot(., aes(x=rowid, y=cantimestamp)) +
-  geom_line() +
-  facet_wrap(~date)
-```
-
-comparing cantimestamp restarting points to ms
-```{r}
-which(lead(df$cantimestamp)<df$cantimestamp) + 1 
-
-drops <- df$ms[which(lead(df$cantimestamp)<df$cantimestamp) + 1 ]
-
-drops <- as.data.frame(as.numeric(drops))
-colnames(drops) <- c("delta_drops")
-
-drops <- tail(drops, -1) - head(drops, -1)
-
-table(drops)
-
-hist(drops$delta_drops)
-
-hist(df$cantimestamp)
-```
-
-for Fri 7/9 meeting
-----
-
-organizing
-```{r}
-a1 <- df[,c(6,7,8,5,3,4)]
-
-a2 <- a1[!is.na(a1$data),]
-
-head(a2)
-```
-
-
-subsetting data by mouse
-```{r}
 dfx<-data.frame(data=c("900133000459724", "900133000459725",
                    "900133000459723","900133000459727",
                    "900133000459722", "900133000459721",
@@ -150,19 +103,47 @@ dfx<-data.frame(data=c("900133000459724", "900133000459725",
  write.csv(dfx,"raw_data/mouseids.csv", row.names = F)
 
 dfx <- read_csv("raw_data/mouseids.csv")
-dfx
-
-## Extract individual dataframes for each animal.
-
-mouse1 <- subset(a2, data %in% dfx[dfx$mouse==1,]$data) %>% mutate(mouse = 1)
-mouse2 <- subset(a2, data %in% dfx[dfx$mouse==2,]$data) %>% mutate(mouse = 2)
-mouse3 <- subset(a2, data %in% dfx[dfx$mouse==3,]$data) %>% mutate(mouse = 3)
-mouse4 <- subset(a2, data %in% dfx[dfx$mouse==4,]$data) %>% mutate(mouse = 4)
 ```
 
+```{r}
+mouse1 <- subset(df, data %in% dfx[dfx$mouse==1,]$data) %>% mutate(mouse = 1)
+mouse2 <- subset(df, data %in% dfx[dfx$mouse==2,]$data) %>% mutate(mouse = 2)
+mouse3 <- subset(df, data %in% dfx[dfx$mouse==3,]$data) %>% mutate(mouse = 3)
+mouse4 <- subset(df, data %in% dfx[dfx$mouse==4,]$data) %>% mutate(mouse = 4)
+```
 
-making a function to report impossible tube connections
-```{r, warning=FALSE, message=FALSE, results='hide'}
+```{r}
+zz <- rbind(mouse1 %>% mutate(mouse="m1"), 
+            mouse2 %>% mutate(mouse="m2"), 
+            mouse3 %>% mutate(mouse="m3"), 
+            mouse4 %>% mutate(mouse="m4"))
+            
+  li <- strsplit(zz$datetimestamp,split=":")
+  hrs <- as.numeric(unlist(lapply(li, function(x) substr(x[[1]],12,13))))
+  mins <- as.numeric(unlist(lapply(li, function(x) x[2])))
+  secs <- as.numeric(unlist(lapply(li, function(x) x[3])))
+  ms <- as.numeric(unlist(lapply(li, function(x) x[4])))
+
+  time <- strptime(zz$datetimestamp, format="%d.%M.%Y %H:%M:%S:%OS")
+  times <- strftime(time, format="%H:%M:%S:%OS")
+  
+  zz$times <- times
+  zz$hrs <- hrs
+  zz$mins <- mins
+  zz$bin <- ifelse(mins>30, paste0(zz$hrs,"b"), paste0(zz$hrs, "a"))
+  zz$totalmins <- (zz$hrs * 60) + zz$mins 
+  
+act_plot <-  ggplot(zz, aes(x=totalmins)) + 
+  geom_histogram(binwidth=1,fill='lightseagreen', color='darkgreen') +
+  theme_classic()+
+  xlab("Time of Day in Minutes") +
+ geom_vline(xintercept=c(660, 1380), color='black', lwd=1,lty=2) + 
+    facet_grid(rows = vars(mouse), cols = vars(date))
+
+show(act_plot)
+```
+
+```{r}
 tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   
   ids <- c(pair1,pair2)
@@ -171,8 +152,10 @@ tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   x <- codes[match(df$deviceid, ids)]
   
   row.inds <-
-    c(intersect(which(x == "3"),which(lead(x) == "19" | lag(x) == "19")),
-      intersect(which(x == "17"),which(lead(x) == "9" | lag(x) == "9"))
+    c(intersect(which(x == "3"), which(lag(x) == "19")),
+      intersect(which(x == "19"), which(lag(x) == "3")),
+      intersect(which(x == "17"),which(lag(x) == "9")),
+      intersect(which(x == "9"), which(lag(x) == "17"))
       )
   
   df$error <- FALSE
@@ -182,58 +165,113 @@ tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
   return(df)
   }
 
-mouse1 <- as.data.frame(tube_errors(mouse1, pair1 = c(3,19), pair2 = c(17,9)))
+mouse1_error <- as.data.frame(tube_errors(mouse1, pair1 = c(3,19), pair2 = c(17,9))) %>% filter(error==TRUE)
+mouse2_error <- as.data.frame(tube_errors(mouse2, pair1 = c(3,19), pair2 = c(17,9))) %>% filter(error==TRUE)
+mouse3_error <- as.data.frame(tube_errors(mouse3, pair1 = c(3,19), pair2 = c(17,9))) %>% filter(error==TRUE)
+mouse4_error <- as.data.frame(tube_errors(mouse4, pair1 = c(3,19), pair2 = c(17,9))) %>% filter(error==TRUE)
+```
 
-filter(mouse1, error==TRUE)
+
+```{r}
+error_plot <- rbind(mouse1_error, 
+                    mouse2_error, 
+                    mouse3_error, 
+                    mouse4_error)
+
+li <- strsplit(error_plot$datetimestamp,split=":")
+  hrs <- as.numeric(unlist(lapply(li, function(x) substr(x[[1]],12,13))))
+  mins <- as.numeric(unlist(lapply(li, function(x) x[2])))
+  secs <- as.numeric(unlist(lapply(li, function(x) x[3])))
+  ms <- as.numeric(unlist(lapply(li, function(x) x[4])))
+
+  time <- strptime(error_plot$datetimestamp, format="%d.%M.%Y %H:%M:%S:%OS")
+  times <- strftime(time, format="%H:%M:%S:%OS")
+  
+  error_plot$times <- times
+  error_plot$hrs <- hrs
+  error_plot$mins <- mins
+  error_plot$bin <- ifelse(mins>30, paste0(error_plot$hrs,"b"), paste0(error_plot$hrs, "a"))
+  error_plot$totalmins <- (error_plot$hrs * 60) + error_plot$mins 
+  
+err_plot <- ggplot(error_plot, aes(x=totalmins)) + 
+  geom_histogram(binwidth=1,fill='lightseagreen', color='darkgreen') +
+  theme_classic()+
+  xlab("Time of Day in Minutes") +
+ geom_vline(xintercept=c(660, 1380), color='black', lwd=1,lty=2) + 
+    facet_grid(rows = vars(mouse), cols = vars(date))
  
-mouse2 <- as.data.frame(tube_errors(mouse2, pair1 = c(3,19), pair2 = c(17,9)))
-
-filter(mouse2, error==TRUE)
-
-mouse3 <- as.data.frame(tube_errors(mouse3, pair1 = c(3,19), pair2 = c(17,9)))
-
-filter(mouse3, error==TRUE)
-
-mouse4 <- as.data.frame(tube_errors(mouse4, pair1 = c(3,19), pair2 = c(17,9)))
-
-filter(mouse4, error==TRUE)
-
-## look at tube errors - how long are locations unknown for?
-```
-
-
-figuring out how much time a mouse spends in each tube
-```{r}
-m1 <- mouse1[1:65,]
-
-m1_1 <- rle(m1$deviceid)
-
-m1_1$values
-
-## how much time in each tube (value) ??
+show(err_plot)
 ```
 
 ```{r}
-##look at rev
+table(mouse1_error$deviceid)
+table(mouse2_error$deviceid)
+table(mouse3_error$deviceid)
+table(mouse4_error$deviceid)
 
-m1_2 <- rle(m1$deviceid)
-m1_3 <- cumsum(c(1, m1_2$lengths[-length(m1_2$lengths -1)]))
+# mouse1: 20,785 rows, 130 errors
+# mouse 2: 7,380 rows, 133 errors
+# mouse 3: 17,121 rows, 36 errors
+# mouse 4: 9,384 rows, 45 errors
 
-m1_4 <- m1[m1_3,]
-
-str(m1_4)
-
-m1_4$ms <- as.numeric(m1_4$ms)
-
-m1_4$length <- -m1_4$ms + lead(m1_4$ms)
-
-head(m1_4)
-
-# so, mouse 1 spent 18488ms in tube 3 and cage 2, 15018597ms in tube 9 and cage 2, etc
+##observations:
+# mouse 2 has fewest entries yet most errors
+# mouse 3 is active almost as much as mouse 1 but has 1/4 the errors
 ```
 
-figuring out how to separate time spent in tube versus cage
+
+function that creates zones for each mouse and keeps the first and last of repeating zones
 ```{r}
+zone <- function(df){
+  df$row <- 1:nrow(df)
+  df$deviceid <- as.numeric(df$deviceid)
+  df$antennaID <- as.numeric(df$antennaID)
+  
+  z1 <- filter(df, deviceid==17 & antennaID==2 | deviceid==3 & antennaID==1)
+  z2 <-filter(df, deviceid==3 & antennaID==2 | deviceid==9 & antennaID==1)
+  z3 <-filter(df, deviceid==9 & antennaID==2 | deviceid==19 & antennaID==1)
+  z4 <- filter(df, deviceid==19 & antennaID==2 | deviceid==17 & antennaID==1)
+  
+  z1$zone=1
+  z2$zone=2
+  z3$zone=3
+  z4$zone=4
+  
+  zone_df <- rbind(z1,z2,z3,z4)
+  zone_df <- arrange(zone_df, row)
+  
+  x <- zone_df$zone
+  x1 <- sort(unique(c(length(x) - cumsum(rle(rev(x))$lengths) + 1, cumsum(rle(x)$lengths) )))
+  x1 <- unlist(x1)
+  
+  zone_df <- zone_df[x1,]
+  }
+
+mouse1_zone <- zone(mouse1)
+mouse2_zone <- zone(mouse2)
+mouse3_zone <- zone(mouse3)
+mouse4_zone <- zone(mouse4)
+```
+
+figuring out time spent within zones
+```{r}
+#can subtract ms between rows
+
+mouse1_zone$ms <- as.numeric(mouse1_zone$ms)
+
+mouse1_zone %>%
+  mutate(duration=ms-lag(ms))
+
+## would need to delete rows before 15:18... because of time jump
+
+## add tube error column to zone df
+
+
+mouse1_zone %>%
+  mutate(duration=ms-lag(ms)) %>%
+  filter(row_number()>5) %>%
+  group_by(zone) %>%
+  summarize(total=sum(duration))
 
 ```
 
@@ -245,4 +283,4 @@ figuring out how to separate time spent in tube versus cage
 
 
 
-
+### add errors to zones
