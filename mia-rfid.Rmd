@@ -8,7 +8,7 @@ output:
 loading in packages
 ```{r, warning=FALSE, message=FALSE, results='hide'}
 library(tidyverse)
-
+library(data.table)
 ```
 
 loading in data
@@ -253,25 +253,89 @@ mouse3_zone <- zone(mouse3)
 mouse4_zone <- zone(mouse4)
 ```
 
+adding tube errors to zone dfs for each mouse
+```{r}
+mouse1_zone <- tube_errors(mouse1_zone, pair1 = c(3,19), pair2 = c(17,9))
+mouse2_zone <- tube_errors(mouse2_zone, pair1 = c(3,19), pair2 = c(17,9))
+mouse3_zone <- tube_errors(mouse3_zone, pair1 = c(3,19), pair2 = c(17,9))
+mouse4_zone <- tube_errors(mouse4_zone, pair1 = c(3,19), pair2 = c(17,9))
+```
+
+
 figuring out time spent within zones
 ```{r}
-#can subtract ms between rows
-
+## mouse1
 mouse1_zone$ms <- as.numeric(mouse1_zone$ms)
 
-mouse1_zone %>%
+mouse1_zone <- mouse1_zone[-c(1:4), ]
+
+mouse1_zone <- mouse1_zone %>%
   mutate(duration=ms-lag(ms))
-
-## would need to delete rows before 15:18... because of time jump
-
-## add tube error column to zone df
-
-
+ 
 mouse1_zone %>%
   mutate(duration=ms-lag(ms)) %>%
-  filter(row_number()>5) %>%
   group_by(zone) %>%
-  summarize(total=sum(duration))
+  summarize(total=sum(!is.na(duration)))
+
+## mouse2
+mouse2_zone$ms <- as.numeric(mouse2_zone$ms)
+
+mouse2_zone <- mouse2_zone[-c(1:22), ]
+
+mouse2_zone <- mouse2_zone %>%
+  mutate(duration=ms-lag(ms))
+ 
+mouse2_zone %>%
+  mutate(duration=ms-lag(ms)) %>%
+  group_by(zone) %>%
+  summarize(total=sum(!is.na(duration)))
+  
+## mouse3
+mouse3_zone$ms <- as.numeric(mouse3_zone$ms)
+
+mouse3_zone <- mouse3_zone[-c(1:62), ]
+
+mouse3_zone <- mouse3_zone %>%
+  mutate(duration=ms-lag(ms))
+ 
+mouse3_zone %>%
+  mutate(duration=ms-lag(ms)) %>%
+  group_by(zone) %>%
+  summarize(total=sum(!is.na(duration)))
+
+## mouse4
+mouse4_zone$ms <- as.numeric(mouse4_zone$ms)
+
+mouse4_zone <- mouse4_zone[-c(1:35), ]
+
+mouse4_zone <- mouse4_zone %>%
+  mutate(duration=ms-lag(ms))
+ 
+mouse4_zone %>%
+  mutate(duration=ms-lag(ms)) %>%
+  group_by(zone) %>%
+  summarize(total=sum(!is.na(duration)))
+
+## observation: all 4 mice spend the most time in zone 1 
+```
+
+
+figuring out duration of errors
+```{r}
+mouse1_zone <- tube_errors(mouse1_zone, pair1 = c(3,19), pair2 = c(17,9))
+mouse2_zone <- tube_errors(mouse2_zone, pair1 = c(3,19), pair2 = c(17,9))
+mouse3_zone <- tube_errors(mouse3_zone, pair1 = c(3,19), pair2 = c(17,9))
+mouse4_zone <- tube_errors(mouse4_zone, pair1 = c(3,19), pair2 = c(17,9))
+
+## mouse1
+m1_inds = which(mouse1_zone$error == "TRUE")
+
+m1_rows <- lapply(m1_inds, function(x) (x-1):(x+1))
+
+mouse1_zone[unlist(m1_rows),]
+
+## how to discard the middle row of each set of 3 rows
+
 
 ```
 
@@ -282,5 +346,3 @@ mouse1_zone %>%
 
 
 
-
-### add errors to zones
