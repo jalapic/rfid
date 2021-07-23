@@ -140,7 +140,7 @@ act_plot <-  ggplot(zz, aes(x=totalmins)) +
  geom_vline(xintercept=c(660, 1380), color='black', lwd=1,lty=2) + 
     facet_grid(rows = vars(mouse), cols = vars(date))
 
-show(act_plot)
+# show(act_plot)
 ```
 
 ```{r}
@@ -200,7 +200,7 @@ err_plot <- ggplot(error_plot, aes(x=totalmins)) +
  geom_vline(xintercept=c(660, 1380), color='black', lwd=1,lty=2) + 
     facet_grid(rows = vars(mouse), cols = vars(date))
  
-show(err_plot)
+# show(err_plot)
 ```
 
 ```{r}
@@ -261,7 +261,6 @@ mouse3_zone <- tube_errors(mouse3_zone, pair1 = c(3,19), pair2 = c(17,9))
 mouse4_zone <- tube_errors(mouse4_zone, pair1 = c(3,19), pair2 = c(17,9))
 ```
 
-
 figuring out time spent within zones
 ```{r}
 ## mouse1
@@ -316,12 +315,32 @@ mouse4_zone %>%
   group_by(zone) %>%
   summarize(total=sum(!is.na(duration)))
 
-## observation: all 4 mice spend the most time in zone 1 
+## observation: all 4 mice spend the most time in zone 1 and the least in zone 3
 ```
-
 
 figuring out duration of errors
 ```{r}
+tube_errors <- function(df, pair1=c(1,2), pair2=c(3,4)){
+  
+  ids <- c(pair1,pair2)
+  codes <- c("3","19", "17", "9")
+  
+  x <- codes[match(df$deviceid, ids)]
+  
+  row.inds <-
+    c(intersect(which(x == "3"), which(lag(x) == "19")),
+      intersect(which(x == "19"), which(lag(x) == "3")),
+      intersect(which(x == "17"),which(lag(x) == "9")),
+      intersect(which(x == "9"), which(lag(x) == "17"))
+      )
+  
+  df$error <- FALSE
+  df[row.inds,"error"]<-TRUE
+
+  
+  return(df)
+  }
+
 mouse1_zone <- tube_errors(mouse1_zone, pair1 = c(3,19), pair2 = c(17,9))
 mouse2_zone <- tube_errors(mouse2_zone, pair1 = c(3,19), pair2 = c(17,9))
 mouse3_zone <- tube_errors(mouse3_zone, pair1 = c(3,19), pair2 = c(17,9))
@@ -336,7 +355,7 @@ mouse1_zone[unlist(m1_rows),]
 
 ## how to discard the middle row of each set of 3 rows
 
-
+## need to do the same with the other mice
 ```
 
 
