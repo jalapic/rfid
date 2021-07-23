@@ -1,6 +1,9 @@
 library(tidyverse)
 library(data.table)
 
+
+#### Turn each mouse_zone plot into smaller df
+
 m1_zone_day1 <- mouse1_zone %>% filter(date == "06.04.2021" & ms > 15000000 & ms < 18600000)
 
 m1_plot <- data.frame(
@@ -46,12 +49,15 @@ m4_plot$end <- lead(m4_plot$start)
 m4_plot$end[191]<-18590769
 
 
+head(m1_plot)
+head(m2_plot)
+head(m3_plot)
+head(m4_plot)
 
-m2_plot$end <- lead(m2_plot$start)
-m2_plot$end[198]<-18588009
+
+####  Making a plot for Mouse1 and Mouse2
 
 m1_m2_plot <- rbind(m1_plot, m2_plot)
-
 m1_m2_plot$start <- as.numeric(m1_m2_plot$start)
 m1_m2_plot$end <- as.numeric(m1_m2_plot$end)
 
@@ -67,63 +73,7 @@ m1_m2_plotz[[4]] # overlaps including edge case
 
 
 ### Write function to extract overlaps
-f1 <- function(x) {
-  
-  x <- setDT(x)
-  Asp <- split(x, by = "mouse")
-  
-  u <- na.omit(foverlaps(Asp[[1]], setkey(Asp[[2]], start, end)))
-  
-  if(nrow(u)==0){
-    outdf<-data.frame(zone=NA,t1=NA,t2=NA)
-  } else {
-    
-    r <- c()
-    
-    for (k in 1:nrow(u)) {
-      
-      p <- cbind(
-        t1=pmax(u[k,start],u[k,i.start]), 
-        t2=pmin(u[k,end],u[k,i.end])
-      )
-      
-      r[[k]] <- p
-      
-    }
-    
-    
-    outdf<-data.frame(
-      cbind(
-        zone = u[, zone],
-        do.call('rbind', r)
-      )
-    )
-    
-    
-  }
-  return(outdf)
-}
 
-
-f1(m1_m2_plotz[[1]]) # correct
-f1(m1_m2_plotz[[2]]) # returns NA as no overlaps
-f1(m1_m2_plotz[[3]]) # correct
-f1(m1_m2_plotz[[4]]) # correct
-
-
-### To do in one step:
-
-f2 <- function(df){
-  na.omit(rbindlist(Map(f1, split(setDT(df), by = "zone"))))
-  }
-
-# good up until here:
-f2(m1_m2_plotz)
-
-
-## other (better) method
-
-### Functions.
 
 # get overlaps
 get_overlaps <- function(df, id1=1, id2=2){
@@ -146,8 +96,8 @@ together <- function(df){
 }
 
 # apart
-apart <- function(df, ida=1, idb=2){
-  oDT <- get_overlaps(df, ida, idb)
+apart <- function(df){
+  oDT <- get_overlaps(df)
   oDTapt <- oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
   return(rbindlist(list(oDTapt[,c(1,2,5,6)],oDTapt[,3:6])))
 }
@@ -174,20 +124,65 @@ ggplot() +
   scale_x_continuous(labels = function(x) format(x, scientific = FALSE))
   
 
-###########
-# function for any pair
 
-zone_overlap <- function(df1, df2){
+####  Make these functions more 'generic' so don't have to manually input ids.
+
+# get overlaps
+get_overlaps <- function(df, id1=1, id2=2){
+  DT = data.table(df)
+  setkey(DT, start, end)
+  oDT0 = foverlaps(DT[id==id1], DT[id==id2])
+  oDT0[, `:=`(
+    ostart = pmax(start, i.start),
+    oend = pmin(end, i.end)
+  )]
+  oDT = oDT0[ostart < oend]
+  return(oDT)
+}
+
+# together
+togetherX <- function(df, ida=1, idb=2){
+  oDT <- get_overlaps(df, id1=ida, id2=idb)
+  oDT[zone == i.zone, .(ids = paste0(ida,"-",idb), zone, ostart, oend)]
+}
+
+
+# apart
+apartX <- function(df, ida=1, idb=2){
+  oDT <- get_overlaps(df, id1=ida, id2=idb)
+  oDTapt <- oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
+  return(rbindlist(list(oDTapt[,c(1,2,5,6)],oDTapt[,3:6])))
+}
+
+
+# check it's working for mouse ids
+get_overlaps(m1_m2_plot) #works for mouse1 and mouse2 as default is 1/2
+together(m1_m2_plot)
+togetherX(m1_m2_plot)
+apartX(m1_m2_plot)
+
+# for mouse1 and mouse3
+m1_m3_plot <- rbind(m1_plot, m3_plot)
+m1_m3_plot$start <- as.numeric(m1_m3_plot$start)
+m1_m3_plot$end <- as.numeric(m1_m3_plot$end)
+
+get_overlaps(m1_m3_plot, id1=1, id2=3)
+togetherX(m1_m3_plot, ida=1,idb=3)
+apartX(m1_m3_plot, ida=1,idb=3)
+
+
+###
+
+# Function for any pair
+
+zone_overlap <- function(df1, df2, ida=1, idb=2){
   
-m1_m2_plot <- rbind(df1, df2)
+m_plot <- rbind(df1, df2)
+m_plot$start <- as.numeric(m_plot$start)
+m_plot$end <- as.numeric(m_plot$end)
 
-m1_m2_plot$start <- as.numeric(m1_m2_plot$start)
-m1_m2_plot$end <- as.numeric(m1_m2_plot$end)
-
-m1_m2_plotz <- split(m1_m2_plot, m1_m2_plot$zone)
-
-df.ap <- apart(m1_m2_plot)
-df.to <- together(m1_m2_plot)
+df.ap <- apartX(m_plot, ida, idb)
+df.to <- togetherX(m_plot, ida, idb)
 
 p <- ggplot() + 
   geom_segment(data=df.ap, aes(x=ostart, xend=oend, y=zone, yend=zone, color=factor(id)), size=15) +
@@ -198,13 +193,34 @@ p <- ggplot() +
   xlab("time since start (ms)") +
   scale_x_continuous(labels = function(x) format(x, scientific = FALSE))
 
-return(list(p,df.ap,df.to,m1_m2_plotz))
+return(p)
 }
 
 
 zone_overlap(m1_plot, m2_plot)
-zone_overlap(m1_plot, m4_plot)
+zone_overlap(m1_plot, m2_plot, ida=1, idb=2)
+
+zone_overlap(m1_plot, m3_plot, ida=1, idb=3)
 
 
+### Should probably work an automated way of doing this:
+
+range(m1_plot$start)
+range(m1_plot$end)
+
+p1 <- zone_overlap(m1_plot, m2_plot, ida=1, idb=2) + xlim(15000000,19000000)+
+  scale_color_manual(values=c("#f2b03d", "#4287f5"))
+p2 <- zone_overlap(m1_plot, m3_plot, ida=1, idb=3) + xlim(15000000,19000000)+
+  scale_color_manual(values=c("#f2b03d", "#FE0004"))
+p3 <- zone_overlap(m1_plot, m4_plot, ida=1, idb=4) + xlim(15000000,19000000)+
+  scale_color_manual(values=c("#f2b03d", "#1AF5FC"))
+p4 <- zone_overlap(m2_plot, m3_plot, ida=2, idb=3) + xlim(15000000,19000000)+
+  scale_color_manual(values=c("#4287f5", "#FE0004"))
+p5 <- zone_overlap(m2_plot, m4_plot, ida=2, idb=4) + xlim(15000000,19000000)+
+  scale_color_manual(values=c("#4287f5", "#1AF5FC"))
+p6 <- zone_overlap(m3_plot, m4_plot, ida=3, idb=4) + xlim(15000000,19000000)+
+  scale_color_manual(values=c("#FE0004", "#1AF5FC"))
 
 
+library(gridExtra)
+grid.arrange(p1,p2,p3,p4,p5,p6,nrow=3)
