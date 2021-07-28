@@ -500,9 +500,14 @@ mouse_error_true <- rbind(mouse1_zone_true %>% mutate(mouse="m1"),
             mouse4_zone_true %>% mutate(mouse="m4"))
 
 dur_hist <- ggplot(mouse_error_true, aes(x=error_duration)) +
-  geom_histogram(color="darkblue", fill="darkblue")  + 
+  geom_histogram(color="darkblue", fill="dodgerblue")  + 
   facet_grid(rows = vars(mouse), cols = vars(date)) +
   xlim(0, 2200000) 
+
+dur_hist2 <- ggplot(mouse_error_true, aes(x=error_duration)) +
+  geom_histogram(color="darkblue", fill="dodgerblue", binwidth=10000)
+
+range(mouse_error_true$error_duration)
 ```
 
 
