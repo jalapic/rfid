@@ -19,3 +19,4 @@ interval3 <- function(x){
   return(out)
   
 }
+interval3(x)

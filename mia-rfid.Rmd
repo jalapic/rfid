@@ -269,12 +269,12 @@ mouse1_zone$ms <- as.numeric(mouse1_zone$ms)
 mouse1_zone <- mouse1_zone[-c(1:4), ]
 
 mouse1_zone <- mouse1_zone %>%
-  mutate(duration=ms-lag(ms))
+  mutate(zone_duration=ms-lag(ms))
  
 mouse1_zone %>%
-  mutate(duration=ms-lag(ms)) %>%
+  mutate(zone_duration=ms-lag(ms)) %>%
   group_by(zone) %>%
-  summarize(total=sum(!is.na(duration)))
+  summarize(total=sum(!is.na(zone_duration)))
 
 ## mouse2
 mouse2_zone$ms <- as.numeric(mouse2_zone$ms)
@@ -282,12 +282,12 @@ mouse2_zone$ms <- as.numeric(mouse2_zone$ms)
 mouse2_zone <- mouse2_zone[-c(1:22), ]
 
 mouse2_zone <- mouse2_zone %>%
-  mutate(duration=ms-lag(ms))
+  mutate(zone_duration=ms-lag(ms))
  
 mouse2_zone %>%
-  mutate(duration=ms-lag(ms)) %>%
+  mutate(zone_duration=ms-lag(ms)) %>%
   group_by(zone) %>%
-  summarize(total=sum(!is.na(duration)))
+  summarize(total=sum(!is.na(zone_duration)))
   
 ## mouse3
 mouse3_zone$ms <- as.numeric(mouse3_zone$ms)
@@ -295,12 +295,12 @@ mouse3_zone$ms <- as.numeric(mouse3_zone$ms)
 mouse3_zone <- mouse3_zone[-c(1:62), ]
 
 mouse3_zone <- mouse3_zone %>%
-  mutate(duration=ms-lag(ms))
+  mutate(zone_duration=ms-lag(ms))
  
 mouse3_zone %>%
-  mutate(duration=ms-lag(ms)) %>%
+  mutate(zone_duration=ms-lag(ms)) %>%
   group_by(zone) %>%
-  summarize(total=sum(!is.na(duration)))
+  summarize(total=sum(!is.na(zone_duration)))
 
 ## mouse4
 mouse4_zone$ms <- as.numeric(mouse4_zone$ms)
@@ -308,12 +308,12 @@ mouse4_zone$ms <- as.numeric(mouse4_zone$ms)
 mouse4_zone <- mouse4_zone[-c(1:35), ]
 
 mouse4_zone <- mouse4_zone %>%
-  mutate(duration=ms-lag(ms))
+  mutate(zone_duration=ms-lag(ms))
  
 mouse4_zone %>%
-  mutate(duration=ms-lag(ms)) %>%
+  mutate(zone_duration=ms-lag(ms)) %>%
   group_by(zone) %>%
-  summarize(total=sum(!is.na(duration)))
+  summarize(total=sum(!is.na(zone_duration)))
 
 ## observation: all 4 mice spend the most time in zone 1 and the least in zone 3
 ```
@@ -345,23 +345,164 @@ mouse1_zone <- tube_errors(mouse1_zone, pair1 = c(3,19), pair2 = c(17,9))
 mouse2_zone <- tube_errors(mouse2_zone, pair1 = c(3,19), pair2 = c(17,9))
 mouse3_zone <- tube_errors(mouse3_zone, pair1 = c(3,19), pair2 = c(17,9))
 mouse4_zone <- tube_errors(mouse4_zone, pair1 = c(3,19), pair2 = c(17,9))
+```
 
-## mouse1
+
+```{r}
+interval3 <- function(x){
+  x1 <- x[-c(1:2)]
+ out <-  x1[seq(1, length(x1), 3)] - x[seq(1, length(x), 3)] 
+  return(out)
+}
+```
+
+mouse1
+```{r}
 m1_inds = which(mouse1_zone$error == "TRUE")
 
 m1_rows <- lapply(m1_inds, function(x) (x-1):(x+1))
 
-mouse1_zone[unlist(m1_rows),]
+m1_interval3 <- mouse1_zone[unlist(m1_rows),]
 
-## how to discard the middle row of each set of 3 rows
+m1_error_durations <- interval3(m1_interval3$ms)
 
-## need to do the same with the other mice
+## histogram of error durations for m1
+hist(m1_error_durations)
+
+## trying to separate by day
+# need to apply error duration vector to every TRUE row
+
+mouse1_zone_true <- mouse1_zone %>% filter(error==TRUE) %>%
+  mutate(error_duration=m1_error_durations)
+mouse1_zone_false <- mouse1_zone %>% filter(error==FALSE) %>%
+  mutate(error_duration=0)
+
+mouse1_zone <- rbind(mouse1_zone_true, mouse1_zone_false)
+
+mouse1_zone <- arrange(mouse1_zone, ms)
+
+table(mouse1_zone$error_duration)
+
+pm1 <- ggplot(mouse1_zone_true, aes(x=error_duration)) +
+  geom_histogram(color="darkblue", fill="darkblue", bins=100) +
+  facet_wrap(~date) +
+  theme_classic() +
+  xlim(0, 2200000)
+
 ```
 
+mouse2
+```{r}
+m2_inds = which(mouse2_zone$error == "TRUE")
 
+m2_rows <- lapply(m2_inds, function(x) (x-1):(x+1))
 
+m2_interval3 <- mouse2_zone[unlist(m2_rows),]
 
+m2_error_durations <- interval3(m2_interval3$ms)
 
+## histogram of error durations for m1
+hist(m2_error_durations)
 
+## trying to separate by day
+# need to apply error duration vector to every TRUE row
+
+mouse2_zone_true <- mouse2_zone %>% filter(error==TRUE) %>%
+  mutate(error_duration=m2_error_durations)
+mouse2_zone_false <- mouse2_zone %>% filter(error==FALSE) %>%
+  mutate(error_duration=0)
+
+mouse2_zone <- rbind(mouse2_zone_true, mouse2_zone_false)
+
+mouse2_zone <- arrange(mouse2_zone, ms)
+
+table(mouse2_zone$error_duration)
+
+pm2 <- ggplot(mouse2_zone_true, aes(x=error_duration)) +
+  geom_histogram(color="darkblue", fill="darkblue", bins=100) +
+  facet_wrap(~date) +
+  theme_classic() +
+  xlim(0, 2200000)
+```
+
+mouse3
+```{r}
+m3_inds = which(mouse3_zone$error == "TRUE")
+
+m3_rows <- lapply(m3_inds, function(x) (x-1):(x+1))
+
+m3_interval3 <- mouse3_zone[unlist(m3_rows),]
+
+m3_error_durations <- interval3(m3_interval3$ms)
+
+## histogram of error durations for m1
+hist(m3_error_durations)
+
+## trying to separate by day
+# need to apply error duration vector to every TRUE row
+
+mouse3_zone_true <- mouse3_zone %>% filter(error==TRUE) %>%
+  mutate(error_duration=m3_error_durations)
+mouse3_zone_false <- mouse3_zone %>% filter(error==FALSE) %>%
+  mutate(error_duration=0)
+
+mouse3_zone <- rbind(mouse3_zone_true, mouse3_zone_false)
+
+mouse3_zone <- arrange(mouse3_zone, ms)
+
+table(mouse3_zone$error_duration)
+
+pm3 <- ggplot(mouse3_zone_true, aes(x=error_duration)) +
+  geom_histogram(color="darkblue", fill="darkblue", bins=100) +
+  facet_wrap(~date) +
+  theme_classic() +
+  xlim(0, 2200000)
+```
+
+mouse4
+```{r}
+m4_inds = which(mouse4_zone$error == "TRUE")
+
+m4_rows <- lapply(m4_inds, function(x) (x-1):(x+1))
+
+m4_interval3 <- mouse4_zone[unlist(m4_rows),]
+
+m4_error_durations <- interval3(m4_interval3$ms)
+
+## histogram of error durations for m1
+hist(m4_error_durations)
+
+## trying to separate by day
+# need to apply error duration vector to every TRUE row
+
+mouse4_zone_true <- mouse4_zone %>% filter(error==TRUE) %>%
+  mutate(error_duration=m4_error_durations)
+mouse4_zone_false <- mouse4_zone %>% filter(error==FALSE) %>%
+  mutate(error_duration=0)
+
+mouse4_zone <- rbind(mouse4_zone_true, mouse4_zone_false)
+
+mouse4_zone <- arrange(mouse4_zone, ms)
+
+table(mouse4_zone$error_duration)
+
+pm4 <- ggplot(mouse4_zone_true, aes(x=error_duration)) +
+  geom_histogram(color="darkblue", fill="darkblue", bins=100) +
+  facet_wrap(~date) +
+  theme_classic() +
+  xlim(0, 2200000)
+```
+
+```{r}
+mouse_error_true <- rbind(mouse1_zone_true %>% mutate(mouse="m1"), 
+            mouse2_zone_true %>% mutate(mouse="m2"), 
+            mouse3_zone_true %>% mutate(mouse="m3"), 
+            mouse4_zone_true %>% mutate(mouse="m4"))
+
+dur_hist <- ggplot(mouse_error_true, aes(x=error_duration)) +
+  geom_histogram(color="darkblue", fill="darkblue")  + 
+  facet_grid(rows = vars(mouse), cols = vars(date)) +
+  xlim(0, 2200000)
+```
 
 
