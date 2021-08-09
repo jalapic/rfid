@@ -219,7 +219,6 @@ table(mouse4_error$deviceid)
 # mouse 3 is active almost as much as mouse 1 but has 1/4 the errors
 ```
 
-
 function that creates zones for each mouse and keeps the first and last of repeating zones
 ```{r}
 zone <- function(df){
@@ -509,5 +508,14 @@ dur_hist2 <- ggplot(mouse_error_true, aes(x=error_duration)) +
 
 range(mouse_error_true$error_duration)
 ```
+
+
+
+
+
+
+
+
+
 
 
