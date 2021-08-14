@@ -4,7 +4,6 @@ m3_zone_ggplot2 <- ggplot(m3_zone_plot, aes(x=start)) +
   geom_histogram(fill="dodgerblue4", color="white") +
   scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
   ggtitle("mouse 1")
-  
 
 m2_zone_ggplot2 <- ggplot(m2_zone_plot, aes(x=start)) +
   geom_histogram(fill="firebrick3", color="white") +
