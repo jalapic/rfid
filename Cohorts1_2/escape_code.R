@@ -14,6 +14,13 @@ sep28$data <- as.character(sep28$data)
 sep28$date <- format(as.POSIXct(sep28$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
 sep28$time <- sub("^\\S+\\s+", '', sep28$datetimestamp)
 
+sep29 <- read.table(
+  "Cohorts1_2/rfidtracking_data/rawdata20210929.csv", 
+  sep=";", header=TRUE)
+sep29$data <- as.character(sep29$data)
+sep29$date <- format(as.POSIXct(sep29$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+sep29$time <- sub("^\\S+\\s+", '', sep29$datetimestamp)
+
 id_data <- read_csv("Cohorts1_2/id_data.csv")
 
 id_data$back_tag <- as.character(id_data$back_tag)
@@ -39,7 +46,8 @@ dfx <- read_csv("Cohorts1_2/mouseids.csv")
 dfx$data <- as.character(dfx$data)
 
 df <- rbind(sep27,
-            sep28)
+            sep28,
+            sep29)
 
 xx <- strsplit(df$time, split=":")
 xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
@@ -57,8 +65,14 @@ day_2 <- df %>% filter(date == "09.28.2021")
 
 day_2$ms <- (as.numeric(unlist(day_2$ms)) + (8.64e+7 * 1))
 
+day_3 <- df %>% filter(date == "09.29.2021")
+
+day_3$ms <- (as.numeric(unlist(day_2$ms)) + (8.64e+7 * 2))
+
 df <- rbind(day_1,
-            day_2)
+            day_2,
+            day_3)
+
 df$ms <- df$ms - 39124161
 df$hour <- sub("\\:.*:.*:.*", "", df$time) 
 
