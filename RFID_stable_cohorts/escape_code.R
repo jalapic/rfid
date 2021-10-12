@@ -1,4 +1,15 @@
 library(tidyverse)
+
+### this is tyler making your code dirty 
+
+ids <- read_csv("RFID_stable_cohorts/raw_data/id_data.csv")
+head(ids)
+
+
+id_data <- ids[,1:4]
+
+
+
 sep27 <- read.table(
   "Cohorts1_2/rfidtracking_data/rawdata20210927.csv", 
   sep=";", header=TRUE)
@@ -25,6 +36,9 @@ id_data <- read_csv("Cohorts1_2/id_data.csv")
 
 id_data$back_tag <- as.character(id_data$back_tag)
 id_data$leg_tag <- as.character(id_data$leg_tag)
+
+
+
 
 dfx <- data.frame(data=c("900133000459712", "900133000459713",
                          "900133000459701", "900133000459702",
