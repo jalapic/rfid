@@ -1,0 +1,236 @@
+behavior,
+Allogroom --- Flee,1
+"Allogroom --- Flee, Freeze/immobility",1
+Allogroom --- Freeze/immobility,1
+"Allogroom --- Freeze/immobility, N/A",1
+Allogroom --- N/A,NA
+Allogroom --- Subordinate posture,1
+"Allogroom --- Subordinate posture, Freeze/immobility",1
+Allogroom --- Walk away,NA
+Approach --- N/A,NA
+"Approach, Sniff --- Flee, Subordinate posture",1
+Bite/Fight --- Bite/Fight,0.5
+"Bite/Fight --- Bite/Fight, Flee",1
+"Bite/Fight --- Bite/Fight, Flee, Subordinate posture",1
+"Bite/Fight --- Bite/Fight, Subordinate posture",1
+"Bite/Fight --- Bite/Fight, Subordinate posture, Freeze/immobility",1
+"Bite/Fight --- Bite/Fight, Subordinate posture, Walk away",1
+"Bite/Fight --- Bite/Fight, Walk away",0.5
+Bite/Fight --- Flee,1
+"Bite/Fight --- Flee, Freeze/immobility",1
+"Bite/Fight --- Flee, Subordinate posture",1
+"Bite/Fight --- Flee, Subordinate posture, Freeze/immobility",1
+Bite/Fight --- Freeze/immobility,1
+Bite/Fight --- N/A,NA
+Bite/Fight --- Sniff,NA
+Bite/Fight --- Subordinate posture,1
+"Bite/Fight --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight --- Subordinate posture, Freeze/immobility, Sniff",1
+"Bite/Fight --- Subordinate posture, Walk away",1
+Bite/Fight --- Walk away,NA
+"Bite/Fight, Allogroom --- Flee",1
+"Bite/Fight, Allogroom --- Flee, Freeze/immobility",1
+"Bite/Fight, Allogroom --- Freeze/immobility",1
+"Bite/Fight, Allogroom --- Subordinate posture",1
+"Bite/Fight, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Chase --- Bite/Fight, Flee",1
+"Bite/Fight, Chase --- Bite/Fight, Flee, Subordinate posture",1
+"Bite/Fight, Chase --- Bite/Fight, Subordinate posture",1
+"Bite/Fight, Chase --- Flee",1
+"Bite/Fight, Chase --- Flee, Freeze/immobility",1
+"Bite/Fight, Chase --- Flee, Subordinate posture",1
+"Bite/Fight, Chase --- Flee, Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Chase --- Freeze/immobility",1
+"Bite/Fight, Chase --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Chase --- Subordinate posture, Freeze/immobility, Sniff",1
+"Bite/Fight, Chase, Allogroom --- Flee, Freeze/immobility",1
+"Bite/Fight, Chase, Flee --- Flee",1
+"Bite/Fight, Chase, Mount --- Flee, Freeze/immobility",1
+"Bite/Fight, Chase, Mount --- Flee, Subordinate posture",1
+"Bite/Fight, Chase, Mount --- Flee, Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Chase, Sniff --- Flee, Freeze/immobility",1
+"Bite/Fight, Chase, Sniff --- Flee, Subordinate posture",1
+"Bite/Fight, Chase, Sniff --- Flee, Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Flee --- Bite/Fight",0
+"Bite/Fight, Flee --- Bite/Fight, Chase",0
+"Bite/Fight, Flee --- Freeze/immobility",0
+"Bite/Fight, Freeze/immobility --- Bite/Fight",0
+"Bite/Fight, Freeze/immobility --- Bite/Fight, Mount",0
+"Bite/Fight, Freeze/immobility --- Freeze/immobility",0
+"Bite/Fight, Freeze/immobility --- Lunge, Bite/Fight",0
+"Bite/Fight, Mount --- Bite/Fight, Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Mount --- Flee",1
+"Bite/Fight, Mount --- Flee, Freeze/immobility",1
+"Bite/Fight, Mount --- Flee, Subordinate posture",1
+"Bite/Fight, Mount --- Flee, Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Mount --- Freeze/immobility",1
+"Bite/Fight, Mount --- Freeze/immobility, Walk away",1
+"Bite/Fight, Mount --- Subordinate posture",1
+"Bite/Fight, Mount --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Mount, Allogroom --- Flee, Freeze/immobility",1
+"Bite/Fight, Mount, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Mount, Sniff --- Flee",1
+"Bite/Fight, Sniff --- Flee",1
+"Bite/Fight, Sniff --- Flee, Freeze/immobility",1
+"Bite/Fight, Sniff --- Flee, Subordinate posture",1
+"Bite/Fight, Sniff --- Flee, Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Sniff --- Freeze/immobility",1
+"Bite/Fight, Sniff --- Freeze/immobility, Sniff",1
+"Bite/Fight, Sniff --- Freeze/immobility, Walk away",1
+"Bite/Fight, Sniff --- Subordinate posture",1
+"Bite/Fight, Sniff --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Sniff --- Walk away",NA
+"Bite/Fight, Sniff, Allogroom --- Freeze/immobility",1
+"Bite/Fight, Sniff, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Bite/Fight, Subordinate posture --- Bite/Fight",0
+Chase --- Flee,1
+"Chase --- Flee, Freeze/immobility",1
+"Chase --- Flee, Subordinate posture",1
+Chase --- Freeze/immobility,1
+Chase --- N/A,NA
+Chase --- Subordinate posture,1
+"Chase, Allogroom --- Flee",1
+"Chase, Allogroom --- Flee, Freeze/immobility",1
+"Chase, Mount --- Flee",1
+"Chase, Mount --- Flee, Freeze/immobility",1
+"Chase, Mount --- Flee, Subordinate posture",1
+"Chase, Mount --- Flee, Subordinate posture, Freeze/immobility",1
+"Chase, Mount, Sniff --- Flee, Freeze/immobility",1
+"Chase, Sniff --- Chase, Subordinate posture",1
+"Chase, Sniff --- Flee",1
+"Chase, Sniff --- Flee, Freeze/immobility",1
+"Chase, Sniff --- Flee, Subordinate posture",1
+"Chase, Sniff, Allogroom --- Flee",1
+"Chase, Sniff, Allogroom --- Flee, Freeze/immobility",1
+"Flee, Sniff --- Bite/Fight",0
+"Flee, Sniff --- Lunge",0
+"Flee, Sniff --- Lunge, Chase",0
+"Flee, Sniff --- Walk away",NA
+"Freeze/immobility, Sniff --- Bite/Fight",0
+"Freeze/immobility, Sniff --- Bite/Fight, Sniff",0
+Lunge --- Bite/Fight,0.5
+"Lunge --- Chase, Flee",1
+Lunge --- Flee,1
+"Lunge --- Flee, Freeze/immobility",1
+"Lunge --- Flee, Freeze/immobility, Sniff",1
+"Lunge --- Flee, Subordinate posture",1
+Lunge --- Freeze/immobility,1
+"Lunge --- Freeze/immobility, Walk away",1
+Lunge --- Lunge,0.5
+"Lunge --- Lunge, Flee",1
+Lunge --- Subordinate posture,1
+"Lunge --- Subordinate posture, Freeze/immobility",1
+"Lunge --- Subordinate posture, Freeze/immobility, Sniff",1
+"Lunge, Allogroom --- Flee, Freeze/immobility",1
+"Lunge, Allogroom --- Freeze/immobility",1
+"Lunge, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Lunge, Approach --- Lunge",0.5
+"Lunge, Bite/Fight --- Bite/Fight",0.5
+"Lunge, Bite/Fight --- Bite/Fight, Flee",1
+"Lunge, Bite/Fight --- Bite/Fight, Subordinate posture",1
+"Lunge, Bite/Fight --- Bite/Fight, Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight --- Flee",1
+"Lunge, Bite/Fight --- Flee, Freeze/immobility",1
+"Lunge, Bite/Fight --- Flee, Subordinate posture",1
+"Lunge, Bite/Fight --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight --- Freeze/immobility",1
+"Lunge, Bite/Fight --- Freeze/immobility, Sniff",1
+"Lunge, Bite/Fight --- Lunge, Bite/Fight",1
+"Lunge, Bite/Fight --- Sniff",0.5
+"Lunge, Bite/Fight --- Subordinate posture",1
+"Lunge, Bite/Fight --- Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight --- Subordinate posture, Freeze/immobility, Walk away",1
+"Lunge, Bite/Fight --- Subordinate posture, Sniff",1
+"Lunge, Bite/Fight --- Subordinate posture, Walk away",1
+"Lunge, Bite/Fight, Chase --- Flee",1
+"Lunge, Bite/Fight, Chase --- Flee, Freeze/immobility",1
+"Lunge, Bite/Fight, Chase --- Flee, Subordinate posture",1
+"Lunge, Bite/Fight, Chase --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight, Chase --- Flee, Subordinate posture, Freeze/immobility, Sniff",1
+"Lunge, Bite/Fight, Chase --- Freeze/immobility",1
+"Lunge, Bite/Fight, Chase --- Mount, Flee, Freeze/immobility",1
+"Lunge, Bite/Fight, Chase --- Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight, Chase, Allogroom --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight, Flee --- Bite/Fight, Chase, Subordinate posture",1
+"Lunge, Bite/Fight, Flee, Subordinate posture --- Bite/Fight",0
+"Lunge, Bite/Fight, Freeze/immobility --- Bite/Fight",0
+"Lunge, Bite/Fight, Mount --- Flee, Freeze/immobility",1
+"Lunge, Bite/Fight, Mount --- Flee, Subordinate posture",1
+"Lunge, Bite/Fight, Mount --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight, Mount --- Freeze/immobility",1
+"Lunge, Bite/Fight, Mount --- Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight, Sniff --- Flee, Freeze/immobility",1
+"Lunge, Bite/Fight, Sniff --- Subordinate posture, Freeze/immobility",1
+"Lunge, Bite/Fight, Subordinate posture --- Bite/Fight",0
+"Lunge, Bite/Fight, Subordinate posture --- Bite/Fight, Chase, Subordinate posture",0
+"Lunge, Bite/Fight, Subordinate posture --- Lunge, Bite/Fight",0
+"Lunge, Bite/Fight, Subordinate posture, Freeze/immobility --- Bite/Fight",0
+"Lunge, Chase --- Bite/Fight, Subordinate posture",1
+"Lunge, Chase --- Flee",1
+"Lunge, Chase --- Flee, Freeze/immobility",1
+"Lunge, Chase --- Flee, Subordinate posture",1
+"Lunge, Chase --- Freeze/immobility",1
+"Lunge, Chase, Mount --- Flee, Freeze/immobility",1
+"Lunge, Chase, Mount --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Chase, Mount --- Subordinate posture, Freeze/immobility",1
+"Lunge, Chase, Sniff --- Flee, Freeze/immobility",1
+"Lunge, Chase, Sniff --- Flee, Subordinate posture",1
+"Lunge, Mount --- Flee, Freeze/immobility",1
+"Lunge, Mount --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Mount --- Freeze/immobility",1
+"Lunge, Mount --- Subordinate posture, Freeze/immobility",1
+"Lunge, Sniff --- Flee",1
+"Lunge, Sniff --- Flee, Freeze/immobility",1
+"Lunge, Sniff --- Flee, Sniff",1
+"Lunge, Sniff --- Flee, Subordinate posture",1
+"Lunge, Sniff --- Freeze/immobility",1
+"Lunge, Sniff --- Lunge",0.5
+"Lunge, Sniff --- Lunge, Bite/Fight, Subordinate posture, Walk away",1
+"Lunge, Sniff --- N/A",NA
+"Lunge, Sniff --- Subordinate posture",1
+"Lunge, Sniff --- Subordinate posture, Freeze/immobility",1
+"Lunge, Sniff --- Subordinate posture, Walk away",1
+"Lunge, Sniff --- Walk away",NA
+"Lunge, Sniff, Allogroom --- Flee, Freeze/immobility",1
+"Lunge, Sniff, Allogroom --- Freeze/immobility",1
+"Lunge, Sniff, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Lunge, Subordinate posture --- Subordinate posture",1
+"Mount --- Flee, Freeze/immobility",1
+Mount --- Freeze/immobility,1
+"Mount --- Freeze/immobility, Walk away",1
+Mount --- Subordinate posture,1
+"Mount --- Subordinate posture, Freeze/immobility",1
+Mount --- Walk away,NA
+"Mount, Allogroom --- Freeze/immobility",1
+"Mount, Sniff --- Freeze/immobility",1
+"Mount, Sniff --- Freeze/immobility, Walk away",1
+"Mount, Sniff --- Subordinate posture, Freeze/immobility",1
+"Mount, Sniff --- Walk away",NA
+"Mount, Subordinate posture --- Bite/Fight, Freeze/immobility",1
+Sniff --- Flee,1
+"Sniff --- Flee, Freeze/immobility",1
+"Sniff --- Flee, N/A",1
+"Sniff --- Flee, Subordinate posture",1
+"Sniff --- Flee, Walk away",1
+Sniff --- Freeze/immobility,1
+"Sniff --- Freeze/immobility, Walk away",1
+Sniff --- N/A,NA
+Sniff --- Sniff,0.5
+"Sniff --- Sniff, Walk away",0.5
+Sniff --- Subordinate posture,1
+"Sniff --- Subordinate posture, Freeze/immobility",1
+"Sniff --- Subordinate posture, Walk away",1
+Sniff --- Walk away,NA
+"Sniff, Allogroom --- Flee",1
+"Sniff, Allogroom --- Flee, Freeze/immobility",1
+"Sniff, Allogroom --- Flee, Subordinate posture",1
+"Sniff, Allogroom --- Freeze/immobility",1
+"Sniff, Allogroom --- N/A",NA
+"Sniff, Allogroom --- Sniff",0.5
+"Sniff, Allogroom --- Subordinate posture",1
+"Sniff, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Sniff, Allogroom --- Subordinate posture, Walk away",1
+"Sniff, Allogroom --- Walk away",NA
+"Subordinate posture, Freeze/immobility, Sniff --- Lunge, Bite/Fight",0
+"Subordinate posture, Sniff --- Bite/Fight",0
+"Subordinate posture, Sniff --- Lunge",0
