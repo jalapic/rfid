@@ -7,11 +7,12 @@ Packages
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
+
 Data
 ```{r}
 getwd()
-temp <- list.files(path="RFID_stable_cohorts/data_raw/tracking_behavior/",pattern="*.csv")
-xfiles <- lapply(temp, function(x) read_csv2(paste0("RFID_stable_cohorts/data_raw/tracking_behavior/",x)) )                 
+temp <- list.files(path="data_raw/tracking_behavior/",pattern="*.csv")
+xfiles <- lapply(temp, function(x) read_csv2(paste0("data_raw/tracking_behavior/",x)) )                 
 lapply(xfiles, head)
 lapply(xfiles, colnames)
 
@@ -19,26 +20,21 @@ myfiles1 <- Map(cbind, xfiles)
 
 c12 <- myfiles1[c(1:11)] 
 c12_df <- do.call('rbind', c12)
-c12_df <- as.data.frame(c12_df)
-
 c12_df$cohort <- ifelse(c12_df$deviceid %in% c(1,2,3,4,8,9), 1,2 )
 
 c34 <- myfiles1[c(12:22)] 
 c34_df <-  do.call('rbind',c34)
-
 c34_df$cohort <- ifelse(c34_df$deviceid %in% c(1,2,3,4,8,9), 3,4 )
 
 c56 <- myfiles1[c(23:33)] 
 c56_df <-  do.call('rbind',c56)
-
 c56_df$cohort <- ifelse(c56_df$deviceid %in% c(1,2,3,4,8,9), 5,6 )
 
 l <- list("c12" = c12_df , "c34" = c34_df, "c56" = c56_df)
 l <- lapply(l, head)
 
-df <- do.call(cbind, l)
-
-id_data <- id_data[,1:5]
+ids <- read_csv("data_raw/id_data.csv")
+id_data <- ids[,1:5]
 id_data$back_tag <- as.character(id_data$back_tag)
 id_data$leg_tag <- as.character(id_data$leg_tag)
 
@@ -118,13 +114,130 @@ m6.7 <- subset(c6_df, data %in% id6[id6$mouse==7,]$data) %>% mutate(mouse = 7)
 m6.8 <- subset(c6_df, data %in% id6[id6$mouse==8,]$data) %>% mutate(mouse = 8)
 c6_df <- rbind(m6.1, m6.4, m6.5, m2.6, m2.7, m2.8)
 c56_df <- rbind(c5_df, c6_df)
-
-df <- cbind(c12_df, c34_df, c56_df)
-df <- do.call(cbind, df)
-
-
 ```
 
+Milliseconds
+```{r}
+c12_df$date <- format(as.POSIXct(c12_df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+c12_df$time <- sub("^\\S+\\s+", '', c12_df$datetimestamp)
+xx <- strsplit(c12_df$time, split=":")
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+c12_df$ms<-
+  (3600000 * as.numeric(xxx[,1])) +
+(60000 * as.numeric(xxx[,2])) +
+(1000 * as.numeric(xxx[,3])) +
+(1 * as.numeric(xxx[,4]))
+c12_df <- c12_df %>%
+  arrange(date)
+c12_d1 <- c12_df %>% filter(date == "09.27.2021")
+c12_d1$ms <- as.numeric(unlist(c12_d1$ms)) 
+c12_d2 <- c12_df %>% filter(date == "09.28.2021")
+c12_d2$ms <- (as.numeric(unlist(c12_d2$ms)) + (8.64e+7 * 1)) 
+c12_d3 <- c12_df %>% filter(date == "09.29.2021")
+c12_d3$ms <- (as.numeric(unlist(c12_d3$ms)) + (8.64e+7 * 2)) 
+c12_d4 <- c12_df %>% filter(date == "09.30.2021")
+c12_d4$ms <- (as.numeric(unlist(c12_d4$ms)) + (8.64e+7 * 3)) 
+c12_d5 <- c12_df %>% filter(date == "10.01.2021")
+c12_d5$ms <- (as.numeric(unlist(c12_d5$ms)) + (8.64e+7 * 4)) 
+c12_d6 <- c12_df %>% filter(date == "10.02.2021")
+c12_d6$ms <- (as.numeric(unlist(c12_d6$ms)) + (8.64e+7 * 5)) 
+c12_d7 <- c12_df %>% filter(date == "10.03.2021")
+c12_d7$ms <- (as.numeric(unlist(c12_d7$ms)) + (8.64e+7 * 6)) 
+c12_d8 <- c12_df %>% filter(date == "10.04.2021")
+c12_d8$ms <- (as.numeric(unlist(c12_d8$ms)) + (8.64e+7 * 7)) 
+c12_d9 <- c12_df %>% filter(date == "10.05.2021")
+c12_d9$ms <- (as.numeric(unlist(c12_d9$ms)) + (8.64e+7 * 8)) 
+c12_d10 <- c12_df %>% filter(date == "10.06.2021")
+c12_d10$ms <- (as.numeric(unlist(c12_d10$ms)) + (8.64e+7 * 9)) 
+c12_d11 <- c12_df %>% filter(date == "10.07.2021")
+c12_d11$ms <- (as.numeric(unlist(c12_d11$ms)) + (8.64e+7 * 10)) 
+c12_df <- rbind(c12_d1, c12_d2, c12_d3, c12_d4, c12_d5, c12_d6, c12_d7, c12_d8, c12_d9, c12_d10, c12_d11)
+c12_df <- c12_df %>%
+  arrange(ms)
+c12_df$ms <- c12_df$ms - 39124161
+c12_df$data <- as.character(c12_df$data)
+
+c34_df$date <- format(as.POSIXct(c34_df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+c34_df$time <- sub("^\\S+\\s+", '', c34_df$datetimestamp)
+xx <- strsplit(c34_df$time, split=":")
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+c34_df$ms<-
+  (3600000 * as.numeric(xxx[,1])) +
+(60000 * as.numeric(xxx[,2])) +
+(1000 * as.numeric(xxx[,3])) +
+(1 * as.numeric(xxx[,4]))
+c34_df <- c34_df %>%
+  arrange(date)
+c34_d1 <- c34_df %>% filter(date == "10.18.2021")
+c34_d1$ms <- as.numeric(unlist(c34_d1$ms)) 
+c34_d2 <- c34_df %>% filter(date == "10.19.2021")
+c34_d2$ms <- (as.numeric(unlist(c34_d2$ms)) + (8.64e+7 * 1)) 
+c34_d3 <- c34_df %>% filter(date == "10.20.2021")
+c34_d3$ms <- (as.numeric(unlist(c34_d3$ms)) + (8.64e+7 * 2)) 
+c34_d4 <- c34_df %>% filter(date == "10.21.2021")
+c34_d4$ms <- (as.numeric(unlist(c34_d4$ms)) + (8.64e+7 * 3)) 
+c34_d5 <- c34_df %>% filter(date == "10.22.2021")
+c34_d5$ms <- (as.numeric(unlist(c34_d5$ms)) + (8.64e+7 * 4)) 
+c34_d6 <- c34_df %>% filter(date == "10.23.2021")
+c34_d6$ms <- (as.numeric(unlist(c34_d6$ms)) + (8.64e+7 * 5)) 
+c34_d7 <- c34_df %>% filter(date == "10.24.2021")
+c34_d7$ms <- (as.numeric(unlist(c34_d7$ms)) + (8.64e+7 * 6)) 
+c34_d8 <- c34_df %>% filter(date == "10.25.2021")
+c34_d8$ms <- (as.numeric(unlist(c34_d8$ms)) + (8.64e+7 * 7)) 
+c34_d9 <- c34_df %>% filter(date == "10.26.2021")
+c34_d9$ms <- (as.numeric(unlist(c34_d9$ms)) + (8.64e+7 * 8)) 
+c34_d10 <- c34_df %>% filter(date == "10.27.2021")
+c34_d10$ms <- (as.numeric(unlist(c34_d10$ms)) + (8.64e+7 * 9)) 
+c34_d11 <- c34_df %>% filter(date == "10.28.2021")
+c34_d11$ms <- (as.numeric(unlist(c34_d11$ms)) + (8.64e+7 * 10)) 
+c34_df <- rbind(c34_d1, c34_d2, c34_d3, c34_d4, c34_d5, c34_d6, c34_d7, c34_d8, c34_d9, c34_d10, c34_d11)
+c34_df <- c34_df %>%
+  arrange(ms)
+c34_df$ms <- c34_df$ms - 39209615
+c34_df$data <- as.character(c34_df$data)
+
+
+c56_df$date <- format(as.POSIXct(c56_df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+c56_df$time <- sub("^\\S+\\s+", '', c56_df$datetimestamp)
+xx <- strsplit(c56_df$time, split=":")
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+c56_df$ms<-
+  (3600000 * as.numeric(xxx[,1])) +
+(60000 * as.numeric(xxx[,2])) +
+(1000 * as.numeric(xxx[,3])) +
+(1 * as.numeric(xxx[,4]))
+c56_df <- c56_df %>%
+  arrange(date)
+c56_df <- c56_df %>%
+  filter(cohort==5 | cohort ==6)
+c56_d1 <- c56_df %>% filter(date == "11.08.2021")
+c56_d1$ms <- as.numeric(unlist(c56_d1$ms)) 
+c56_d2 <- c56_df %>% filter(date == "11.09.2021")
+c56_d2$ms <- (as.numeric(unlist(c56_d2$ms)) + (8.64e+7 * 1)) 
+c56_d3 <- c56_df %>% filter(date == "11.10.2021")
+c56_d3$ms <- (as.numeric(unlist(c56_d3$ms)) + (8.64e+7 * 2)) 
+c56_d4 <- c56_df %>% filter(date == "11.11.2021")
+c56_d4$ms <- (as.numeric(unlist(c56_d4$ms)) + (8.64e+7 * 3)) 
+c56_d5 <- c56_df %>% filter(date == "11.12.2021")
+c56_d5$ms <- (as.numeric(unlist(c56_d5$ms)) + (8.64e+7 * 4)) 
+c56_d6 <- c56_df %>% filter(date == "11.13.2021")
+c56_d6$ms <- (as.numeric(unlist(c56_d6$ms)) + (8.64e+7 * 5)) 
+c56_d7 <- c56_df %>% filter(date == "11.14.2021")
+c56_d7$ms <- (as.numeric(unlist(c56_d7$ms)) + (8.64e+7 * 6)) 
+c56_d8 <- c56_df %>% filter(date == "11.15.2021")
+c56_d8$ms <- (as.numeric(unlist(c56_d8$ms)) + (8.64e+7 * 7)) 
+c56_d9 <- c56_df %>% filter(date == "11.16.2021")
+c56_d9$ms <- (as.numeric(unlist(c56_d9$ms)) + (8.64e+7 * 8)) 
+c56_d10 <- c56_df %>% filter(date == "11.17.2021")
+c56_d10$ms <- (as.numeric(unlist(c56_d10$ms)) + (8.64e+7 * 9)) 
+c56_d11 <- c56_df %>% filter(date == "11.18.2021")
+c56_d11$ms <- (as.numeric(unlist(c56_d11$ms)) + (8.64e+7 * 10))
+c56_df <- rbind(c56_d1, c56_d2, c56_d3, c56_d4, c56_d5, c56_d6, c56_d7, c56_d8, c56_d9, c56_d10, c56_d11)
+c56_df <- c56_df %>%
+  arrange(ms)
+c56_df$ms <- c56_df$ms - 35017088
+c56_df$data <- as.character(c56_df$data)
+```
 
 
 
