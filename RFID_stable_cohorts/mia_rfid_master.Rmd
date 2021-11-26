@@ -1,0 +1,142 @@
+---
+title: "rfid_stable_cohorts"
+output: html_document
+---
+Packages
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+Data
+```{r}
+getwd()
+temp <- list.files(path="RFID_stable_cohorts/data_raw/tracking_behavior/",pattern="*.csv")
+xfiles <- lapply(temp, function(x) read_csv2(paste0("RFID_stable_cohorts/data_raw/tracking_behavior/",x)) )                 
+lapply(xfiles, head)
+lapply(xfiles, colnames)
+
+myfiles1 <- Map(cbind, xfiles)
+
+c12 <- myfiles1[c(1:11)] 
+c12_df <- do.call('rbind', c12)
+c12_df <- as.data.frame(c12_df)
+
+c12_df$cohort <- ifelse(c12_df$deviceid %in% c(1,2,3,4,8,9), 1,2 )
+
+c34 <- myfiles1[c(12:22)] 
+c34_df <-  do.call('rbind',c34)
+
+c34_df$cohort <- ifelse(c34_df$deviceid %in% c(1,2,3,4,8,9), 3,4 )
+
+c56 <- myfiles1[c(23:33)] 
+c56_df <-  do.call('rbind',c56)
+
+c56_df$cohort <- ifelse(c56_df$deviceid %in% c(1,2,3,4,8,9), 5,6 )
+
+l <- list("c12" = c12_df , "c34" = c34_df, "c56" = c56_df)
+l <- lapply(l, head)
+
+df <- do.call(cbind, l)
+
+id_data <- id_data[,1:5]
+id_data$back_tag <- as.character(id_data$back_tag)
+id_data$leg_tag <- as.character(id_data$leg_tag)
+
+id <- id_data %>%
+  pivot_longer(4:5)
+
+colnames(id) <- c("cohort", "pre_id", "mouse", "name", "data")
+
+id1 <- id %>%
+  filter(cohort==1)
+c1_df <- c12_df %>%
+  filter(cohort==1)
+m1.1 <- subset(c1_df, data %in% id1[id1$mouse==1,]$data) %>% mutate(mouse = 1)
+m1.3 <- subset(c1_df, data %in% id1[id1$mouse==3,]$data) %>% mutate(mouse = 3)
+m1.4 <- subset(c1_df, data %in% id1[id1$mouse==4,]$data) %>% mutate(mouse = 4)
+m1.6 <- subset(c1_df, data %in% id1[id1$mouse==6,]$data) %>% mutate(mouse = 6)
+m1.7 <- subset(c1_df, data %in% id1[id1$mouse==7,]$data) %>% mutate(mouse = 7)
+m1.8 <- subset(c1_df, data %in% id1[id1$mouse==8,]$data) %>% mutate(mouse = 8)
+c1_df <- rbind(m1.1, m1.3, m1.4, m1.6, m1.7, m1.8)
+id2 <- id %>%
+  filter(cohort==2)
+c2_df <- c12_df %>%
+  filter(cohort==2)
+m2.1 <- subset(c2_df, data %in% id1[id2$mouse==1,]$data) %>% mutate(mouse = 1)
+m2.3 <- subset(c2_df, data %in% id1[id2$mouse==3,]$data) %>% mutate(mouse = 3)
+m2.4 <- subset(c2_df, data %in% id1[id2$mouse==4,]$data) %>% mutate(mouse = 4)
+m2.6 <- subset(c2_df, data %in% id1[id2$mouse==6,]$data) %>% mutate(mouse = 6)
+m2.7 <- subset(c2_df, data %in% id1[id2$mouse==7,]$data) %>% mutate(mouse = 7)
+m2.8 <- subset(c2_df, data %in% id1[id2$mouse==8,]$data) %>% mutate(mouse = 8)
+c2_df <- rbind(m2.1, m2.3, m2.4, m2.6, m2.7, m2.8)
+c12_df <- rbind(c1_df, c2_df)
+
+id3 <- id %>%
+  filter(cohort==3)
+c3_df <- c34_df %>%
+  filter(cohort==3)
+m3.2 <- subset(c3_df, data %in% id3[id3$mouse==2,]$data) %>% mutate(mouse = 2)
+m3.3 <- subset(c3_df, data %in% id3[id3$mouse==3,]$data) %>% mutate(mouse = 3)
+m3.4 <- subset(c3_df, data %in% id3[id3$mouse==4,]$data) %>% mutate(mouse = 4)
+m3.5 <- subset(c3_df, data %in% id3[id3$mouse==5,]$data) %>% mutate(mouse = 5)
+m3.6 <- subset(c3_df, data %in% id3[id3$mouse==6,]$data) %>% mutate(mouse = 6)
+m3.7 <- subset(c3_df, data %in% id3[id3$mouse==7,]$data) %>% mutate(mouse = 7)
+c3_df <- rbind(m3.2, m3.3, m3.4, m3.5, m3.6, m3.7)
+id4 <- id %>%
+  filter(cohort==4)
+c4_df <- c34_df %>%
+  filter(cohort==4)
+m4.2 <- subset(c4_df, data %in% id4[id4$mouse==2,]$data) %>% mutate(mouse = 2)
+m4.3 <- subset(c4_df, data %in% id4[id4$mouse==3,]$data) %>% mutate(mouse = 3)
+m4.4 <- subset(c4_df, data %in% id4[id4$mouse==4,]$data) %>% mutate(mouse = 4)
+m4.5 <- subset(c4_df, data %in% id4[id4$mouse==5,]$data) %>% mutate(mouse = 5)
+m4.6 <- subset(c4_df, data %in% id4[id4$mouse==6,]$data) %>% mutate(mouse = 6)
+m4.7 <- subset(c4_df, data %in% id4[id4$mouse==7,]$data) %>% mutate(mouse = 7)
+c4_df <- rbind(m4.2, m4.3, m4.4, m4.5, m4.6, m4.7)
+c34_df <- rbind(c3_df, c4_df)
+
+id5 <- id %>%
+  filter(cohort==5)
+c5_df <- c56_df %>%
+  filter(cohort==5)
+m5.1 <- subset(c5_df, data %in% id5[id5$mouse==1,]$data) %>% mutate(mouse = 1)
+m5.4 <- subset(c5_df, data %in% id5[id5$mouse==4,]$data) %>% mutate(mouse = 4)
+m5.5 <- subset(c5_df, data %in% id5[id5$mouse==5,]$data) %>% mutate(mouse = 5)
+m5.6 <- subset(c5_df, data %in% id5[id5$mouse==6,]$data) %>% mutate(mouse = 6)
+m5.7 <- subset(c5_df, data %in% id5[id5$mouse==7,]$data) %>% mutate(mouse = 7)
+m5.8 <- subset(c5_df, data %in% id5[id5$mouse==8,]$data) %>% mutate(mouse = 8)
+c5_df <- rbind(m5.1, m5.4, m5.5, m5.6, m5.7, m5.8)
+id6 <- id %>%
+  filter(cohort==6)
+c6_df <- c56_df %>%
+  filter(cohort==6)
+m6.1 <- subset(c6_df, data %in% id6[id6$mouse==1,]$data) %>% mutate(mouse = 1)
+m6.4 <- subset(c6_df, data %in% id6[id6$mouse==4,]$data) %>% mutate(mouse = 4)
+m6.5 <- subset(c6_df, data %in% id6[id6$mouse==5,]$data) %>% mutate(mouse = 5)
+m6.6 <- subset(c6_df, data %in% id6[id6$mouse==6,]$data) %>% mutate(mouse = 6)
+m6.7 <- subset(c6_df, data %in% id6[id6$mouse==7,]$data) %>% mutate(mouse = 7)
+m6.8 <- subset(c6_df, data %in% id6[id6$mouse==8,]$data) %>% mutate(mouse = 8)
+c6_df <- rbind(m6.1, m6.4, m6.5, m2.6, m2.7, m2.8)
+c56_df <- rbind(c5_df, c6_df)
+
+df <- cbind(c12_df, c34_df, c56_df)
+df <- do.call(cbind, df)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

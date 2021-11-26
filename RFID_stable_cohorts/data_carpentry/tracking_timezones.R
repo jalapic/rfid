@@ -39,7 +39,7 @@ id_data <- ids[,1:5]
 id_data$back_tag <- as.character(id_data$back_tag) 
 
 ## separate cohorts
-## find out what mice are moving the mouse
+## find out what mice are moving the most
 ## find out what cages or zones are the most occupied 
 
 
