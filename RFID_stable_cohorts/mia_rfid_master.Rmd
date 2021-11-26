@@ -239,11 +239,71 @@ c56_df$ms <- c56_df$ms - 35017088
 c56_df$data <- as.character(c56_df$data)
 ```
 
+Activity
+```{r}
+c1_df <- c12_df %>%
+  filter(cohort==1)
+c2_df <- c12_df %>%
+  filter(cohort==2)
+c3_df <- c34_df %>%
+  filter(cohort==3)
+c4_df <- c34_df %>%
+  filter(cohort==4)
+c5_df <- c56_df %>%
+  filter(cohort==5)
+c6_df <- c56_df %>%
+  filter(cohort==6)
+
+activity.plot <- function(act){
+
+li <- strsplit(act$datetimestamp,split=":")
+hrs <- as.numeric(unlist(lapply(li, function(x) substr(x[[1]],12,13))))
+mins <- as.numeric(unlist(lapply(li, function(x) x[2])))
+secs <- as.numeric(unlist(lapply(li, function(x) x[3])))
+ms <- as.numeric(unlist(lapply(li, function(x) x[4])))
+
+time <- strptime(act$datetimestamp, format="%d.%M.%Y %H:%M:%S:%OS")
+times <- strftime(time, format="%H:%M:%S:%OS")
+
+act$times <- times
+act$hrs <- hrs
+act$mins <- mins
+act$bin <- ifelse(mins>30, paste0(act$hrs,"b"), paste0(act$hrs, "a"))
+act$totalmins <- (act$hrs * 60) + act$mins 
+
+act_plot <-  ggplot(act, aes(x=totalmins)) + 
+  geom_histogram(binwidth=1,fill='lightseagreen', color='darkgreen') +
+  theme_classic()+
+  xlab("Time of Day in Minutes") +
+  geom_vline(xintercept=c(660, 1380), color='black', lwd=1,lty=2) + 
+  facet_grid(rows = vars(mouse), cols = vars(date, cohort)) +
+  ggtitle("activity plot")
+
+show(act_plot)
+
+}
+
+activity.plot(c1_df)
+activity.plot(c2_df)
+activity.plot(c3_df)
+activity.plot(c4_df)
+activity.plot(c5_df)
+activity.plot(c6_df)
+```
+
+Errors
+```{r}
 
 
 
 
 
+
+
+
+
+
+```
 
 
 
