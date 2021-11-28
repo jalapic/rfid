@@ -594,6 +594,99 @@ c1m1z %>%
 ## c1m1 spends the most amount of time in zone 3
 ```
 
+Animal association plots
+```{r}
+# overlap, together, apart, plot functions
+get_overlaps <- function(df, id1=1, id2=2){
+  DT = data.table(df)
+  setkey(DT, start, end)
+  oDT0 = foverlaps(DT[id==id1], DT[id==id2])
+  oDT0[, `:=`(
+    ostart = pmax(start, i.start),
+    oend = pmin(end, i.end)
+  )]
+  oDT = oDT0[ostart < oend]
+  return(oDT)
+}
+
+# together
+together <- function(df){
+  oDT <- get_overlaps(df)
+  oDT[zone == i.zone, .(ids = '1-2', zone, ostart, oend)]
+}
+
+# apart
+apart <- function(df){
+  oDT <- get_overlaps(df)
+  oDTapt <- oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
+  return(rbindlist(list(oDTapt[,c(1,2,5,6)],oDTapt[,3:6])))
+}
+
+# plot
+overlap.plot <- function(df){
+  p <- ggplot() + 
+    geom_segment(data=df.ap, aes(x=ostart, xend=oend, y=zone, yend=zone, color=factor(id)), size=15) +
+    geom_segment(data=df.to, aes(x=ostart, xend=oend, y=zone, yend=zone), color = "#571e16", size=15) +
+    theme_classic() +
+    scale_color_manual(values=c("#f2b03d", "#4287f5")) +
+    labs(color= "mouse") +
+    xlab("time since start (ms)") +
+    scale_x_continuous(labels = function(x) format(x, scientific = FALSE))
+  
+  return(p)
+}
+
+# creating a df with start and end times for cohort 1 mice
+c1m1a <- c1m1 %>% filter(date == "09.27.2021" & ms > 0 & ms < 3600000)
+c1m1ap <- data.frame(
+  start = c1m1a$ms,
+  id = c1m1a$mouse,
+  zone = c1m1a$zone)
+c1m1ap$end <- lead(c1m1ap$start)
+c1m1ap$end[727]<- 3535365
+
+c1m3a <- c1m3 %>% filter(date == "09.27.2021" & ms > 0 & ms < 3600000)
+c1m3ap <- data.frame(
+  start = c1m3a$ms,
+  id = c1m3a$mouse,
+  zone = c1m3a$zone)
+c1m3ap$end <- lead(c1m3ap$start)
+c1m3ap$end[1032]<- 3593788
+
+c1m4a <- c1m4 %>% filter(date == "09.27.2021" & ms > 0 & ms < 3600000)
+c1m4ap <- data.frame(
+  start = c1m4a$ms,
+  id = c1m4a$mouse,
+  zone = c1m4a$zone)
+c1m4ap$end <- lead(c1m4ap$start)
+c1m4ap$end[728]<- 3599236
+
+c1m6a <- c1m6 %>% filter(date == "09.27.2021" & ms > 0 & ms < 3600000)
+c1m6ap <- data.frame(
+  start = c1m6a$ms,
+  id = c1m6a$mouse,
+  zone = c1m6a$zone)
+c1m6ap$end <- lead(c1m6ap$start)
+c1m6ap$end[966]<- 3598763
+
+c1m7a <- c1m7 %>% filter(date == "09.27.2021" & ms > 0 & ms < 3600000)
+c1m7ap <- data.frame(
+  start = c1m7a$ms,
+  id = c1m7a$mouse,
+  zone = c1m7a$zone)
+c1m7ap$end <- lead(c1m7ap$start)
+c1m7ap$end[574]<- 3591667
+
+c1m8a <- c1m8 %>% filter(date == "09.27.2021" & ms > 0 & ms < 3600000)
+c1m8ap <- data.frame(
+  start = c1m8a$ms,
+  id = c1m8a$mouse,
+  zone = c1m8a$zone)
+c1m8ap$end <- lead(c1m8ap$start)
+c1m8ap$end[460]<- 3536898
+
+# create pairs
+```
 
 
 
