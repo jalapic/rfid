@@ -180,7 +180,7 @@ error_plot <- rbind(mouse1_error,
                     mouse3_error, 
                     mouse4_error)
 
-li <- strsplit(error_plot$datetimestamp,split=":")
+  li <- strsplit(error_plot$datetimestamp,split=":")
   hrs <- as.numeric(unlist(lapply(li, function(x) substr(x[[1]],12,13))))
   mins <- as.numeric(unlist(lapply(li, function(x) x[2])))
   secs <- as.numeric(unlist(lapply(li, function(x) x[3])))
