@@ -203,8 +203,8 @@ matrixplot <- function(m, mylevs=NULL, lowcolor="white",highcolor="red1"){
   return(p1)
 }
 
-mat_plots <- lapply(mats[c(1:5)],matrixplot)
-egg::ggarrange(plots=mat_plots, widths = c(1,1), labels = c("1", "2", "3", "4", "5"))
+mat_plots <- lapply(bimat[c(1:5, 7,8)],matrixplot)
+egg::ggarrange(plots=mat_plots, widths = c(1,1), labels = c("1", "2", "3", "4", "5", "6", "7"))
 
 
 ## dominant stats
@@ -215,9 +215,6 @@ lapply(mats, dc_test)
 lapply(mats, compete::despotism)
 
 #glicko 
-
-library(PlayerRatings)
-
 run_glicko <-
   function(x){
     x$event <- 1:nrow(x)
@@ -269,13 +266,15 @@ extract_ratings(pre.glicko[[1]])
 pre.glicko
 pre.glicko.ratings <- lapply(pre.glicko, extract_ratings)
 
-names(pre.glicko) <- c("1", "2", "3", "4", "5", "6")
+names(pre.glicko) <- c("1", "2", "3", "4", "5", "8", "6", "7")
 pre.glicko.ratings <- Map(cbind, pre.glicko.ratings, id = names(pre.glicko))
 
 
 ## Plot All.
 glick.dt <- data.table::rbindlist(pre.glicko.ratings)
 glick.dt
+
+glick.dt <- glick.dt %>% filter( id != "8")
 
 range(glick.dt$value)
 
