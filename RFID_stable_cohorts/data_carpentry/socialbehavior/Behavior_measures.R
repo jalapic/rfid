@@ -39,7 +39,7 @@ get_dsdf <- function(d){
 get_glickos <- function(aa, cval=3){
   PlayerRatings::glicko(aa %>% 
                           mutate(event=row_number()) %>% 
-                          select(event,winner,loser,result),
+                          select(event,winner,loser,score),
                         history=T,plot=F,cval=cval)
 }
 
@@ -109,7 +109,7 @@ gcl <- lapply(m.wl, function(x) ineq::Gini(colSums(x))) %>% unlist() #GC Losses
 
 ## Hierarchy Results
 data.frame(
-  'cohort' = LETTERS[1:8],
+  'cohort' = c(1:8),
   'hvalues' = m.dv.p,
   'dc' = m.dc.p,
   'steepness' = m.st.p,
@@ -132,11 +132,11 @@ write.csv(resultsdf, "RFID_stable_cohorts/data_clean/socialbehavior/hierarchysta
 # DS ranking 
 
 dss <- lapply(m.wl, function(x) compete::ds(x,norm = F)) # each cohort's David's Scores
-dss.dfs <- lapply(dss, get_dsdf) # put into dataframe
-dss.df.all <- do.call('rbind', Map(cbind, dss.dfs, cohort = LETTERS[1:8])) 
+dss.dfs <- lapply(dss, get_dsdf)  %>%  map(~mutate(., mouse = rownames(.))) # put into dataframe
+dss.df.all <- do.call('rbind', Map(cbind, dss.dfs, cohort = c(1:8))) 
 
 # Plot
-dss.df.all %>% 
+dss.df.all %>% filter(cohort != "6") %>% 
   group_by(rank) %>% 
   summarise(median = median(ds),
             lqr = quantile(ds,.25),
@@ -157,3 +157,27 @@ dss.df.all %>%
     scale_x_continuous(breaks=1:6)
 
 
+## get ds_rank df
+  
+  dsrank<-dss.df.all %>% 
+    mutate(ds_rank=rank) %>% 
+    select(-rank) 
+  
+  
+  #glicko 
+  df.glickos <-  lapply(df.groupxx, get_glickos, cval=3)
+
+  
+  glickorank <-lapply(df.glickos,function(x) x$ratings %>%
+                       mutate(id=Player,
+                              glicko_rank=row.names(.)) %>% 
+                       select(id,glicko_rank)) %>% 
+    map2_df (.,names(.),~mutate(.x,cohort=.y)) 
+  
+colnames(glickorank)[1] <- "mouse"
+
+  dom_ranks <- dsrank %>% full_join(glickorank)
+head(dom_ranks)  
+
+
+write.csv(dom_ranks, "RFID_stable_cohorts/data_clean/socialbehavior/rank_data.csv", row.names = F)
