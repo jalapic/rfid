@@ -110,22 +110,22 @@ for(i in 1:length(xfiles1)){
 head(xfiles1[[1]])
 
 # Make into large data frame
-dfnames <- c(1:4)
+dfnames <- c(1:8)
 wl_df<-xfiles1 %>% map2_df(.,dfnames, ~mutate(.x, cohort = .y)) #not working 
-
-
+head(wl_df)
+tail(wl_df)
 ### add time
 
-library(lubridate)
-wl_df<- wl_df %>% 
-  mutate(date = date(wl_df$ts)) %>% 
-  mutate(hrs = hour(wl_df$ts)) %>% 
-  mutate(min = minute(wl_df$ts)) %>% 
-  mutate(sec = second(wl_df$ts)) %>% 
-  select( -ts)  # add dates and times and remove timestamp
+# library(lubridate)
+# wl_df<- wl_df %>% 
+#   mutate(date = date(wl_df$ts)) %>% 
+#   mutate(hrs = hour(wl_df$ts)) %>% 
+#   mutate(min = minute(wl_df$ts)) %>% 
+#   mutate(sec = second(wl_df$ts)) %>% 
+#   # add dates and times and remove timestamp
+# head(wl_df)
 
-
-write.csv(wl_df, "RFID_stable_cohorts/data_clean/socialbehavior/Pre_WL.csv", row.names=F)
+write.csv(wl_df, "RFID_stable_cohorts/data_clean/socialbehavior/WL_data.csv", row.names=F)
 
 
 #David scores
