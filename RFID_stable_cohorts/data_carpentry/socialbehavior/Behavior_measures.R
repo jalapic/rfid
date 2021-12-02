@@ -133,7 +133,7 @@ write.csv(resultsdf, "RFID_stable_cohorts/data_clean/socialbehavior/hierarchysta
 
 dss <- lapply(m.wl, function(x) compete::ds(x,norm = F)) # each cohort's David's Scores
 dss.dfs <- lapply(dss, get_dsdf)  %>%  map(~mutate(., mouse = rownames(.))) # put into dataframe
-dss.df.all <- do.call('rbind', Map(cbind, dss.dfs, cohort = c(1:8))) 
+dss.df.all <- do.call('rbind', Map(cbind, dss.dfs, cohort = c(1:8))) %>% filter(cohort != "6")
 
 # Plot
 dss.df.all %>% filter(cohort != "6") %>% 
@@ -154,7 +154,8 @@ dss.df.all %>% filter(cohort != "6") %>%
                   aes(x=rank, ymin=lqr, ymax=uqr), width=0.0, size=1, color="firebrick") +
     geom_point(data=ds.long.summary, 
                aes(x=rank, y=median), size=3, shape=21, fill="white")+
-    scale_x_continuous(breaks=1:6)
+    scale_x_continuous(breaks=1:6)+
+    theme(legend.position = "none", text = element_text(size=20))
 
 
 ## get ds_rank df

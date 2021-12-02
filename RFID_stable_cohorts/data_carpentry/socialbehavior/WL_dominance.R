@@ -308,7 +308,7 @@ ggplot(glick.dt, aes(x = event, y = value, col=finalrank, linetype=finalrank))+
         panel.grid.minor = element_blank(), 
         strip.background  = element_blank(),
         strip.text = element_text(size=rel(1.1)),
-        text = element_text(color="gray20", size=10),
+        text = element_text(color="gray20", size=15),
         axis.text = element_text(size=rel(1.0)),
         axis.text.x = element_text(color="gray20", size=rel(1.0)),
         axis.text.y = element_text(color="gray20", size=rel(1.0)),
