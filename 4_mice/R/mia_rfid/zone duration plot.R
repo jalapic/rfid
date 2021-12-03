@@ -9,7 +9,7 @@ m1_zone_plot <- data.frame(
   )
 
 m1_zone_plot$end <- lead(m1_zone_plot$start)
-m1_zone_plot$end[13500]<-525625653
+#m1_zone_plot$end[13500]<-525625653
 
 head(m1_zone_plot)
 
@@ -29,7 +29,7 @@ m2_zone_plot <- data.frame(
 )
 
 m2_zone_plot$end <- lead(m2_zone_plot$start)
-m2_zone_plot$end[4832]<-525621281
+#m2_zone_plot$end[4832]<-525621281
 
 head(m2_zone_plot)
 
@@ -49,7 +49,7 @@ m3_zone_plot <- data.frame(
 )
 
 m3_zone_plot$end <- lead(m3_zone_plot$start)
-m3_zone_plot$end[9561]<-525446628
+#m3_zone_plot$end[9561]<-525446628
 
 head(m3_zone_plot)
 
@@ -70,7 +70,7 @@ m4_zone_plot <- data.frame(
 )
 
 m4_zone_plot$end <- lead(m4_zone_plot$start)
-m4_zone_plot$end[5888]<-525625597
+#m4_zone_plot$end[5888]<-525625597
 
 head(m4_zone_plot)
 
