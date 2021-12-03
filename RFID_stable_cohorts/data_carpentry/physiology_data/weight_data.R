@@ -35,17 +35,16 @@ dstat$growth <- (((dstat$weight_GD1 - dstat$weight_PD1)/dstat$weight_PD1)*100)
 library(viridis)
 
 options(ggplot2.continuous.colour="viridis")
-ggplot(dstat, aes(dom,AT_corr))+
-  geom_boxplot(aes(color = dom, fill =dom),outlier.shape = NA, alpha = 0.2)+
-  geom_jitter(width = .001) +
+ggplot(dstat, aes(dom, weight_GH10, color = dom))+
+  geom_boxjitter(aes(fill = dom), outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
   scale_color_viridis(discrete = TRUE)+
   scale_fill_viridis(discrete = TRUE)+
-  theme_classic()+
   theme(legend.position = "none", text = element_text(size=20))+
-  ylab("WAT/Body Weight")+
-  xlab("")+
-  ylim(0.25,2)
-
+  ylab("Final Body Weight (g)")+
+  xlab("")+  newggtheme + ylim(30, 45)
 
 ggplot(dstat, aes(dom,growth))+
   geom_boxplot(aes(color = dom, fill =dom),outlier.shape = NA, alpha = 0.2)+
