@@ -453,19 +453,49 @@ head(act)
 tail(act)
 table(act$cohort, act$mouse)
 
-# write.csv(act, "RFID_stable_cohorts/data_clean/activity.csv", row.names=F)
-la <- act %>% split(.$cohort)
 
-la2 <- la %>% map(~group_by(., mouse)) %>% 
-  map(~mutate(.,zd = ms-lag(ms))) %>%
-  map(~group_by(., mouse, zone)) %>% 
+
+
+
+# write.csv(act, "RFID_stable_cohorts/data_clean/activity.csv", row.names=F)
+
+rank <- read_csv("RFID_stable_cohorts/data_clean/socialbehavior/rank_data.csv")
+head(rank)
+rank$dom <- ifelse(rank$glicko_rank == 1, "Dominant", rank$glicko_rank)
+rank$dom <- ifelse(rank$glicko_rank == 2, "Subdominant", rank$dom)
+rank$dom <- ifelse(rank$glicko_rank == 6, "Subordinate", rank$dom)
+
+rank$id <- as.character(rank$id)
+colnames(rank)[3]<- "mouse"
+rank$mouse <- as.numeric(rank$mouse)
+
+range(act$ms)
+str(rank)
+
+a1<- act %>%  select(6:12)
+
+act_rank <- rank %>% full_join(a1)
+head(act_rank)
+
+saveRDS(act_rank, "RFID_stable_cohorts/data_clean/activity_zone.rds")
+
+#### zone entries isk ?????
+
+la <- act %>% split(.$cohort)
+lapply(la2, head)
+
+
+la2 <- la %>% map(~group_by(., mouse,zone)) %>% 
+  map(~mutate(.,zd = ms-lag(ms))) %>% map(~ungroup(.))%>% map(~group_by(.,mouse,zone)) %>% 
   map(~summarize(., total = sum(!is.na(zd))))
 dfnames <- c(1:8)
 
-ztime <-la2 %>% map2_df(.,dfnames, ~mutate(.x, cohort = .y))
+la3 <- la2 %>% map(~group_by(.,mouse)) %>% 
+  map(~summarize(., total = sum(!is.na(zd))))
+dfnames <- c(1:8)
 
+ztot <-la3 %>% map2_df(.,dfnames, ~mutate(.x, cohort = .y))
 
-table(ztime$mouse, ztime$zone)
 
 colnames(ztime)[3] <-'time_ms'
 
@@ -483,11 +513,19 @@ ztime$mouse <- as.character(ztime$mouse)
 zg <- ztime %>% full_join(rank)
 head(zg)
 
+
+ztot$mouse<- as.character(ztot$mouse)
+zblah <- ztot %>% full_join(rank)
+head(zblah)
+
+
+
+
 zg$glicko_rank <- as.factor(zg$glicko_rank)
-zg <- zg %>% filter(cohort !=2)
+zblah <- zblah %>% filter(cohort !=2)
+zblah$glicko_rank <- as.factor(zblah$glicko_rank)
 
-
-ggplot(zg, aes(glicko_rank, time_ms, color = glicko_rank))+
+ggplot(zblah, aes(glicko_rank, total, color = glicko_rank))+
   geom_boxjitter(aes(fill = glicko_rank), outlier.color = NA, jitter.shape = 21,
                  alpha = 0.5,
                  jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
@@ -497,7 +535,7 @@ ggplot(zg, aes(glicko_rank, time_ms, color = glicko_rank))+
   theme_classic()+
   theme(legend.position = "none", text = element_text(size=20))+
   ylab("# of Zone Entries")+
-  xlab("Mouse Rank") + facet_wrap(~zone)
+  xlab("Mouse Rank") 
 
 zg1 <- zg %>% filter(zone == 1) %>% filter(dom != "3") %>% filter(dom != "4") %>% filter(dom !="5") %>% filter(cohort!=2)
 
