@@ -31,7 +31,7 @@ asx <- a_df%>% full_join(rank)
 head(asx)
 asx <- asx %>% select(cohort, mouse, zone, ms, start,end, glicko_rank,dom)
 
-saveRDS(asx, "RFID_stable_cohorts/data_clean/axs_corrected.rds")
+#saveRDS(asx, "RFID_stable_cohorts/data_clean/axs_corrected.rds")
 
 c4p <- a_df %>% filter(cohort == 1 & ms < 6000000)
 c4p
@@ -41,8 +41,22 @@ p <- ggplot() +
   theme_classic() +
   xlab("time since start (ms)") +
   scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
-  scale_y_continuous(breaks=seq(1,10,by=1))+ facet_wrap(~mouse)
+  scale_y_continuous(breaks=seq(1,10,by=1))+ 
+  facet_wrap(~mouse)
 p
+
+
+a_df %>% 
+  filter(cohort == 4 & ms < 200000) %>%
+ggplot() + 
+  geom_segment(aes(x=start, xend=end, y=zone, yend=zone,
+                   color = zone), 
+               size=15) +
+  theme_classic() +
+  xlab("time since start (ms)") +
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  scale_y_continuous(breaks=seq(1,10,by=1))+ 
+  facet_wrap(~mouse)
 
 
 
