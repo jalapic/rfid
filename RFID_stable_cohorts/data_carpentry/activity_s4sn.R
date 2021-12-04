@@ -138,6 +138,11 @@ c8df <- rbind(m8.1, m8.2, m8.3, m8.5, m8.6, m8.7)
 c78df <- rbind(c7df, c8df)
 
 
+
+
+
+
+
 ## creating milliseconds colum for each trial
 c12df$date <- format(as.POSIXct(c12df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
 c12df$time <- sub("^\\S+\\s+", '', c12df$datetimestamp)
@@ -448,12 +453,46 @@ table(c6.act$zone)
 table(c8.act$zone)
 ##need to create data frame 
 
+
+
+
 act <- c1.act %>% rbind(c2.act, c3.act, c4.act,c5.act, c6.act, c7.act, c8.act)
 head(act)
 tail(act)
-table(act$cohort, act$mouse)
 
-saveRDS(act, "RFID_stable_cohorts/data_clean/activity.rds")
+help <- act %>% select(cohort, mouse, zone, ms)
+ass <- help %>% group_by(cohort,mouse,zone) %>% mutate(start = ms) %>% mutate(end1 = lead(start))
+str(ass)
+rank
+
+rank$mouse <- as.numeric(rank$mouse)
+
+asx <- ass %>% full_join(rank)
+head(asx)
+asx <- asx %>% select(cohort, mouse, zone, ms, start,end, glicko_rank,dom)
+
+
+ca <- asx %>% split(.$cohort)
+lapply(ca1, tail)
+
+ca1 <- ca %>% 
+  map(~mutate(.,end = coalesce(end1, start)))
+
+a_df <- do.call(rbind, ca1) %>% select(cohort, mouse, zone, start, end, glicko_rank)
+head(a_df)
+tail(a_df)
+
+saveRDS(asx, "RFID_stable_cohorts/data_clean/axs.rds")
+
+asx$ztime <- asx$end -asx$start
+
+head(asx)
+
+x <- asx %>% group_by(cohort, glicko_rank, zone) %>% summarize(., total = sum(!is.na(ms)))
+
+head(x)
+
+
 
 rank <- read_csv("RFID_stable_cohorts/data_clean/socialbehavior/rank_data.csv")
 head(rank)
@@ -481,16 +520,16 @@ la <- act %>% split(.$cohort)
 lapply(la2, head)
 
 
-la2 <- la %>% map(~group_by(., mouse,zone)) %>% 
-  map(~mutate(.,zd = ms-lag(ms))) %>% map(~ungroup(.))%>% map(~group_by(.,mouse,zone)) %>% 
+la2 <- la %>% map(~group_by(., mouse)) %>% 
+  map(~mutate(.,zd = ms-lag(ms))) %>% map(~group_by(.,mouse,zone)) %>% 
   map(~summarize(., total = sum(!is.na(zd))))
 dfnames <- c(1:8)
 
-la3 <- la2 %>% map(~group_by(.,mouse)) %>% 
+la3 <- la2 %>% map(~group_by(.,mouse,zone)) %>% 
   map(~summarize(., total = sum(!is.na(zd))))
 dfnames <- c(1:8)
 
-ztot <-la3 %>% map2_df(.,dfnames, ~mutate(.x, cohort = .y))
+ztime <-la2 %>% map2_df(.,dfnames, ~mutate(.x, cohort = .y))
 
 
 colnames(ztime)[3] <-'time_ms'
@@ -509,19 +548,23 @@ ztime$mouse <- as.character(ztime$mouse)
 zg <- ztime %>% full_join(rank)
 head(zg)
 
-
+rank$mouse <- as.numeric(rank$mouse)
 ztot$mouse<- as.character(ztot$mouse)
 zblah <- ztot %>% full_join(rank)
 head(zblah)
 
-
+tp <- help %>% full_join(rank)
 
 
 zg$glicko_rank <- as.factor(zg$glicko_rank)
 zblah <- zblah %>% filter(cohort !=2)
 zblah$glicko_rank <- as.factor(zblah$glicko_rank)
 
-ggplot(zblah, aes(glicko_rank, total, color = glicko_rank))+
+zg$glicko_rank <- as.factor(zg$glicko_rank)
+zblah <- zblah %>% filter(cohort !=2)
+zblah$glicko_rank <- as.factor(zblah$glicko_rank)
+
+ggplot(asx, aes(glicko_rank, total, color = glicko_rank))+
   geom_boxjitter(aes(fill = glicko_rank), outlier.color = NA, jitter.shape = 21,
                  alpha = 0.5,
                  jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
@@ -531,7 +574,27 @@ ggplot(zblah, aes(glicko_rank, total, color = glicko_rank))+
   theme_classic()+
   theme(legend.position = "none", text = element_text(size=20))+
   ylab("# of Zone Entries")+
-  xlab("Mouse Rank") 
+  xlab("Mouse Rank")
+
+zg$glicko_rank <- as.factor(zg$glicko_rank)
+zg <- zg %>% filter(cohort !=2)
+zblah$glicko_rank <- as.factor(zblah$glicko_rank)
+
+zg <- zg %>% group_by(mouse,glicko_rank) %>% mutate( time_tot = sum(time_ms))
+x$glicko_rank <- as.factor(x$glicko_rank)
+ggplot(x, aes(glicko_rank, total, color = glicko_rank))+
+  geom_boxjitter(aes(fill = glicko_rank), outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  scale_color_viridis(discrete = TRUE)+
+  scale_fill_viridis(discrete = TRUE)+
+  theme_classic()+
+  theme(legend.position = "none", text = element_text(size=20))+
+  ylab("")+
+  xlab("Mouse Rank")
+
+table(zg$time_ms, zg$glicko_rank)
 
 zg1 <- zg %>% filter(zone == 1) %>% filter(dom != "3") %>% filter(dom != "4") %>% filter(dom !="5") %>% filter(cohort!=2)
 
@@ -543,9 +606,9 @@ ggplot(zg1, aes(dom,time_ms, color =dom))+
                  position = position_dodge(0.85)) +
   scale_color_viridis(discrete = TRUE)+
   scale_fill_viridis(discrete = TRUE)+
-  theme(legend.position = "none", text = element_text(size=20))+
-  ylab("Time in Foodcage (ms)")+
-  xlab("")+  newggtheme +ylim(2000, 9000)
+  theme(legend.position = "none", text = element_text(size=15))+
+  ylab("# of Entries into Foodcage")+
+  xlab("")+  newggtheme +ylim(2000, 10000)
 # food cage is cage 1
 
 library(lmerTest)
@@ -556,6 +619,25 @@ hist(zg1$time_ms)
 zg1$dom1 <- factor(zg1$dom, levels = c("Subdominant", "Subordinate", "Dominant"))
 cmix <- lmer(time_ms~dom+ (1|cohort)+ (1|mouse), data =zg1)
 summary(cmix)
+
+tpt <- tp %>%  filter(cohort !=2) %>% group_by(cohort,zone, glicko_rank) %>% summarize(., total = sum(ms))
+
+tpt$glicko_rank <-as.factor(tpt$glicko_rank)
+zg$glicko_rank <- as.factor(zg$glicko_rank)
+tpt <- tpt %>% filter(cohort !=2)
+zblah$glicko_rank <- as.factor(zblah$glicko_rank)
+
+ggplot(tpt, aes(glicko_rank, total, color = glicko_rank))+
+  geom_boxjitter(aes(fill = glicko_rank), outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  scale_color_viridis(discrete = TRUE)+
+  scale_fill_viridis(discrete = TRUE)+
+  theme_classic()+
+  theme(legend.position = "none", text = element_text(size=20))+
+  ylab("Total Activity (ms)")+
+  xlab("Mouse Rank") 
 
 xx <- emmeans(cmix, ~ dom)
 xx
