@@ -33,7 +33,7 @@ asx <- asx %>% select(cohort, mouse, zone, ms, start,end, glicko_rank,dom)
 
 saveRDS(asx, "RFID_stable_cohorts/data_clean/axs_corrected.rds")
 
-c4p <- a_df %>% filter(cohort == 1 & ms < 6000000)
+c4p <- asx %>% filter(cohort == 8 & ms < 6000000)
 c4p
 
 p <- ggplot() + 
@@ -47,7 +47,8 @@ p
 
 
 
-########################
+
+#######################
 
 
 

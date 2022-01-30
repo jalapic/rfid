@@ -372,7 +372,7 @@ activity.plot(c6.act)
 activity.plot(c8.act)
 
 
-# zone function for cohorts 1, 3, 5
+# zone function for cohorts 1, 3, 5,7
 zone.1 <- function(df){
   df$row <- 1:nrow(df)
   df$deviceid <- as.numeric(df$deviceid)
@@ -411,7 +411,7 @@ table(c1.act$zone)
 table(c3.act$zone)
 table(c5.act$zone)
 table(c7.act$zone)
-# zone function for cohorts 2, 4, 6
+# zone function for cohorts 2, 4, 6,8
 zone.2 <- function(df){
   df$row <- 1:nrow(df)
   df$deviceid <- as.numeric(df$deviceid)
