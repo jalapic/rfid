@@ -1,38 +1,17 @@
-behavior,
-Approach --- Chase,NA
-Approach --- Flee,1
-Approach --- Subordinate posture,1
-"Approach, Sniff --- Subordinate posture, Freeze/immobility",1
-"Bite/Fight, Chase --- Chase, Mount, Flee",1
-"Bite/Fight, Sniff --- Subordinate posture, Freeze/immobility, Sniff",1
-"Bite/Fight, Subordinate posture --- Bite/Fight, Flee, Subordinate posture, Freeze/immobility",0.5
-"Chase --- Flee, Subordinate posture, Freeze/immobility",1
-"Chase, Approach --- Flee, Subordinate posture",1
-"Chase, Mount, Sniff --- Flee, Subordinate posture",1
-"Chase, Sniff --- Flee, Sniff",1
-"Chase, Sniff --- Flee, Subordinate posture, Freeze/immobility",1
-Flee --- Flee,0.5
-"Flee, Approach --- Lunge",0
-"Flee, Freeze/immobility, Sniff --- Lunge, Chase",0
-"Flee, Sniff --- Chase, Sniff",0
-"Flee, Sniff --- Sniff",0
-"Flee, Subordinate posture, Sniff --- Bite/Fight, Chase",0
-"Lunge --- Flee, Subordinate posture, Freeze/immobility",1
-"Lunge, Bite/Fight, Allogroom --- Flee",1
-"Lunge, Bite/Fight, Chase --- Flee, Sniff",1
-"Lunge, Bite/Fight, Chase, Sniff --- Flee, Subordinate posture",1
-"Lunge, Bite/Fight, Flee --- Bite/Fight",1
-"Lunge, Bite/Fight, Flee --- Lunge, Bite/Fight",1
-"Lunge, Bite/Fight, Flee, Freeze/immobility --- Bite/Fight, Chase",0
-"Lunge, Chase --- Flee, Sniff",1
-"Lunge, Chase --- Flee, Subordinate posture, Freeze/immobility",1
-"Lunge, Chase, Sniff --- Flee, Subordinate posture, Freeze/immobility",1
-"Lunge, Mount --- Flee",1
-"Lunge, Sniff --- Freeze/immobility, Walk away",1
-Mount --- ,NA
-"Mount, Sniff --- Subordinate posture",1
-Preemptive avoidance/flee --- Chase,0
-Sniff --- ,NA
-"Sniff --- Chase, Freeze/immobility",NA
-"Sniff --- Subordinate posture, Sniff",1
-"Subordinate posture, Sniff --- Bite/Fight, Sniff",0
+"behavior"
+"Bite/Fight --- Lunge, Bite/Fight"
+"Bite/Fight, Sniff --- Subordinate posture, Sniff"
+"Flee, Freeze/immobility, Sniff --- Bite/Fight, Chase, Sniff"
+"Flee, Sniff --- Bite/Fight, Chase, Sniff"
+"Lunge --- "
+"Lunge, Bite/Fight --- Bite/Fight, Freeze/immobility"
+"Lunge, Bite/Fight, Chase --- Lunge, Bite/Fight, Chase"
+"Lunge, Bite/Fight, Chase, Sniff --- Flee, Subordinate posture, Freeze/immobility"
+"Lunge, Chase --- Subordinate posture"
+"Lunge, Freeze/immobility, Allogroom --- Subordinate posture, Freeze/immobility"
+"Lunge, Sniff --- Freeze/immobility, Sniff"
+"Mount --- Bite/Fight"
+"Mount --- Flee"
+"Mount --- N/A"
+"Mount --- Subordinate posture, N/A"
+"Preemptive avoidance/flee --- Subordinate posture"

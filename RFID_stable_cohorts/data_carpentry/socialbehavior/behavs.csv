@@ -271,3 +271,19 @@ Sniff --- ,NA
 "Sniff --- Chase, Freeze/immobility",NA
 "Sniff --- Subordinate posture, Sniff",1
 "Subordinate posture, Sniff --- Bite/Fight, Sniff",0
+"Bite/Fight --- Lunge, Bite/Fight",0.5
+"Bite/Fight, Sniff --- Subordinate posture, Sniff",1
+"Flee, Freeze/immobility, Sniff --- Bite/Fight, Chase, Sniff",0
+"Flee, Sniff --- Bite/Fight, Chase, Sniff",0
+Lunge --- ,1
+"Lunge, Bite/Fight --- Bite/Fight, Freeze/immobility",1
+"Lunge, Bite/Fight, Chase --- Lunge, Bite/Fight, Chase",1
+"Lunge, Bite/Fight, Chase, Sniff --- Flee, Subordinate posture, Freeze/immobility",1
+"Lunge, Chase --- Subordinate posture",1
+"Lunge, Freeze/immobility, Allogroom --- Subordinate posture, Freeze/immobility",1
+"Lunge, Sniff --- Freeze/immobility, Sniff",1
+Mount --- Bite/Fight,1
+Mount --- Flee,1
+Mount --- N/A,NA
+"Mount --- Subordinate posture, N/A",1
+Preemptive avoidance/flee --- Subordinate posture,NA

@@ -110,7 +110,7 @@ for(i in 1:length(xfiles1)){
 head(xfiles1[[1]])
 
 # Make into large data frame
-dfnames <- c(1:8)
+dfnames <- c(1:10)
 wl_df<-xfiles1 %>% map2_df(.,dfnames, ~mutate(.x, cohort = .y)) #not working 
 head(wl_df)
 tail(wl_df)
