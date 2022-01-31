@@ -1,14 +1,31 @@
 ---
-title: "rfid_stable_cohorts"
+title: "mia_rfid"
 output: html_document
 ---
-Packages
+### Overview and Setup
+For this project, we have been using radio frequency identification data to map social hierarchies within cohorts of mice. From our setup shown below, we can use the RFID raw data to collect different pieces of information that help us put together a picture of social rank and dominance.These are some of the questions we seek to answer:
+How fast are mice moving? Is one mouse being chased/is one mouse the chaser?
+Where are mice spending most of their time? Are they spending time together in the same cage?
+Which mouse moves the most and explores the most territory?
+How active are mice throughout the day?
+  
+!(cage_antenna_setup.pptx)
+
+This document is an explanation of the analysis of our RFID data.
+
+### Packages
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(data.table)
+library(gridExtra)
 ```
 
-Data
+
+### Raw Data
+The raw data includes the following 5 columns: cantimestamp (an internal computer variable), datetimestamp (includes date and time reading), deviceid (tube), antennaid (antenna on its corresponding tube), data (the tag from the mouse that was read).
+
+Each trial includes 2 cohorts of 6 mice each and the trial spans 11 days. There are 10 total stable cohorts used in this trial. In this chunk, I combined each set of 11 lists (days) into a dataframe to represent each pair of cohorts. I then created a mouse column by finding overlaps in the data column and a separate file containing mice ids.
 ```{r}
 ## loading in raw data from tracking behavior folder
 temp <- list.files(path="data_raw/tracking_behavior/",pattern="*.csv")
@@ -30,7 +47,15 @@ c56 <- myfiles1[c(23:33)]
 c56_df <-  do.call('rbind',c56)
 c56_df$cohort <- ifelse(c56_df$deviceid %in% c(1,2,3,4,8,9), 5,6 )
 
-l <- list("c12" = c12_df , "c34" = c34_df, "c56" = c56_df)
+c78 <- myfiles1[c(34:45)] 
+c78_df <-  do.call('rbind',c78)
+c78_df$cohort <- ifelse(c78_df$deviceid %in% c(1,2,3,4,8,9), 7,8 )
+
+c910 <- myfiles1[c(46:57)] 
+c910_df <-  do.call('rbind',c910)
+c910_df$cohort <- ifelse(c910_df$deviceid %in% c(1,2,3,4,8,9), 9,10 )
+
+l <- list("c12" = c12_df , "c34" = c34_df, "c56" = c56_df, "c78" = c78_df, "c910" = c910_df)
 l <- lapply(l, head)
 
 ## loading in id data 
@@ -60,12 +85,12 @@ id2 <- id %>%
   filter(cohort==2)
 c2_df <- c12_df %>%
   filter(cohort==2)
-m2.1 <- subset(c2_df, data %in% id1[id2$mouse==1,]$data) %>% mutate(mouse = 1)
-m2.3 <- subset(c2_df, data %in% id1[id2$mouse==3,]$data) %>% mutate(mouse = 3)
-m2.4 <- subset(c2_df, data %in% id1[id2$mouse==4,]$data) %>% mutate(mouse = 4)
-m2.6 <- subset(c2_df, data %in% id1[id2$mouse==6,]$data) %>% mutate(mouse = 6)
-m2.7 <- subset(c2_df, data %in% id1[id2$mouse==7,]$data) %>% mutate(mouse = 7)
-m2.8 <- subset(c2_df, data %in% id1[id2$mouse==8,]$data) %>% mutate(mouse = 8)
+m2.1 <- subset(c2_df, data %in% id2[id2$mouse==1,]$data) %>% mutate(mouse = 1)
+m2.3 <- subset(c2_df, data %in% id2[id2$mouse==3,]$data) %>% mutate(mouse = 3)
+m2.4 <- subset(c2_df, data %in% id2[id2$mouse==4,]$data) %>% mutate(mouse = 4)
+m2.6 <- subset(c2_df, data %in% id2[id2$mouse==6,]$data) %>% mutate(mouse = 6)
+m2.7 <- subset(c2_df, data %in% id2[id2$mouse==7,]$data) %>% mutate(mouse = 7)
+m2.8 <- subset(c2_df, data %in% id2[id2$mouse==8,]$data) %>% mutate(mouse = 8)
 c2df <- rbind(m2.1, m2.3, m2.4, m2.6, m2.7, m2.8)
 c12df <- rbind(c1df, c2df)
 
@@ -116,9 +141,60 @@ m6.7 <- subset(c6_df, data %in% id6[id6$mouse==7,]$data) %>% mutate(mouse = 7)
 m6.8 <- subset(c6_df, data %in% id6[id6$mouse==8,]$data) %>% mutate(mouse = 8)
 c6df <- rbind(m6.1, m6.4, m6.5, m2.6, m2.7, m2.8)
 c56df <- rbind(c5df, c6df)
+
+id7 <- id %>%
+  filter(cohort==7)
+c7_df <- c78_df %>%
+  filter(cohort==7)
+m7.1 <- subset(c7_df, data %in% id7[id7$mouse==1,]$data) %>% mutate(mouse = 1)
+m7.2 <- subset(c7_df, data %in% id7[id7$mouse==2,]$data) %>% mutate(mouse = 2)
+m7.3 <- subset(c7_df, data %in% id7[id7$mouse==3,]$data) %>% mutate(mouse = 3)
+m7.5 <- subset(c7_df, data %in% id7[id7$mouse==5,]$data) %>% mutate(mouse = 5)
+m7.6 <- subset(c7_df, data %in% id7[id7$mouse==6,]$data) %>% mutate(mouse = 6)
+m7.7 <- subset(c7_df, data %in% id7[id7$mouse==7,]$data) %>% mutate(mouse = 7)
+c7df <- rbind(m7.1, m7.2, m7.3, m7.5, m7.6, m7.7)
+id8 <- id %>%
+  filter(cohort==8)
+c8_df <- c78_df %>%
+  filter(cohort==8)
+m8.1 <- subset(c8_df, data %in% id8[id8$mouse==1,]$data) %>% mutate(mouse = 1)
+m8.2 <- subset(c8_df, data %in% id8[id8$mouse==2,]$data) %>% mutate(mouse = 2)
+m8.3 <- subset(c8_df, data %in% id8[id8$mouse==3,]$data) %>% mutate(mouse = 3)
+m8.5 <- subset(c8_df, data %in% id8[id8$mouse==5,]$data) %>% mutate(mouse = 5)
+m8.6 <- subset(c8_df, data %in% id8[id8$mouse==6,]$data) %>% mutate(mouse = 6)
+m8.7 <- subset(c8_df, data %in% id8[id8$mouse==7,]$data) %>% mutate(mouse = 7)
+c8df <- rbind(m8.1, m8.2, m8.3, m8.5, m8.6, m8.7)
+c78df <- rbind(c7df, c8df)
+
+id9 <- id %>%
+  filter(cohort==9)
+c9_df <- c910_df %>%
+  filter(cohort==9)
+m9.1 <- subset(c9_df, data %in% id9[id9$mouse==1,]$data) %>% mutate(mouse = 1)
+m9.2 <- subset(c9_df, data %in% id9[id9$mouse==2,]$data) %>% mutate(mouse = 2)
+m9.4 <- subset(c9_df, data %in% id9[id9$mouse==4,]$data) %>% mutate(mouse = 4)
+m9.5 <- subset(c9_df, data %in% id9[id9$mouse==5,]$data) %>% mutate(mouse = 5)
+m9.7 <- subset(c9_df, data %in% id9[id9$mouse==7,]$data) %>% mutate(mouse = 7)
+m9.8 <- subset(c9_df, data %in% id9[id9$mouse==8,]$data) %>% mutate(mouse = 8)
+c9df <- rbind(m9.1, m9.2, m9.4, m9.5, m9.7, m9.8)
+id10 <- id %>%
+  filter(cohort==10)
+c10_df <- c910_df %>%
+  filter(cohort==10)
+m10.1 <- subset(c10_df, data %in% id10[id10$mouse==1,]$data) %>% mutate(mouse = 1)
+m10.2 <- subset(c10_df, data %in% id10[id10$mouse==2,]$data) %>% mutate(mouse = 2)
+m10.4 <- subset(c10_df, data %in% id10[id10$mouse==4,]$data) %>% mutate(mouse = 4)
+m10.5 <- subset(c10_df, data %in% id10[id10$mouse==5,]$data) %>% mutate(mouse = 5)
+m10.7 <- subset(c10_df, data %in% id10[id10$mouse==7,]$data) %>% mutate(mouse = 7)
+m10.8 <- subset(c10_df, data %in% id10[id10$mouse==8,]$data) %>% mutate(mouse = 8)
+c10df <- rbind(m10.1, m10.2, m10.4, m10.5, m10.7, m10.8)
+c910df <- rbind(c9df, c10df)
 ```
 
-Milliseconds
+
+### Data and Time Format
+## Creating a New Variable: Milliseconds
+First, I have separated the data in datetimestamp into 2 separate columns, date and time. I then created a milliseconds column by factoring in the millisecond multiplier for hours, minutes, and seconds. Each day has to be factored in as well, because 8.64e+7 ms is added for every day that has passed. Then, the initial amount of ms is subtracted from all values to have a baseline of 0 ms.
 ```{r}
 ## creating milliseconds colum for each trial
 c12df$date <- format(as.POSIXct(c12df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
@@ -127,9 +203,9 @@ xx <- strsplit(c12df$time, split=":")
 xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
 c12df$ms<-
   (3600000 * as.numeric(xxx[,1])) +
-(60000 * as.numeric(xxx[,2])) +
-(1000 * as.numeric(xxx[,3])) +
-(1 * as.numeric(xxx[,4]))
+  (60000 * as.numeric(xxx[,2])) +
+  (1000 * as.numeric(xxx[,3])) +
+  (1 * as.numeric(xxx[,4]))
 c12df <- c12df %>%
   arrange(date)
 c12_d1 <- c12df %>% filter(date == "09.27.2021")
@@ -166,9 +242,9 @@ xx <- strsplit(c34df$time, split=":")
 xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
 c34df$ms<-
   (3600000 * as.numeric(xxx[,1])) +
-(60000 * as.numeric(xxx[,2])) +
-(1000 * as.numeric(xxx[,3])) +
-(1 * as.numeric(xxx[,4]))
+  (60000 * as.numeric(xxx[,2])) +
+  (1000 * as.numeric(xxx[,3])) +
+  (1 * as.numeric(xxx[,4]))
 c34df <- c34df %>%
   arrange(date)
 c34_d1 <- c34df %>% filter(date == "10.18.2021")
@@ -206,9 +282,9 @@ xx <- strsplit(c56df$time, split=":")
 xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
 c56df$ms<-
   (3600000 * as.numeric(xxx[,1])) +
-(60000 * as.numeric(xxx[,2])) +
-(1000 * as.numeric(xxx[,3])) +
-(1 * as.numeric(xxx[,4]))
+  (60000 * as.numeric(xxx[,2])) +
+  (1000 * as.numeric(xxx[,3])) +
+  (1 * as.numeric(xxx[,4]))
 c56df <- c56df %>%
   arrange(date)
 c56df <- c56df %>%
@@ -240,9 +316,94 @@ c56m <- c56m %>%
   arrange(ms)
 c56m$ms <- c56m$ms - 35017088
 c56m$data <- as.character(c56m$data)
+
+c78df$date <- format(as.POSIXct(c78df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+c78df$time <- sub("^\\S+\\s+", '', c78df$datetimestamp)
+xx <- strsplit(c78df$time, split=":")
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+c78df$ms <-
+  (3600000 * as.numeric(xxx[,1])) +
+  (60000 * as.numeric(xxx[,2])) +
+  (1000 * as.numeric(xxx[,3])) +
+  (1 * as.numeric(xxx[,4]))
+c78df <- c78df %>%
+  arrange(date)
+c78df <- c78df %>%
+  filter(cohort==7 | cohort ==8)
+c78_d1 <- c78df %>% filter(date == "11.22.2021")
+c78_d1$ms <- as.numeric(unlist(c78_d1$ms)) 
+c78_d2 <- c78df %>% filter(date == "11.23.2021")
+c78_d2$ms <- (as.numeric(unlist(c78_d2$ms)) + (8.64e+7 * 1)) 
+c78_d3 <- c78df %>% filter(date == "11.24.2021")
+c78_d3$ms <- (as.numeric(unlist(c78_d3$ms)) + (8.64e+7 * 2)) 
+c78_d4 <- c78df %>% filter(date == "11.25.2021")
+c78_d4$ms <- (as.numeric(unlist(c78_d4$ms)) + (8.64e+7 * 3)) 
+c78_d5 <- c78df %>% filter(date == "11.26.2021")
+c78_d5$ms <- (as.numeric(unlist(c78_d5$ms)) + (8.64e+7 * 4)) 
+c78_d6 <- c78df %>% filter(date == "11.27.2021")
+c78_d6$ms <- (as.numeric(unlist(c78_d6$ms)) + (8.64e+7 * 5)) 
+c78_d7 <- c78df %>% filter(date == "11.28.2021")
+c78_d7$ms <- (as.numeric(unlist(c78_d7$ms)) + (8.64e+7 * 6)) 
+c78_d8 <- c78df %>% filter(date == "11.29.2021")
+c78_d8$ms <- (as.numeric(unlist(c78_d8$ms)) + (8.64e+7 * 7)) 
+c78_d9 <- c78df %>% filter(date == "11.30.2021")
+c78_d9$ms <- (as.numeric(unlist(c78_d9$ms)) + (8.64e+7 * 8)) 
+c78_d10 <- c78df %>% filter(date == "12.01.2021")
+c78_d10$ms <- (as.numeric(unlist(c78_d10$ms)) + (8.64e+7 * 9)) 
+c78_d11 <- c78df %>% filter(date == "12.02.2021")
+c78_d11$ms <- (as.numeric(unlist(c78_d11$ms)) + (8.64e+7 * 10))
+c78m <- rbind(c78_d1, c78_d2, c78_d3, c78_d4, c78_d5, c78_d6, c78_d7, c78_d8, c78_d9, c78_d10, c78_d11)
+c78m <- c78m %>%
+  arrange(ms)
+c78m$ms <- c78m$ms - 35136408
+c78m$data <- as.character(c78m$data)
+
+
+c910df$date <- format(as.POSIXct(c910df$datetimestamp,format="%d.%m.%Y %H:%M:%S:%OS"),"%m.%d.%Y")
+c910df$time <- sub("^\\S+\\s+", '', c910df$datetimestamp)
+xx <- strsplit(c910df$time, split=":")
+xxx <- matrix(unlist(xx), ncol = 4, byrow = TRUE)
+c910df$ms<-
+  (3600000 * as.numeric(xxx[,1])) +
+  (60000 * as.numeric(xxx[,2])) +
+  (1000 * as.numeric(xxx[,3])) +
+  (1 * as.numeric(xxx[,4]))
+c910df <- c910df %>%
+  arrange(date)
+c910df <- c910df %>%
+  filter(cohort==9 | cohort ==10)
+c910_d1 <- c910df %>% filter(date == "01.17.2022")
+c910_d1$ms <- as.numeric(unlist(c910_d1$ms)) 
+c910_d2 <- c910df %>% filter(date == "01.18.2022")
+c910_d2$ms <- (as.numeric(unlist(c910_d2$ms)) + (8.64e+7 * 1)) 
+c910_d3 <- c910df %>% filter(date == "01.19.2022")
+c910_d3$ms <- (as.numeric(unlist(c910_d3$ms)) + (8.64e+7 * 2)) 
+c910_d4 <- c910df %>% filter(date == "01.20.2022")
+c910_d4$ms <- (as.numeric(unlist(c910_d4$ms)) + (8.64e+7 * 3)) 
+c910_d5 <- c910df %>% filter(date == "01.21.2022")
+c910_d5$ms <- (as.numeric(unlist(c910_d5$ms)) + (8.64e+7 * 4)) 
+c910_d6 <- c910df %>% filter(date == "01.22.2022")
+c910_d6$ms <- (as.numeric(unlist(c910_d6$ms)) + (8.64e+7 * 5)) 
+c910_d7 <- c910df %>% filter(date == "01.23.2022")
+c910_d7$ms <- (as.numeric(unlist(c910_d7$ms)) + (8.64e+7 * 6)) 
+c910_d8 <- c910df %>% filter(date == "01.24.2022")
+c910_d8$ms <- (as.numeric(unlist(c910_d8$ms)) + (8.64e+7 * 7)) 
+c910_d9 <- c910df %>% filter(date == "01.25.2022")
+c910_d9$ms <- (as.numeric(unlist(c910_d9$ms)) + (8.64e+7 * 8)) 
+c910_d10 <- c910df %>% filter(date == "01.26.2022")
+c910_d10$ms <- (as.numeric(unlist(c910_d10$ms)) + (8.64e+7 * 9)) 
+c910_d11 <- c910df %>% filter(date == "01.27.2022")
+c910_d11$ms <- (as.numeric(unlist(c910_d11$ms)) + (8.64e+7 * 10))
+c910m <- rbind(c910_d1, c910_d2, c910_d3, c910_d4, c910_d5, c910_d6, c910_d7, c910_d8, c910_d9, c910_d10, c910_d11)
+c910m <- c910m %>%
+  arrange(ms)
+c910m$ms <- c910m$ms - 86379953
+c910m$data <- as.character(c910m$data)
 ```
 
-Activity
+
+### Activity Plots
+In this code, we've created a function to map activity split by mouse and date. These plots are histograms, where a reading in the raw data is equal to 1.
 ```{r}
 ## creating an activity plot function
 activity.plot <- function(act){
@@ -285,211 +446,34 @@ c5.act <- c56m %>%
   filter(cohort==5)
 c6.act <- c56m %>%
   filter(cohort==6)
+c7.act <- c78m %>%
+  filter(cohort==7)
+c8.act <- c78m %>%
+  filter(cohort==8)
+c9.act <- c910m %>%
+  filter(cohort==9)
+c10.act <- c910m %>%
+  filter(cohort==10)
 
-c1.act <- as.data.frame(c1.act)
-c2.act <- as.data.frame(c2.act)
-c3.act <- as.data.frame(c3.act)
-c4.act <- as.data.frame(c4.act)
-c5.act <- as.data.frame(c5.act)
-c6.act <- as.data.frame(c6.act)
-
-activity.plot(c1.act)
-activity.plot(c2.act)
-activity.plot(c3.act)
-activity.plot(c4.act)
-activity.plot(c5.act)
-activity.plot(c6.act)
+c1.act <- activity.plot(as.data.frame(c1.act))
+c2.act <- activity.plot(as.data.frame(c2.act))
+c3.act <- activity.plot(as.data.frame(c3.act))
+c4.act <- activity.plot(as.data.frame(c4.act))
+c5.act <- activity.plot(as.data.frame(c5.act))
+c6.act <- activity.plot(as.data.frame(c6.act))
+c7.act <- activity.plot(as.data.frame(c7.act))
+c8.act <- activity.plot(as.data.frame(c8.act))
+c9.act <- activity.plot(as.data.frame(c9.act))
+c10.act <- activity.plot(as.data.frame(c10.act))
 ```
 
-Errors
+### Errors
+
+
+### Zones
+The following functions break up the set ups into different "zones". Zones are made by enclosing each cage by antenna. Each zone includes at least one antenna in order to section off cages appropriately.
 ```{r}
-# tube error function for cohorts 1, 3, 5
-tube.error.1 <- function(df, pair1=c(1,2), pair2=c(3,4), pair3=c(5,6), pair4=c(7,8),
-                         pair5=c(9,10), pair6=c(11,12), pair7=c(13,14), pair8=c(15,16)){
-  
-  id <- c(pair1,pair2,pair3,pair4,pair5,pair6,pair7,pair8)
-  codes <- c("1","2", "3", "4", "8", "9")
-  
-  x <- codes[match(df$deviceid, id)]
-  
-  row.inds <-
-    c(intersect(which(x == "1"), which(lag(x) == "3")),
-      intersect(which(x == "3"), which(lag(x) == "1")),
-      intersect(which(x == "1"), which(lag(x) == "4")),
-      intersect(which(x == "4"), which(lag(x) == "1")),
-      intersect(which(x == "1"), which(lag(x) == "8")),
-      intersect(which(x == "8"), which(lag(x) == "1")),
-      intersect(which(x == "1"), which(lag(x) == "9")),
-      intersect(which(x == "9"), which(lag(x) == "1")),
-      intersect(which(x == "2"), which(lag(x) == "4")),
-      intersect(which(x == "4"), which(lag(x) == "2")),
-      intersect(which(x == "2"), which(lag(x) == "9")),
-      intersect(which(x == "9"), which(lag(x) == "2")),
-      intersect(which(x == "3"), which(lag(x) == "9")),
-      intersect(which(x == "9"), which(lag(x) == "3")),
-      intersect(which(x == "4"), which(lag(x) == "8")),
-      intersect(which(x == "8"), which(lag(x) == "4"))
-      )
-  
-  df$error <- FALSE
-  df[row.inds,"error"]<-TRUE
-
-  
-  return(df)
-}
-
-m1.1 <- as.data.frame(m1.1)
-m1.3 <- as.data.frame(m1.3)
-m1.4 <- as.data.frame(m1.4)
-m1.6 <- as.data.frame(m1.6)
-m1.7 <- as.data.frame(m1.7)
-m1.8 <- as.data.frame(m1.8)
-m1.1e <- tube.error.1(m1.1)
-m1.3e <- tube.error.1(m1.3)
-m1.4e <- tube.error.1(m1.4)
-m1.6e <- tube.error.1(m1.6)
-m1.7e <- tube.error.1(m1.7)
-m1.8e <- tube.error.1(m1.8)
-
-m3.2 <- as.data.frame(m3.2)
-m3.3 <- as.data.frame(m3.3)
-m3.4 <- as.data.frame(m3.4)
-m3.5 <- as.data.frame(m3.5)
-m3.6 <- as.data.frame(m3.6)
-m3.7 <- as.data.frame(m3.7)
-m3.2e <- tube.error.1(m3.2)
-m3.3e <- tube.error.1(m3.3)
-m3.4e <- tube.error.1(m3.4)
-m3.5e <- tube.error.1(m3.5)
-m3.6e <- tube.error.1(m3.6)
-m3.7e <- tube.error.1(m3.7)
-
-m5.1 <- as.data.frame(m5.1)
-m5.4 <- as.data.frame(m5.4)
-m5.5 <- as.data.frame(m5.5)
-m5.6 <- as.data.frame(m5.6)
-m5.7 <- as.data.frame(m5.7)
-m5.8 <- as.data.frame(m5.8)
-m5.1e <- tube.error.1(m5.1)
-m5.4e <- tube.error.1(m5.4)
-m5.5e <- tube.error.1(m5.5)
-m5.6e <- tube.error.1(m5.6)
-m5.7e <- tube.error.1(m5.7)
-m5.8e <- tube.error.1(m5.8)
-
-# tube error function for cohorts 2, 4, 6
-tube.error.2 <- function(df, pair1=c(1,2), pair2=c(3,4), pair3=c(5,6), pair4=c(7,8),
-                         pair5=c(9,10), pair6=c(11,12), pair7=c(13,14), pair8=c(15,16)){
-  
-  ids <- c(pair1,pair2,pair3,pair4,pair5,pair6,pair7,pair8)
-  codes <- c("19","18", "17", "21", "20", "16")
-  
-  x <- codes[match(df$deviceid, ids)]
-  
-  row.inds <-
-    c(intersect(which(x == "19"), which(lag(x) == "17")),
-      intersect(which(x == "17"), which(lag(x) == "19")),
-      intersect(which(x == "19"),which(lag(x) == "21")),
-      intersect(which(x == "21"), which(lag(x) == "19")),
-      intersect(which(x == "19"), which(lag(x) == "16")),
-      intersect(which(x == "16"), which(lag(x) == "19")),
-      intersect(which(x == "19"),which(lag(x) == "20")),
-      intersect(which(x == "20"), which(lag(x) == "19")),
-      intersect(which(x == "18"), which(lag(x) == "16")),
-      intersect(which(x == "16"), which(lag(x) == "18")),
-      intersect(which(x == "18"),which(lag(x) == "20")),
-      intersect(which(x == "20"), which(lag(x) == "18")),
-      intersect(which(x == "17"), which(lag(x) == "20")),
-      intersect(which(x == "20"), which(lag(x) == "17")),
-      intersect(which(x == "21"),which(lag(x) == "16")),
-      intersect(which(x == "16"), which(lag(x) == "21"))
-      )
-  
-  df$error <- FALSE
-  df[row.inds,"error"]<-TRUE
-
-  
-  return(df)
-}
-
-
-m2.1 <- as.data.frame(m2.1)
-m2.3 <- as.data.frame(m2.3)
-m2.4 <- as.data.frame(m2.4)
-m2.6 <- as.data.frame(m2.6)
-m2.7 <- as.data.frame(m2.7)
-m2.8 <- as.data.frame(m2.8)
-m2.1e <- tube.error.1(m2.1)
-m2.3e <- tube.error.1(m2.3)
-m2.4e <- tube.error.1(m2.4)
-m2.6e <- tube.error.1(m2.6)
-m2.7e <- tube.error.1(m2.7)
-m2.8e <- tube.error.1(m2.8)
-
-m4.2 <- as.data.frame(m4.2)
-m4.3 <- as.data.frame(m4.3)
-m4.4 <- as.data.frame(m4.4)
-m4.5 <- as.data.frame(m4.5)
-m4.6 <- as.data.frame(m4.6)
-m4.7 <- as.data.frame(m4.7)
-m4.2e <- tube.error.1(m4.2)
-m4.3e <- tube.error.1(m4.3)
-m4.4e <- tube.error.1(m4.4)
-m4.5e <- tube.error.1(m4.5)
-m4.6e <- tube.error.1(m4.6)
-m4.7e <- tube.error.1(m4.7)
-
-m6.1 <- as.data.frame(m6.1)
-m6.4 <- as.data.frame(m6.4)
-m6.5 <- as.data.frame(m6.5)
-m6.6 <- as.data.frame(m6.6)
-m6.7 <- as.data.frame(m6.7)
-m6.8 <- as.data.frame(m6.8)
-m6.1e <- tube.error.1(m6.1)
-m6.4e <- tube.error.1(m6.4)
-m6.5e <- tube.error.1(m6.5)
-m6.6e <- tube.error.1(m6.6)
-m6.7e <- tube.error.1(m6.7)
-m6.8e <- tube.error.1(m6.8)
-
-error_df <- as.data.frame(rbind(m1.1e, m1.3e, m1.4e, m1.6e, m1.7e, m1.8e,
-                  m2.1e, m2.3e, m2.4e, m2.6e, m2.7e, m2.8e,
-                  m3.2e, m3.3e, m3.4e, m3.5e, m3.6e, m3.7e,
-                  m4.2e, m4.3e, m4.4e, m4.5e, m4.6e, m4.7e,
-                  m5.1e, m5.4e, m5.5e, m5.6e, m5.7e, m5.8e,
-                  m6.1e, m6.4e, m6.5e, m6.6e, m6.7e, m6.8e))
-
-# (3,420)/(1,685,132) = 0.0020295146
-# 0.2% of the raw data has a tube error
-
-# creating an error plot separated by cohort
-  li <- strsplit(error_df$datetimestamp,split=":")
-  hrs <- as.numeric(unlist(lapply(li, function(x) substr(x[[1]],12,13))))
-  mins <- as.numeric(unlist(lapply(li, function(x) x[2])))
-  secs <- as.numeric(unlist(lapply(li, function(x) x[3])))
-  ms <- as.numeric(unlist(lapply(li, function(x) x[4])))
-
-  time <- strptime(error_df$datetimestamp, format="%d.%M.%Y %H:%M:%S:%OS")
-  times <- strftime(time, format="%H:%M:%S:%OS")
-  
-  error_df$times <- times
-  error_df$hrs <- hrs
-  error_df$mins <- mins
-  error_df$bin <- ifelse(mins>30, paste0(error_df$hrs,"b"), paste0(error_df$hrs, "a"))
-  error_df$totalmins <- (error_df$hrs * 60) + error_df$mins 
-  
-error.plot <- ggplot(error_df, aes(x=totalmins)) + 
-  geom_histogram(binwidth=1,fill='lightseagreen', color='darkgreen') +
-  theme_classic()+
-  xlab("Time of Day in Minutes") +
-  geom_vline(xintercept=c(660, 1380), color='black', lwd=1,lty=2) + 
-  facet_grid(cols = vars(date)) +
-  facet_wrap(~cohort)
-```
-
-Zones
-```{r}
-# zone function for cohorts 1, 3, 5
+# zone function for cohorts 1, 3, 5, 7, 9
 zone.1 <- function(df){
   df$row <- 1:nrow(df)
   df$deviceid <- as.numeric(df$deviceid)
@@ -522,12 +506,16 @@ zone.1 <- function(df){
 c1.act <- zone.1(c1.act)
 c3.act <- zone.1(c3.act)
 c5.act <- zone.1(c5.act)
+c7.act <- zone.1(c7.act)
+c9.act <- zone.1(c9.act)
 
 table(c1.act$zone)
 table(c3.act$zone)
 table(c5.act$zone)
+table(c7.act$zone)
+table(c9.act$zone)
 
-# zone function for cohorts 2, 4, 6
+# zone function for cohorts 2, 4, 6, 8, 10
 zone.2 <- function(df){
   df$row <- 1:nrow(df)
   df$deviceid <- as.numeric(df$deviceid)
@@ -560,11 +548,16 @@ zone.2 <- function(df){
 c2.act <- zone.2(c2.act)
 c4.act <- zone.2(c4.act)
 c6.act <- zone.2(c6.act)
+c8.act <- zone.2(c8.act)
+c10.act <- zone.2(c10.act)
 
 table(c2.act$zone)
 table(c4.act$zone)
 table(c6.act$zone)
+table(c8.act$zone)
+table(c10.act$zone)
 ```
+
 
 Time spent in zones
 ```{r}
@@ -689,8 +682,104 @@ c1m8ap$end[460]<- 3536898
 ```
 
 
+```{r}
+c4.3mice <- c4.act %>%
+  filter(mouse==7 | mouse==3 | mouse==2)
+
+c4.7act <- c4.3mice %>%
+  filter(mouse == 7) %>%
+  mutate(rank1 = "dom")
+c4.3act <- c4.3mice %>%
+  filter(mouse == 3) %>%
+  mutate(rank1 = "subdom")
+c4.2act <- c4.3mice %>%
+  filter(mouse == 2) %>%
+  mutate(rank1 = "sub")
+
+c4.7act <- c4.7act %>% filter(date == "10.19.2021")
+c4.7act <- data.frame(
+  start = c4.7act$ms,
+  id = c4.7act$rank1,
+  zone = c4.7act$zone)
+c4.7act$end <- lead(c4.7act$start)
+c4.7act$end[10276]<- 133563723
+
+c4.3act <- c4.3act %>% filter(date == "10.19.2021")
+c4.3act <- data.frame(
+  start = c4.3act$ms,
+  id = c4.3act$rank1,
+  zone = c4.3act$zone)
+c4.3act$end <- lead(c4.3act$start)
+c4.3act$end[4429]<- 133574259
+
+c4.2act <- c4.2act %>% filter(date == "10.19.2021")
+c4.2act <- data.frame(
+  start = c4.2act$ms,
+  id = c4.2act$rank1,
+  zone = c4.2act$zone)
+c4.2act$end <- lead(c4.2act$start)
+c4.2act$end[3571]<- 133509064
+
+get_overlaps <- function(df, id1=1, id2=2){
+  DT = data.table(df)
+  setkey(DT, start, end)
+  oDT0 = foverlaps(DT[id==id1], DT[id==id2])
+  oDT0[, `:=`(
+    ostart = pmax(start, i.start),
+    oend = pmin(end, i.end)
+  )]
+  oDT = oDT0[ostart < oend]
+  return(oDT)
+}
+
+c4.7act
+c4.3act
+c4.2act
+
+togetherX <- function(df, ida="1", idb="2"){
+  oDT <- get_overlaps(df, id1=ida, id2=idb)
+  oDT[zone == i.zone, .(ids = paste0(ida,"-",idb), zone, ostart, oend)]
+}
+
+apartX <- function(df, ida="1", idb="2"){
+  oDT <- get_overlaps(df, id1=ida, id2=idb)
+  oDTapt <- oDT[zone != i.zone, .(id, zone, i.id, i.zone, ostart, oend)]
+  return(rbindlist(list(oDTapt[,c(1,2,5,6)],oDTapt[,3:6])))
+}
 
 
+zone_overlap <- function(df1, df2, ida="1", idb="2"){
+  
+m_plot <- rbind(df1, df2)
+m_plot$start <- as.numeric(m_plot$start)
+m_plot$end <- as.numeric(m_plot$end)
+
+df.ap <- apartX(m_plot, ida, idb)
+df.to <- togetherX(m_plot, ida, idb)
+
+p <- ggplot() + 
+  geom_segment(data=df.ap, aes(x=ostart, xend=oend, y=zone, yend=zone, color=factor(id)), size=15) +
+  geom_segment(data=df.to, aes(x=ostart, xend=oend, y=zone, yend=zone), color = "#571e16", size=15) +
+  theme_classic() +
+  scale_color_manual(values=c("#f2b03d", "#4287f5")) +
+  labs(color= "mouse") +
+  xlab("time since start (ms)") +
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE))
+
+return(p)
+}
+
+p1 <- zone_overlap(c4.7act, c4.2act, ida="dom", idb="sub") +
+  scale_color_manual(values=c("#f2b03d", "#4287f5")) +
+  scale_y_continuous(breaks=seq(1,10,by=1))
+p2 <- zone_overlap(c4.7act, c4.3act, ida="dom", idb="subdom") +
+  scale_color_manual(values=c("#f2b03d", "#FE0004")) +
+  scale_y_continuous(breaks=seq(1,10,by=1))
+
+library(gridExtra)
+
+grid.arrange(p1, p2)
+```
 
 
 
