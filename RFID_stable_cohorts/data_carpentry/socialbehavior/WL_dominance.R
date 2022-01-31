@@ -128,91 +128,95 @@ tail(wl_df)
 write.csv(wl_df, "RFID_stable_cohorts/data_clean/socialbehavior/WL_data.csv", row.names=F)
 
 
-# #David scores
-# 
-# ## David's Scores....
-# 
-# get_matrix <- function(df){
-#   df <-df[df$score==1,]
-#   mat <-compete::org_matrix(compete::get_wl_matrix(df[,c('winner','loser')]),
-#                             method = "ds")
-#   return(mat)
-# }
-# 
-# mats <- lapply(xfiles1, get_matrix)
-# dscores <- lapply(mats, compete::ds)
-# 
-# dscores
-# 
-# dsdf <- data.frame(unlist(dscores))
-# dsdf$cohort <- substr(rownames(dsdf),1,1)
-# dsdf$id <- substr(rownames(dsdf),3,3)
-# colnames(dsdf)[1]<-"dscore"
-# 
-# dsdf <- dsdf %>% group_by(cohort) %>% mutate(rank = min_rank(-dscore))
-# 
-# head(dsdf)
-# 
-# 
-# #WL mats 
-# mats
-# 
-# bimat <- lapply(mats, get_di_matrix)
-# bimat
-# 
-# matrixplot <- function(m, mylevs=NULL, lowcolor="white",highcolor="red1"){
-#   
-#   library(ggplot2)
-#   
-#   #make the df we will use for plotting
-#   m.dat <- reshape2::melt(m)
-#   m.dat <- data.frame(m.dat)
-#   m.dat <- m.dat[complete.cases(m.dat),] #removing NAs
-#   
-#   if(is.null(mylevs)) { mylevs = rownames(m)}
-#   
-#   #reorder the levels of the y-axis so plots properly
-#   m.dat$loser <- factor(m.dat$loser, levels=mylevs)
-#   m.dat$winner <- factor(m.dat$winner, levels = rev(mylevs))
-#   m.dat[m.dat == 0] <- NA
-#   
-#   
-#   #plot
-#   p1<-ggplot(m.dat, aes(loser, winner, fill = value)) + 
-#     geom_tile(colour="black", 
-#               size=0.5, stat="identity") + 
-#     geom_text(data=m.dat, aes(loser, winner, label = value), color="black", size=rel(3.5)) +
-#     scale_fill_gradient(low = lowcolor, high = highcolor, space = "Lab", 
-#                         na.value = "white", guide = "colourbar") +
-#     scale_x_discrete(expand = c(0, 0), position = "top") +
-#     scale_y_discrete(expand = c(0, 0)) +
-#     xlab("Loser") + 
-#     ylab("Winner") +
-#     theme(axis.text.x = element_text(vjust = 1),
-#           axis.text.y = element_text(hjust = 0.5),
-#           panel.grid.major = element_blank(),
-#           panel.grid.minor = element_blank(),
-#           panel.border = element_rect(fill=NA,color="black", size=0.5, linetype="solid"),
-#           axis.line = element_blank(),
-#           axis.ticks = element_blank(),
-#           panel.background = element_rect(fill="white"),
-#           plot.background = element_rect(fill="white"),
-#           axis.text = element_text(color="#3C3C3C", size=rel(1.1)),
-#           legend.position = "none"        
-#     ) 
-#   return(p1)
-# }
-# 
-# mat_plots <- lapply(bimat[c(1:5, 7,8)],matrixplot)
-# egg::ggarrange(plots=mat_plots, widths = c(1,1), labels = c("1", "2", "3", "4", "5", "6", "7"))
-# 
-# 
-# ## dominant stats
-# lapply(mats, dc_test)
-# 
-# #despotsim
-# 
-# lapply(mats, compete::despotism)
+#David scores
+
+df <- read_csv("RFID_stable_cohorts/data_clean/socialbehavior/WL_data.csv")
+head(df)
+
+
+## David's Scores....
+
+get_matrix <- function(df){
+  df <-df[df$score==1,]
+  mat <-compete::org_matrix(compete::get_wl_matrix(df[,c('winner','loser')]),
+                            method = "ds")
+  return(mat)
+}
+
+mats <- lapply(xfiles1, get_matrix)
+dscores <- lapply(mats, compete::ds)
+
+dscores
+
+dsdf <- as.data.frame(unlist(dscores))
+dsdf$cohort <- substr(rownames(dsdf),1,1)
+dsdf$id <- substr(rownames(dsdf),3,3)
+colnames(dsdf)[1]<-"dscore"
+
+dsdf <- dsdf %>% group_by(cohort) %>% mutate(rank = min_rank(-dscore))
+
+head(dsdf)
+
+
+#WL mats
+mats
+
+bimat <- lapply(mats, get_di_matrix)
+bimat
+
+matrixplot <- function(m, mylevs=NULL, lowcolor="white",highcolor="red1"){
+
+  library(ggplot2)
+
+  #make the df we will use for plotting
+  m.dat <- reshape2::melt(m)
+  m.dat <- data.frame(m.dat)
+  m.dat <- m.dat[complete.cases(m.dat),] #removing NAs
+
+  if(is.null(mylevs)) { mylevs = rownames(m)}
+
+  #reorder the levels of the y-axis so plots properly
+  m.dat$loser <- factor(m.dat$loser, levels=mylevs)
+  m.dat$winner <- factor(m.dat$winner, levels = rev(mylevs))
+  m.dat[m.dat == 0] <- NA
+
+
+  #plot
+  p1<-ggplot(m.dat, aes(loser, winner, fill = value)) +
+    geom_tile(colour="black",
+              size=0.5, stat="identity") +
+    geom_text(data=m.dat, aes(loser, winner, label = value), color="black", size=rel(3.5)) +
+    scale_fill_gradient(low = lowcolor, high = highcolor, space = "Lab",
+                        na.value = "white", guide = "colourbar") +
+    scale_x_discrete(expand = c(0, 0), position = "top") +
+    scale_y_discrete(expand = c(0, 0)) +
+    xlab("Loser") +
+    ylab("Winner") +
+    theme(axis.text.x = element_text(vjust = 1),
+          axis.text.y = element_text(hjust = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill=NA,color="black", size=0.5, linetype="solid"),
+          axis.line = element_blank(),
+          axis.ticks = element_blank(),
+          panel.background = element_rect(fill="white"),
+          plot.background = element_rect(fill="white"),
+          axis.text = element_text(color="#3C3C3C", size=rel(1.1)),
+          legend.position = "none"
+    )
+  return(p1)
+}
+
+mat_plots <- lapply(bimat[c(1,3,5)],matrixplot)
+egg::ggarrange(plots=mat_plots, widths = c(1,1), labels = c("1", "2", "3", "4", "5", "6", "7"))
+
+
+## dominant stats
+lapply(mats, dc_test)
+
+#despotsim
+
+lapply(mats, compete::despotism)
 # 
 # #glicko 
 # run_glicko <-
@@ -323,3 +327,84 @@ write.csv(wl_df, "RFID_stable_cohorts/data_clean/socialbehavior/WL_data.csv", ro
 # 
 # 
 # 
+
+
+m <- mats[[3]]
+
+#WL mats
+mats
+
+bimat <- lapply(mats, get_di_matrix)
+bimat
+
+matrixplot <- function(m, mylevs=NULL, lowcolor="white",highcolor="red1"){
+  
+  library(ggplot2)
+  
+  #make the df we will use for plotting
+  m.dat <- reshape2::melt(m)
+  m.dat <- data.frame(m.dat)
+  m.dat <- m.dat[complete.cases(m.dat),]#removing NAs
+  
+  if(is.null(mylevs)) { mylevs = rownames(m) }
+  
+  #reorder the levels of the y-axis so plots properly
+  m.dat$loser <- factor(m.dat$loser, levels= mylevs)
+  m.dat$winner <- factor(m.dat$winner, levels = rev(mylevs))
+  m.dat[m.dat == 0] <- NA
+ 
+  
+  #plot
+  p1<-ggplot(m.dat, aes(loser, winner, fill = value)) +
+    geom_tile(colour="black",
+              size=0.5, stat="identity") +
+    geom_text(data=m.dat, aes(loser, winner, label = value), color="black", size=rel(3.5)) +
+    scale_fill_gradient(low = lowcolor, high = highcolor, space = "Lab",
+                        na.value = "white", guide = "colourbar") +
+    scale_x_discrete(expand = c(0, 0), position = "top") +
+    scale_y_discrete(expand = c(0, 0)) +
+    xlab("Loser") +
+    ylab("Winner") +
+    theme(axis.text.x = element_text(vjust = 1),
+          axis.text.y = element_text(hjust = 0.5),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_rect(fill=NA,color="black", size=0.5, linetype="solid"),
+          axis.line = element_blank(),
+          axis.ticks = element_blank(),
+          panel.background = element_rect(fill="white"),
+          plot.background = element_rect(fill="white"),
+          axis.text = element_text(color="#3C3C3C", size=rel(1.1)),
+          legend.position = "none"
+    )
+  return(p1)
+}
+
+
+mat<-socio<-vector('list',10)
+ for(i in 1:10){
+  mm <- mats[[i]]
+  rownames(mm)<-colnames(mm)<-1:6
+  mat[[i]] <- matrixplot(mm) 
+}
+  
+
+bi<-socio<-vector('list',10)
+for(i in 1:10){
+  mm <- bimat[[i]]
+  rownames(mm)<-colnames(mm)<-c(1:6)
+  bi[[i]] <- matrixplot(mm) 
+}
+
+
+p1 <- egg::ggarrange(plots = mat[c(1,3,5)],  nrow = 1, labels = c("1", "2", "3"))
+
+p2 <- egg::ggarrange(plots = bi[c(1,3,5)],  nrow = 1,labels = c("1", "2", "3"))
+
+gridExtra::grid.arrange(plots = p1, p2, nrow = 2)
+
+
+mat_plots <- mat[c(1,3,5)]
+egg::ggarrange(plots=mat_plots, widths = c(1,1), labels = c("1", "2", "3", "4", "5", "6", "7"))
+
+
