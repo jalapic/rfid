@@ -559,7 +559,7 @@ table(c10.act$zone)
 ```
 
 
-Time spent in zones
+### Time spent in zones
 ```{r}
 # food cage is cage 1
 
@@ -587,7 +587,8 @@ c1m1z %>%
 ## c1m1 spends the most amount of time in zone 3
 ```
 
-Animal association plots
+
+### Association Plots
 ```{r}
 # overlap, together, apart, plot functions
 get_overlaps <- function(df, id1=1, id2=2){
@@ -780,6 +781,22 @@ library(gridExtra)
 
 grid.arrange(p1, p2)
 ```
+
+
+### In progress: Chase
+```{r}
+# Goal to find when one mouse is chasing another. This could happen in either direction
+
+# data: c1.act through c10.act
+c10.act <- c10.act %>%
+  arrange(ms)
+
+# tubes 16-21
+
+c10.t16.1 <- c10.act %>%
+  filter(deviceid == 16, )
+c10.t16.1 <- c10.act %>%
+  filter(deviceid == 16, )
 
 
 
