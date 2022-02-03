@@ -784,28 +784,3 @@ grid.arrange(p1, p2)
 
 
 ### In progress: Chase
-```{r}
-# Goal to find when one mouse is chasing another. This could happen in either direction
-
-# data: c1.act through c10.act
-c10.act <- c10.act %>%
-  arrange(ms)
-
-# tubes 16-21
-
-c10.t16.1 <- c10.act %>%
-  filter(deviceid == 16, )
-c10.t16.1 <- c10.act %>%
-  filter(deviceid == 16, )
-
-
-
-
-
-
-
-
-
-
-
-
