@@ -783,4 +783,44 @@ grid.arrange(p1, p2)
 ```
 
 
-### In progress: Chase
+### In progress: Heat Map of zones by cohort
+```{r}
+## cohort by zone readings, not duration
+act <- rbind(c1.act,c2.act,c3.act,c4.act,c5.act,c6.act,c7.act,c8.act,c9.act,c10.act)
+heat <- as.matrix(table(act$cohort, act$zone))
+heatmap(heat, 
+        Colv = NA, Rowv = NA, 
+        xlab = "zone", ylab = "cohort", main = "zone usage")
+
+
+
+
+
+
+## mouse by zone, not duration
+heat1 <- as.matrix(table(c1.act$mouse, c1.act$zone))
+heatmap(heat1, 
+        Colv = NA, Rowv = NA, 
+        xlab = "zone", ylab = "mouse", main = "cohort 1 zone usage")
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
