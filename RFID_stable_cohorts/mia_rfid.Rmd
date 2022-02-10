@@ -455,16 +455,7 @@ c9.act <- c910m %>%
 c10.act <- c910m %>%
   filter(cohort==10)
 
-c1.act <- activity.plot(as.data.frame(c1.act))
-c2.act <- activity.plot(as.data.frame(c2.act))
-c3.act <- activity.plot(as.data.frame(c3.act))
-c4.act <- activity.plot(as.data.frame(c4.act))
-c5.act <- activity.plot(as.data.frame(c5.act))
-c6.act <- activity.plot(as.data.frame(c6.act))
-c7.act <- activity.plot(as.data.frame(c7.act))
-c8.act <- activity.plot(as.data.frame(c8.act))
-c9.act <- activity.plot(as.data.frame(c9.act))
-c10.act <- activity.plot(as.data.frame(c10.act))
+# activity.plot(as.data.frame(c1.act))
 ```
 
 ### Errors
@@ -783,7 +774,7 @@ grid.arrange(p1, p2)
 ```
 
 
-### In progress: Heat Map of zones by cohort
+### Heat Map of zones by cohort and mouse
 ```{r}
 ## cohort by zone readings, not duration
 act <- rbind(c1.act,c2.act,c3.act,c4.act,c5.act,c6.act,c7.act,c8.act,c9.act,c10.act)
@@ -792,32 +783,32 @@ heatmap(heat,
         Colv = NA, Rowv = NA, 
         xlab = "zone", ylab = "cohort", main = "zone usage")
 
-
-
-
-
-
 ## mouse by zone, not duration
 heat1 <- as.matrix(table(c1.act$mouse, c1.act$zone))
 heatmap(heat1, 
         Colv = NA, Rowv = NA, 
         xlab = "zone", ylab = "mouse", main = "cohort 1 zone usage")
-
-
-
-
-
 ```
 
 
+### Time spent in zones df for Tyler 2/9/22
+```{r}
+## create a df with mouse, cohort, zone, time in zone, day
+## or zone entries instead of time across each day
+library(libridate)
+c1.act$day <- 0
+
+c1.act <- c1.act %>%
+  ifelse(date = "09.27.2021", c1.act$day == 1,0)
+
+dat <- c("02/01/2000", "20/02/2000", "12/12/2000", "13/01/2001")
+dat <- dmy(dat)
+
+days <- yday(date) - 1 # so Jan 1 = day 0 
+total_days <- cumsum(days)
 
 
-
-
-
-
-
-
+```
 
 
 
