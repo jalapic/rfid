@@ -247,4 +247,4 @@ pp4 <- ggplot(dp, aes(zone, tot_ms, color = zone))+
 pp4
 
 
-ggsave("tracking_proposal4.png", pp4, width = 12, height = 12)
+ggsave("tracking_proposal4.png", pp4, width = 15, height = 25)
