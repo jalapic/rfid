@@ -928,6 +928,11 @@ c10z <- c10.act %>%
   mutate(duration = end - start)
 
 c10z <- c10z[, c(6,7,11,13,14,15,16)]
+
+ts <- c1z %>% rbind(c2z, c3z, c4z, c5z,c6z, c7z, c8z, c9z, c10z)
+head(ts)
+
+
 ```
 
 
