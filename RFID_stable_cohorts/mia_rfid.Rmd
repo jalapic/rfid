@@ -209,26 +209,37 @@ c12df$ms<-
 c12df <- c12df %>%
   arrange(date)
 c12_d1 <- c12df %>% filter(date == "09.27.2021")
+c12_d1$day <- 1
 c12_d1$ms <- as.numeric(unlist(c12_d1$ms)) 
 c12_d2 <- c12df %>% filter(date == "09.28.2021")
+c12_d2$day <- 2
 c12_d2$ms <- (as.numeric(unlist(c12_d2$ms)) + (8.64e+7 * 1)) 
 c12_d3 <- c12df %>% filter(date == "09.29.2021")
+c12_d3$day <- 3
 c12_d3$ms <- (as.numeric(unlist(c12_d3$ms)) + (8.64e+7 * 2)) 
 c12_d4 <- c12df %>% filter(date == "09.30.2021")
+c12_d4$day <- 4
 c12_d4$ms <- (as.numeric(unlist(c12_d4$ms)) + (8.64e+7 * 3)) 
 c12_d5 <- c12df %>% filter(date == "10.01.2021")
+c12_d5$day <- 5
 c12_d5$ms <- (as.numeric(unlist(c12_d5$ms)) + (8.64e+7 * 4)) 
 c12_d6 <- c12df %>% filter(date == "10.02.2021")
+c12_d6$day <- 6
 c12_d6$ms <- (as.numeric(unlist(c12_d6$ms)) + (8.64e+7 * 5)) 
 c12_d7 <- c12df %>% filter(date == "10.03.2021")
+c12_d7$day <- 7
 c12_d7$ms <- (as.numeric(unlist(c12_d7$ms)) + (8.64e+7 * 6)) 
 c12_d8 <- c12df %>% filter(date == "10.04.2021")
+c12_d8$day <- 8
 c12_d8$ms <- (as.numeric(unlist(c12_d8$ms)) + (8.64e+7 * 7)) 
 c12_d9 <- c12df %>% filter(date == "10.05.2021")
+c12_d9$day <- 9
 c12_d9$ms <- (as.numeric(unlist(c12_d9$ms)) + (8.64e+7 * 8)) 
 c12_d10 <- c12df %>% filter(date == "10.06.2021")
+c12_d10$day <- 10
 c12_d10$ms <- (as.numeric(unlist(c12_d10$ms)) + (8.64e+7 * 9)) 
 c12_d11 <- c12df %>% filter(date == "10.07.2021")
+c12_d11$day <- 11
 c12_d11$ms <- (as.numeric(unlist(c12_d11$ms)) + (8.64e+7 * 10)) 
 c12m <- rbind(c12_d1, c12_d2, c12_d3, c12_d4, c12_d5, c12_d6, c12_d7, c12_d8, c12_d9, c12_d10, c12_d11)
 c12m <- c12m %>%
@@ -248,26 +259,37 @@ c34df$ms<-
 c34df <- c34df %>%
   arrange(date)
 c34_d1 <- c34df %>% filter(date == "10.18.2021")
+c34_d1$day <- 1
 c34_d1$ms <- as.numeric(unlist(c34_d1$ms)) 
 c34_d2 <- c34df %>% filter(date == "10.19.2021")
+c34_d2$day <- 2
 c34_d2$ms <- (as.numeric(unlist(c34_d2$ms)) + (8.64e+7 * 1)) 
 c34_d3 <- c34df %>% filter(date == "10.20.2021")
+c34_d3$day <- 3
 c34_d3$ms <- (as.numeric(unlist(c34_d3$ms)) + (8.64e+7 * 2)) 
 c34_d4 <- c34df %>% filter(date == "10.21.2021")
+c34_d4$day <- 4
 c34_d4$ms <- (as.numeric(unlist(c34_d4$ms)) + (8.64e+7 * 3)) 
 c34_d5 <- c34df %>% filter(date == "10.22.2021")
+c34_d5$day <- 5
 c34_d5$ms <- (as.numeric(unlist(c34_d5$ms)) + (8.64e+7 * 4)) 
 c34_d6 <- c34df %>% filter(date == "10.23.2021")
+c34_d6$day <- 6
 c34_d6$ms <- (as.numeric(unlist(c34_d6$ms)) + (8.64e+7 * 5)) 
 c34_d7 <- c34df %>% filter(date == "10.24.2021")
+c34_d7$day <- 7
 c34_d7$ms <- (as.numeric(unlist(c34_d7$ms)) + (8.64e+7 * 6)) 
 c34_d8 <- c34df %>% filter(date == "10.25.2021")
+c34_d8$day <- 8
 c34_d8$ms <- (as.numeric(unlist(c34_d8$ms)) + (8.64e+7 * 7)) 
 c34_d9 <- c34df %>% filter(date == "10.26.2021")
+c34_d9$day <- 9
 c34_d9$ms <- (as.numeric(unlist(c34_d9$ms)) + (8.64e+7 * 8)) 
 c34_d10 <- c34df %>% filter(date == "10.27.2021")
+c34_d10$day <- 10
 c34_d10$ms <- (as.numeric(unlist(c34_d10$ms)) + (8.64e+7 * 9)) 
 c34_d11 <- c34df %>% filter(date == "10.28.2021")
+c34_d11$day <- 11
 c34_d11$ms <- (as.numeric(unlist(c34_d11$ms)) + (8.64e+7 * 10)) 
 c34m <- rbind(c34_d1, c34_d2, c34_d3, c34_d4, c34_d5, c34_d6, c34_d7, c34_d8, c34_d9, c34_d10, c34_d11)
 c34m <- c34m %>%
@@ -290,26 +312,37 @@ c56df <- c56df %>%
 c56df <- c56df %>%
   filter(cohort==5 | cohort ==6)
 c56_d1 <- c56df %>% filter(date == "11.08.2021")
+c56_d1$day <- 1
 c56_d1$ms <- as.numeric(unlist(c56_d1$ms)) 
 c56_d2 <- c56df %>% filter(date == "11.09.2021")
+c56_d2$day <- 2
 c56_d2$ms <- (as.numeric(unlist(c56_d2$ms)) + (8.64e+7 * 1)) 
 c56_d3 <- c56df %>% filter(date == "11.10.2021")
+c56_d3$day <- 3
 c56_d3$ms <- (as.numeric(unlist(c56_d3$ms)) + (8.64e+7 * 2)) 
 c56_d4 <- c56df %>% filter(date == "11.11.2021")
+c56_d4$day <- 4
 c56_d4$ms <- (as.numeric(unlist(c56_d4$ms)) + (8.64e+7 * 3)) 
 c56_d5 <- c56df %>% filter(date == "11.12.2021")
+c56_d5$day <- 5
 c56_d5$ms <- (as.numeric(unlist(c56_d5$ms)) + (8.64e+7 * 4)) 
 c56_d6 <- c56df %>% filter(date == "11.13.2021")
+c56_d6$day <- 6
 c56_d6$ms <- (as.numeric(unlist(c56_d6$ms)) + (8.64e+7 * 5)) 
 c56_d7 <- c56df %>% filter(date == "11.14.2021")
+c56_d7$day <- 7
 c56_d7$ms <- (as.numeric(unlist(c56_d7$ms)) + (8.64e+7 * 6)) 
 c56_d8 <- c56df %>% filter(date == "11.15.2021")
+c56_d8$day <- 8
 c56_d8$ms <- (as.numeric(unlist(c56_d8$ms)) + (8.64e+7 * 7)) 
 c56_d9 <- c56df %>% filter(date == "11.16.2021")
+c56_d9$day <- 9
 c56_d9$ms <- (as.numeric(unlist(c56_d9$ms)) + (8.64e+7 * 8)) 
 c56_d10 <- c56df %>% filter(date == "11.17.2021")
+c56_d10$day <- 10
 c56_d10$ms <- (as.numeric(unlist(c56_d10$ms)) + (8.64e+7 * 9)) 
 c56_d11 <- c56df %>% filter(date == "11.18.2021")
+c56_d11$day <- 11
 c56_d11$ms <- (as.numeric(unlist(c56_d11$ms)) + (8.64e+7 * 10))
 c56m <- rbind(c56_d1, c56_d2, c56_d3, c56_d4, c56_d5, c56_d6, c56_d7, c56_d8, c56_d9, c56_d10, c56_d11)
 c56m <- c56m %>%
@@ -331,26 +364,37 @@ c78df <- c78df %>%
 c78df <- c78df %>%
   filter(cohort==7 | cohort ==8)
 c78_d1 <- c78df %>% filter(date == "11.22.2021")
+c78_d1$day <- 1
 c78_d1$ms <- as.numeric(unlist(c78_d1$ms)) 
 c78_d2 <- c78df %>% filter(date == "11.23.2021")
+c78_d2$day <- 2
 c78_d2$ms <- (as.numeric(unlist(c78_d2$ms)) + (8.64e+7 * 1)) 
 c78_d3 <- c78df %>% filter(date == "11.24.2021")
+c78_d3$day <- 3
 c78_d3$ms <- (as.numeric(unlist(c78_d3$ms)) + (8.64e+7 * 2)) 
 c78_d4 <- c78df %>% filter(date == "11.25.2021")
+c78_d4$day <- 4
 c78_d4$ms <- (as.numeric(unlist(c78_d4$ms)) + (8.64e+7 * 3)) 
 c78_d5 <- c78df %>% filter(date == "11.26.2021")
+c78_d5$day <- 5
 c78_d5$ms <- (as.numeric(unlist(c78_d5$ms)) + (8.64e+7 * 4)) 
 c78_d6 <- c78df %>% filter(date == "11.27.2021")
+c78_d6$day <- 6
 c78_d6$ms <- (as.numeric(unlist(c78_d6$ms)) + (8.64e+7 * 5)) 
 c78_d7 <- c78df %>% filter(date == "11.28.2021")
+c78_d7$day <- 7
 c78_d7$ms <- (as.numeric(unlist(c78_d7$ms)) + (8.64e+7 * 6)) 
 c78_d8 <- c78df %>% filter(date == "11.29.2021")
+c78_d8$day <- 8
 c78_d8$ms <- (as.numeric(unlist(c78_d8$ms)) + (8.64e+7 * 7)) 
 c78_d9 <- c78df %>% filter(date == "11.30.2021")
+c78_d9$day <- 9
 c78_d9$ms <- (as.numeric(unlist(c78_d9$ms)) + (8.64e+7 * 8)) 
 c78_d10 <- c78df %>% filter(date == "12.01.2021")
+c78_d10$day <- 10
 c78_d10$ms <- (as.numeric(unlist(c78_d10$ms)) + (8.64e+7 * 9)) 
 c78_d11 <- c78df %>% filter(date == "12.02.2021")
+c78_d11$day <- 11
 c78_d11$ms <- (as.numeric(unlist(c78_d11$ms)) + (8.64e+7 * 10))
 c78m <- rbind(c78_d1, c78_d2, c78_d3, c78_d4, c78_d5, c78_d6, c78_d7, c78_d8, c78_d9, c78_d10, c78_d11)
 c78m <- c78m %>%
@@ -373,26 +417,37 @@ c910df <- c910df %>%
 c910df <- c910df %>%
   filter(cohort==9 | cohort ==10)
 c910_d1 <- c910df %>% filter(date == "01.17.2022")
+c910_d1$day <- 1
 c910_d1$ms <- as.numeric(unlist(c910_d1$ms)) 
 c910_d2 <- c910df %>% filter(date == "01.18.2022")
+c910_d2$day <- 2
 c910_d2$ms <- (as.numeric(unlist(c910_d2$ms)) + (8.64e+7 * 1)) 
 c910_d3 <- c910df %>% filter(date == "01.19.2022")
+c910_d3$day <- 3
 c910_d3$ms <- (as.numeric(unlist(c910_d3$ms)) + (8.64e+7 * 2)) 
 c910_d4 <- c910df %>% filter(date == "01.20.2022")
+c910_d4$day <- 4
 c910_d4$ms <- (as.numeric(unlist(c910_d4$ms)) + (8.64e+7 * 3)) 
 c910_d5 <- c910df %>% filter(date == "01.21.2022")
+c910_d5$day <- 5
 c910_d5$ms <- (as.numeric(unlist(c910_d5$ms)) + (8.64e+7 * 4)) 
 c910_d6 <- c910df %>% filter(date == "01.22.2022")
+c910_d6$day <- 6
 c910_d6$ms <- (as.numeric(unlist(c910_d6$ms)) + (8.64e+7 * 5)) 
 c910_d7 <- c910df %>% filter(date == "01.23.2022")
+c910_d7$day <- 7
 c910_d7$ms <- (as.numeric(unlist(c910_d7$ms)) + (8.64e+7 * 6)) 
 c910_d8 <- c910df %>% filter(date == "01.24.2022")
+c910_d8$day <- 8
 c910_d8$ms <- (as.numeric(unlist(c910_d8$ms)) + (8.64e+7 * 7)) 
 c910_d9 <- c910df %>% filter(date == "01.25.2022")
+c910_d9$day <- 9
 c910_d9$ms <- (as.numeric(unlist(c910_d9$ms)) + (8.64e+7 * 8)) 
 c910_d10 <- c910df %>% filter(date == "01.26.2022")
+c910_d10$day <- 10
 c910_d10$ms <- (as.numeric(unlist(c910_d10$ms)) + (8.64e+7 * 9)) 
 c910_d11 <- c910df %>% filter(date == "01.27.2022")
+c910_d11$day <- 11
 c910_d11$ms <- (as.numeric(unlist(c910_d11$ms)) + (8.64e+7 * 10))
 c910m <- rbind(c910_d1, c910_d2, c910_d3, c910_d4, c910_d5, c910_d6, c910_d7, c910_d8, c910_d9, c910_d10, c910_d11)
 c910m <- c910m %>%
@@ -793,21 +848,86 @@ heatmap(heat1,
 
 ### Time spent in zones df for Tyler 2/9/22
 ```{r}
-## create a df with mouse, cohort, zone, time in zone, day
-## or zone entries instead of time across each day
-library(libridate)
-c1.act$day <- 0
+## time spent in zones df for Tyler 2/9/22
+c1z <- c1.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
 
-c1.act <- c1.act %>%
-  ifelse(date = "09.27.2021", c1.act$day == 1,0)
+c1z <- c1z[, c(6,7,11,13,14,15,16)]
 
-dat <- c("02/01/2000", "20/02/2000", "12/12/2000", "13/01/2001")
-dat <- dmy(dat)
+c2z <- c2.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
 
-days <- yday(date) - 1 # so Jan 1 = day 0 
-total_days <- cumsum(days)
+c2z <- c2z[, c(6,7,11,13,14,15,16)]
 
+c3z <- c3.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
 
+c3z <- c3z[, c(6,7,11,13,14,15,16)]
+
+c4z <- c4.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c4z <- c4z[, c(6,7,11,13,14,15,16)]
+
+c5z <- c5.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c5z <- c5z[, c(6,7,11,13,14,15,16)]
+
+c6z <- c6.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c6z <- c6z[, c(6,7,11,13,14,15,16)]
+
+c7z <- c7.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c7z <- c7z[, c(6,7,11,13,14,15,16)]
+
+c8z <- c8.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c8z <- c8z[, c(6,7,11,13,14,15,16)]
+
+c9z <- c9.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c9z <- c9z[, c(6,7,11,13,14,15,16)]
+
+c10z <- c10.act %>%
+  group_by(mouse) %>%
+  mutate(start = ms) %>%
+  mutate(end = lead(ms)) %>%
+  mutate(duration = end - start)
+
+c10z <- c10z[, c(6,7,11,13,14,15,16)]
 ```
 
 
