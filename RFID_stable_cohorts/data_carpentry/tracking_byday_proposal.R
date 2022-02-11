@@ -91,18 +91,27 @@ library(car)
 hist(total$tot_ms) #not normal - glmer
 
 
-total <- dms %>% group_by(cohort,glicko_rank, zone,day) %>%
+total <- dms %>% group_by(cohort,glicko_rank,zone) %>%
   summarize(tot_ms = sum(duration, na.rm = T))
+total$zone <- as.numeric(total$zone)
+
+tx <- total %>% group_by(cohort,glicko_rank,zone)  %>%
+  summarize(mean = mean(tot_ms, na.rm = T))
+  tx$zone <- as.numeric(tx$zone)    
 
 t2 <- total %>% filter(glicko_rank != 3)  %>% filter(glicko_rank != 4) %>% filter(glicko_rank != 5)
 
-total$glicko_rank <- factor(total$glicko_rank, level = c(3,4,5,6,1,2))
+total$glicko_rank <- factor(total$glicko_rank, level = c(6,4,5,3,1,2))
 
-tm <-glmer(mt~ glicko_rank+ zone+(1|cohort), data = total ,family = Gamma(link = "log"))
+tm <-glmer(tot_ms~ glicko_rank + zone+ glicko_rank:zone +(1|cohort), data = total ,family = Gamma(link = "log"))
 summary(tm)
+
+hist(t2$tot_ms)
+
 
 
 AIC(tm)
+total
 
 
 
