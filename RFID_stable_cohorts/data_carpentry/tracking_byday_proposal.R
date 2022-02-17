@@ -34,6 +34,9 @@ total <- total %>% group_by(cohort,glicko_rank, zone) %>%
 
 
 head(total)
+total <- total %>% group_by(glicko_rank) %>% 
+  summarise(mt = mean(tot_ms), med = median(tot_ms), quantile(tot_ms,))
+
 
 
 
@@ -410,11 +413,6 @@ head(dp)
  
 
 
-
-
-
-
-
 library(lme4)
 library(MASS)
 library(car)
@@ -425,3 +423,129 @@ tm <-glmer(tot_ms~glicko_rank+ zone+(1|mouse)+(1|cohort), data =dp,family = Gamm
 summary(tm)
 AIC(pre.glm)
 
+
+
+
+head(dms)
+
+
+
+la <- dms %>% split(.$cohort)
+lapply(la, head)
+
+
+la2 <- la %>% map(~group_by(.,day,glicko_rank)) %>% 
+  map(~mutate(.,zd = start-lag(start))) %>% map(~group_by(.,day,glicko_rank,zone)) %>% 
+  map(~mutate(., total = sum(!is.na(zd))))
+dfnames <- c(1:10)
+
+
+head(ztime)
+
+zt <- ztime %>% group_by(cohort,glicko_rank) %>% 
+  mutate(avg = mean(total))
+zt$glicko_rank <- as.factor(zt$glicko_rank)
+
+
+
+ggplot(zt, aes(glicko_rank, avg))+
+  geom_boxplot()+
+  geom_jitter()
+
+
+
+zx <- dms %>% group_by(cohort,glicko_rank,day,zone) %>% 
+  mutate(.,zd = start-lag(start)) %>% 
+  mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
+head(zx)
+
+ # zx<- zx%>% group_by(cohort,mouse,glicko_rank,day,zone) %>% 
+ #   summarize(avg = mean(total))
+
+tt <- zx %>% dplyr::select(1:5,10) %>% unique()
+
+tt$day <- as.factor(tt$day)
+
+tt <- tt %>% filter(day != 11)
+tt <- na.omit(tt)
+
+head(tt)
+
+ttx <- tt %>% group_by(glicko_rank,day,zone)%>% 
+   summarize(avg = mean(total))
+
+head(ttx)
+
+
+ttx$zone <- ifelse(ttx$zone == 1, "Cage 1", ttx$zone)
+ttx$zone <- ifelse(ttx$zone == 2, "Cage 2", ttx$zone)
+ttx$zone <- ifelse(ttx$zone == 3, "Cage 3", ttx$zone)
+ttx$zone <- ifelse(ttx$zone == 4, "Cage 4", ttx$zone)
+ttx$zone <- ifelse(ttx$zone == 5, "Cage 5", ttx$zone)
+ttx$zone <- ifelse(ttx$zone == 6, "Cage 6", ttx$zone)
+
+
+
+ggplot(ttx, aes(day,avg, color = glicko_rank))+
+  geom_line(aes(group = glicko_rank), size = .4, alpha=.5)+
+  geom_point(aes(group =avg), alpha = .5, size = 1)+
+  facet_wrap(~zone)+
+  scale_color_manual(values = viridis::viridis(6)) +
+  scale_fill_manual(values = viridis::viridis(6)) +
+  theme_minimal()+
+  labs(color = "Rank")+
+  theme( strip.background  = element_rect(fill = NA, color = "black"),
+         axis.text.x = element_text(size= 10) ,
+        axis.text.y = element_text(size= 10),
+        strip.text = element_text(size = 11),
+        text = element_text(size= 15))+
+  ylab("Average Cage Entries ") +
+  xlab("Day")
+
+
+
+
+
+
+
+
+zx%>% group_by(glicko_rank) %>% 
+  summarize(med = median(total), q25 = quantile(total,0.25),  q75 = quantile(total,0.75))
+
+zx$glicko_rank <- as.factor(zx$glicko_rank)
+ggplot(zx, aes(glicko_rank, avg))+
+  geom_boxplot()+
+  geom_jitter()
+
+
+hist(zx$total)
+
+
+tm <-glmer(total~glicko_rank +(1|mouse)+(1|cohort), data =zx,family = Gamma(link = "log"))
+summary(tm)
+AIC(pre.glm)
+
+
+zx1 <- zx %>% filter(cohort !=6)
+
+zx1 %>% arrange(-avg)
+
+ ggplot(zx1, aes(glicko_rank, avg, color = glicko_rank))+
+  geom_boxjitter(aes(fill = glicko_rank),outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  scale_color_manual(values = viridis::viridis(6)) +
+  scale_fill_manual(values = viridis::viridis(6)) +
+  theme_classic()+
+  theme(legend.position = "none", 
+        axis.text.x = element_text(size= 20) ,
+        axis.text.y = element_text(size= 20),
+        strip.text = element_text(size = 20),
+        text = element_text(size= 25))+
+  ylab("Average Cage Changes per Day") +
+  xlab("Mouse Rank ")
+
+
+
+         
