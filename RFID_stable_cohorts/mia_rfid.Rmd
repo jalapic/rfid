@@ -935,82 +935,21 @@ head(ts)
 
 ## Chase
 ```{r}
-# odd cohorts
-t1 <- act %>%
+## looking at tube 1 for cohort 1 only
+t1 <- c1.act %>%
   filter(deviceid == 1)
 
-t2 <- act %>%
-  filter(deviceid == 2)
+t1 <- t1[, c(3,4,6,7,10,11)] 
+t1 <- t1 %>% 
+  mutate(dur = lag(ms))
 
-t3 <- act %>%
-  filter(deviceid == 3)
-
-t4 <- act %>%
-  filter(deviceid == 4)
-
-t8 <- act %>%
-  filter(deviceid == 8)
-
-t9 <- act %>%
-  filter(deviceid == 9)
-
-
-# even cohorts
-t16 <- act %>%
-  filter(deviceid == 16)
-
-t17 <- act %>%
-  filter(deviceid == 17)
-
-t18 <- act %>%
-  filter(deviceid == 18)
-
-t19 <- act %>%
-  filter(deviceid == 19)
-
-t20 <- act %>%
-  filter(deviceid == 20)
-
-t21 <- act %>%
-  filter(deviceid == 21)
+t1 %>%
+  filter(dur < 2000)
 
 
 
 
-
-
-
-
-
-
-
-
-
-## specifying direction
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## specify direction later
 
 ```
 
