@@ -940,11 +940,28 @@ t1 <- c1.act %>%
   filter(deviceid == 1)
 
 t1 <- t1[, c(3,4,6,7,10,11)] 
-t1 <- t1 %>% 
-  mutate(dur = lag(ms))
 
-t1 %>%
-  filter(dur < 2000)
+t1$forward <- rep(1:2, length.out = nrow(t1))
+t1$backwards <- rep(2:1, length.out = nrow(t1))
+
+fd <- t1 %>% group_by(mouse, antennaID) %>% filter(forward == antennaID)
+bd <- t1 %>% group_by(mouse, antennaID) %>% filter(backwards == antennaID)
+
+fd <- fd %>% select(1:2,4:6)
+
+bd <- bd %>% select(1:2,4:6)
+
+
+# I am not sure to add mouse here or not... I think yes so you know when cause you want when they go and leave but how to compare to other mice now....
+tf <- fd %>% group_by(deviceid, antennaID, mouse) %>%
+  mutate(lag_ms = ms - lag(ms)) %>% 
+  filter(lag_ms <= 1500) 
+
+tb <- bd %>% group_by(deviceid, antennaID, mouse) %>%
+  mutate(lag_ms = ms - lag(ms)) %>% 
+  filter(lag_ms <= 1500) 
+
+
 
 
 ## specify direction later
