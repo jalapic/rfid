@@ -456,17 +456,17 @@ ggplot(zt, aes(glicko_rank, avg))+
 
 zx <- dms %>% group_by(cohort,glicko_rank,day,zone) %>% 
   mutate(.,zd = start-lag(start)) %>% 
-  mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
+  mutate(., total = sum(!is.na(zd)))
 head(zx)
 
- # zx<- zx%>% group_by(cohort,mouse,glicko_rank,day,zone) %>% 
- #   summarize(avg = mean(total))
+  zx<- zx%>% group_by(cohort,mouse,glicko_rank,day) %>% 
+    summarize(avg = mean(total))
 
 tt <- zx %>% dplyr::select(1:5,10) %>% unique()
 
 tt$day <- as.factor(tt$day)
 
-tt <- tt %>% filter(day != 11)
+tt <- tt %>% filter(day != 11) %>% filter(cohort != 6)
 tt <- na.omit(tt)
 
 head(tt)
@@ -475,6 +475,7 @@ ttx <- tt %>% group_by(glicko_rank,day,zone)%>%
    summarize(avg = mean(total))
 
 head(ttx)
+
 
 
 ttx$zone <- ifelse(ttx$zone == 1, "Cage 1", ttx$zone)
@@ -487,12 +488,14 @@ ttx$zone <- ifelse(ttx$zone == 6, "Cage 6", ttx$zone)
 
 
 ggplot(ttx, aes(day,avg, color = glicko_rank))+
-  geom_line(aes(group = glicko_rank), size = .4, alpha=.5)+
-  geom_point(aes(group =avg), alpha = .5, size = 1)+
+  geom_line(aes(group = glicko_rank), size = .4, alpha=.8)+
+  geom_point(aes(group =avg), alpha = .5, size = 1.2)+
   facet_wrap(~zone)+
   scale_color_manual(values = viridis::viridis(6)) +
   scale_fill_manual(values = viridis::viridis(6)) +
   theme_minimal()+
+  scale_y_continuous(limits =c(0, 4000),
+                     labels = c(0, seq(500, 4000, by = 1000)))+
   labs(color = "Rank")+
   theme( strip.background  = element_rect(fill = NA, color = "black"),
          axis.text.x = element_text(size= 10) ,
@@ -503,11 +506,133 @@ ggplot(ttx, aes(day,avg, color = glicko_rank))+
   xlab("Day")
 
 
+head(tt)
+ttx1 <- tt %>% group_by(glicko_rank,day)
+
+
+jp <- dms %>% filter(cohort != 6)%>% group_by(cohort,glicko_rank,day) %>% 
+  mutate(.,zd = start-lag(start)) %>% 
+  mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
+head(jp)
+
+
+
+jp1 <-jp %>% dplyr::select(1,3,4,10) %>% unique() %>% filter(day != 11) 
+head(jp1)
+
+
+jp2 <- jp1 %>% group_by(day,glicko_rank) %>% mutate(avg = sum(total)/9) 
+
+jp3 <- jp2 %>% filter(glicko_rank != 3)%>% filter(glicko_rank != 4) %>% filter(glicko_rank != 5)
+
+jp3$glicko_rank <- ifelse(jp3$glicko_rank == 1, "Dominant", jp3$glicko_rank)
+jp3$glicko_rank <- ifelse(jp3$glicko_rank == 2, "Subdominant", jp3$glicko_rank)
+jp3$glicko_rank <- ifelse(jp3$glicko_rank == 6, "Subordinate", jp3$glicko_rank)
+
+ggplot(jp2, aes(glicko_rank, avg, color = glicko_rank))+
+  geom_boxjitter(aes(fill = glicko_rank),outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  scale_color_manual(values = viridis::viridis(3)) +
+  scale_fill_manual(values = viridis::viridis(3)) +
+  ylim(2000,10000)+
+  theme_classic()+
+  theme(legend.position = "none", 
+        axis.text.x = element_text(size= 15) ,
+        axis.text.y = element_text(size= 15),
+        text = element_text(size= 20))+
+  ylab("Average Food Cage Entries") +
+  xlab("Mouse Rank")
+
+
+zx <- dms %>%filter(cohort != 6) %>% filter(cohort != 5) %>%  group_by(cohort,glicko_rank,day,zone) %>% 
+  mutate(.,zd = start-lag(start)) %>% 
+  mutate(., total = sum(!is.na(zd))) %>% filter(zone == 1)
+head(zx)
+zx%>%filter(zone ==1) %>%  group_by(glicko_rank) %>% 
+  summarize(med = median(total), q25 = quantile(total,0.25),  q75 = quantile(total,0.75))
+
+
+zx<- zx  %>%  group_by(glicko_rank) %>% 
+  mutate(avg = mean(total)) %>% unique(.)
+
+tm <-glmer(avg~glicko_rank+ day+(1|mouse)+(1|cohort), data =zx,family = Gamma(link = "log"))
+summary(tm)
+AIC(pre.glm)
 
 
 
 
 
+zx$day <- as.factor(zx$day)
+zx <- zx %>% filter(day != 11) %>% na.omit(.) 
+
+ggplot(zx, aes(day,avg, color = glicko_rank))+
+  geom_line(aes(group = glicko_rank), size = 1, alpha=.8)+
+  geom_point(aes(group =avg), alpha = .5, size = 3)+
+  scale_color_manual(values = viridis::viridis(6)) +
+  scale_fill_manual(values = viridis::viridis(6)) +
+  theme_minimal()+
+  labs(color = "Rank")+
+  scale_y_continuous(limits =c(0, 1250),
+                     labels = c(0, seq(250, 1250, by = 500)))+
+  theme( strip.background  = element_rect(fill = NA, color = "black"),
+         axis.text.x = element_text(size= 10) ,
+         axis.text.y = element_text(size= 10),
+         strip.text = element_text(size = 11),
+         text = element_text(size= 15))+
+  ylab("Average Food Cage Entries ") +
+  xlab("Day")
+
+
+
+##################
+
+
+jp <- dms %>% filter(cohort != 6)%>% group_by(glicko_rank,day) %>% 
+  mutate(.,zd = start-lag(start)) %>% 
+ mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
+head(jp)
+
+
+
+jp1 <- jp %>% dplyr::select(1,3,4,10) %>% unique()
+head(jp1)
+
+
+jp2 <- jp1 %>% group_by(glicko_rank) %>% mutate(acum = cumsum(total))
+jp2$day <- as.factor(jp2$day)
+jp2 <- na.omit(jp2)
+jp2 <- jp2 %>% filter(day !=11) 
+
+
+
+ggplot(jp2, aes(day,acum, color = glicko_rank))+
+  geom_line(aes(group = glicko_rank), size = 1, alpha=.8)+
+  geom_point(aes(group =acum), alpha = .6, size = 3)+
+  scale_color_manual(values = viridis::viridis(6)) +
+  scale_fill_manual(values = viridis::viridis(6)) +
+  theme_minimal()+
+  labs(color = "Rank")+
+  theme( strip.background  = element_rect(fill = NA, color = "black"),
+         axis.text.x = element_text(size= 10) ,
+         axis.text.y = element_text(size= 10),
+         strip.text = element_text(size = 11),
+         text = element_text(size= 15))+
+  ylab("Total Cage Changes") +
+  xlab("Day")
+
+
+hist(jp2$acum)
+jp2$day <- as.integer(jp2$day)
+hist(jp2$total)
+
+jp2$glicko_rank <- factor(jp2$glicko_rank, levels= c(2,3,4,5,6,1))
+
+tm <-glmer(total~glicko_rank+day +(1|cohort), data =jp2,family = Gamma(link = "log"))
+summary(tm)
+AIC(pre.glm)
 
 zx%>% group_by(glicko_rank) %>% 
   summarize(med = median(total), q25 = quantile(total,0.25),  q75 = quantile(total,0.75))
@@ -518,10 +643,9 @@ ggplot(zx, aes(glicko_rank, avg))+
   geom_jitter()
 
 
-hist(zx$total)
+zx$glicko_rank <- factor(zx$glicko_rank, level = c(2,3,4,5,6,1))
 
-
-tm <-glmer(total~glicko_rank +(1|mouse)+(1|cohort), data =zx,family = Gamma(link = "log"))
+tm <-lmer(total~glicko_rank+ (1|mouse)+(1|cohort), data =zx)
 summary(tm)
 AIC(pre.glm)
 
