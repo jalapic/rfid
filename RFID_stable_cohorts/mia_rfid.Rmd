@@ -18,7 +18,6 @@ This document is an explanation of the analysis of our RFID data.
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(data.table)
-library(gridExtra)
 ```
 
 
@@ -839,8 +838,8 @@ heatmap(heat,
         xlab = "zone", ylab = "cohort", main = "zone usage")
 
 ## mouse by zone, not duration
-heat1 <- as.matrix(table(c1.act$mouse, c1.act$zone))
-heatmap(heat1, 
+heat3 <- as.matrix(table(c1.act$mouse, c1.act$zone))
+heatmap(heat3, 
         Colv = NA, Rowv = NA, 
         xlab = "zone", ylab = "mouse", main = "cohort 1 zone usage")
 ```
@@ -931,9 +930,122 @@ c10z <- c10z[, c(6,7,11,13,14,15,16)]
 
 ts <- c1z %>% rbind(c2z, c3z, c4z, c5z,c6z, c7z, c8z, c9z, c10z)
 head(ts)
+```
+
+
+## Chase
+```{r}
+# odd cohorts
+t1 <- act %>%
+  filter(deviceid == 1)
+
+t2 <- act %>%
+  filter(deviceid == 2)
+
+t3 <- act %>%
+  filter(deviceid == 3)
+
+t4 <- act %>%
+  filter(deviceid == 4)
+
+t8 <- act %>%
+  filter(deviceid == 8)
+
+t9 <- act %>%
+  filter(deviceid == 9)
+
+
+# even cohorts
+t16 <- act %>%
+  filter(deviceid == 16)
+
+t17 <- act %>%
+  filter(deviceid == 17)
+
+t18 <- act %>%
+  filter(deviceid == 18)
+
+t19 <- act %>%
+  filter(deviceid == 19)
+
+t20 <- act %>%
+  filter(deviceid == 20)
+
+t21 <- act %>%
+  filter(deviceid == 21)
+
+
+
+
+
+
+
+
+
+
+
+
+
+## specifying direction
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
