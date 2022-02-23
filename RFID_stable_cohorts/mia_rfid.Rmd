@@ -962,47 +962,22 @@ tb <- bd %>% group_by(deviceid, antennaID, mouse) %>%
   filter(lag_ms <= 1500) 
 
 
-
-
 ## specify direction later
 
+
+## separating tube 1, cohort 1
+t1 <- c1.act %>%
+  filter(deviceid == 1)
+t1 <- t1[, c(3,4,6,7,10,11)] 
+
+## keeping the first and last observation in a set of repeated observations of the same mouse
+x1 <- sort(unique(c(length(t1$mouse) - cumsum(rle(rev(t1$mouse))$lengths) + 1, cumsum(rle(t1$mouse)$lengths))))
+x1
+t1$mouse[x1]
+
+## only keeping these first and last rows of runs of repeated mice in our data
+t1 <- t1[x1,]
+
+t1 <- t1 %>%
+  mutate(dur = ms - lag(ms))
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
