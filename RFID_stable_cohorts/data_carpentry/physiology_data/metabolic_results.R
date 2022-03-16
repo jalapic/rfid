@@ -72,11 +72,8 @@ ggplot(post.long1, aes(dom, value))+
   facet_wrap(~analyte, scales = "free_y")+
   theme_minimal()
 
-ggplot(ci, aes(dom, value))+
-  geom_boxplot() +
-  geom_jitter()+
-  facet_wrap(~analyte)+
-  theme_minimal()
+
+
 
 
 library(lmerTest)
@@ -171,3 +168,75 @@ ggplot(df.s, aes(x=time , y = value, group = dom)) +
    facet_wrap(~ analyte, scales ="free") +
   # facet_wrap(vars(analyte, dom), scales = "free")+
   newggtheme 
+
+
+# just getting pre and post with insulin and cpeptide
+mdf.long <- mdf %>% pivot_longer(cols = 2:10, names_to="analyte")  
+
+ci <- mdf.long %>% filter(analyte !='Amylin')%>% filter(analyte !='IL6')%>% 
+  filter(analyte !='Ghrelin')%>% filter(analyte !='MCP1_CCL2') %>% 
+  filter(analyte !="PYY") %>% filter(analyte !="TNFa")%>% 
+  filter(analyte !="Secretin")%>% filter(analyte !="Leptin")
+
+a.list <- ci %>% split(.$analyte)
+
+
+stat <- a.list %>% 
+  map(~mutate(.,mean_post = mean(value),
+              sd_post = sd(value),
+              n = n(),
+              median_post = median(value))) %>% 
+  map(~mutate(.,semx = sd_post/sqrt(n))) %>% 
+  map(~filter(.,!is.na(semx))) %>% 
+  map(~mutate(., lower_meanp = mean_post + qt((1-0.95)/2, n - 1) * semx,
+              upper_meanp = mean_post - qt((1-0.95)/2, n - 1) * semx)) %>% 
+  map(~ungroup(.))
+
+df.s <- do.call(rbind,stat)
+
+ci <- ci %>% full_join(df.s)
+
+ci$ID2 <- paste(ci$cohort, ci$mouse)
+
+ggplot(ci, aes(dom, value))+
+  geom_boxplot() +
+  geom_line(aes(group = cohort), size = .6, alpha=.5) +
+  geom_point(alpha = 1, size = 1.5)+
+  facet_grid(~analyte, scales = "free_y")+
+  theme_minimal()
+
+
+corr <- ci %>% select(ID,time, cohort, mouse, glicko_rank, dom, analyte, value, ID2)
+corr
+
+corr <- corr %>% 
+  group_by(., dom, time) %>% 
+  mutate(.,mean_post = mean(value),
+         sd_post = sd(value),
+         n = n(),
+         median_post = median(value)) %>% 
+  mutate(.,semx = sd_post/sqrt(n)) %>% 
+  filter(.,!is.na(semx)) %>% 
+  mutate(., lower_meanp = mean_post + qt((1-0.95)/2, n - 1) * semx,
+         upper_meanp = mean_post - qt((1-0.95)/2, n - 1) * semx) %>% 
+  ungroup(.)
+
+corr1 <- corr %>% pivot_wider(names_from = analyte, values_from = value) %>% filter(time == "Post")
+corr1$time <- factor(corr1$time, levels = c("Pre", "Post"))
+
+
+
+
+
+ggplot(corr1, aes(Insulin, Cpeptide2,color = dom))+
+  geom_point()+
+  stat_smooth(method = "lm", se= F, aes(color = dom))+
+  facet_wrap(~cohort)+
+   theme_minimal()
+
+
+ggplot(corr1, aes(Insulin, Cpeptide2, shape = time, color = dom))+
+  geom_point()+
+  geom_line(glicko_rank)+
+  facet_wrap(~cohort)+
+  theme_minimal()

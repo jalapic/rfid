@@ -50,6 +50,8 @@ df <- m1 %>% left_join(rank)
 head(df)
 
 
+df$dom2 <- ifelse(df$dom == "Dominant", "Dominant", "Subordinate")
+
 
 df1 <- df %>% filter(time == "Post")
 
@@ -57,7 +59,7 @@ df1 <- df %>% filter(time == "Post")
 df.long <- df %>% pivot_longer(cols = 1:7, names_to="analyte") 
 
 
-ggplot(df.long, aes(dom, value))+
+ggplot(df.long, aes(dom2, value))+
   geom_boxplot(outlier.shape = NA) +
   geom_jitter()+
   facet_wrap(~analyte,  scales="free_y")+
@@ -65,8 +67,8 @@ ggplot(df.long, aes(dom, value))+
 
 
 
-endo <- ggplot(df.long, aes(dom, value, color = dom))+
-  geom_boxjitter(aes(fill = dom), outlier.color = NA, jitter.shape = 21,
+endo <- ggplot(df.long, aes(dom2, value, color = dom2))+
+  geom_boxjitter(aes(fill = dom2), outlier.color = NA, jitter.shape = 21,
                  alpha = 0.5,
                  jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
                  position = position_dodge(0.85)) +
@@ -82,7 +84,7 @@ endo <- ggplot(df.long, aes(dom, value, color = dom))+
   ylab("Concentration pg/ml") +
   xlab("")
 
-# ggsave("img/endocrine.png", endo,width = 14, height = 12)
+ # ggsave("img/endocrineDS.png", endo,width = 14, height = 12)
 
 
 library(lmerTest)
@@ -127,6 +129,41 @@ tx<-glmer(TSH~dom+(1|mouse)+(1|cohort), data =tsh, family = Gamma(link = "log"))
 summary(tx)# # nothing is significant 
 
 
+#Comparing sub and dominants
+acth <- df1%>% select(ACTH, cohort, mouse, glicko_rank, dom2) 
+bdnf <- df1 %>% select(BDNF,  cohort, mouse,glicko_rank, dom2)
+fsh <-  df1 %>% select(FSH, cohort, mouse,glicko_rank, dom2)
+gh <- df1 %>% select(GH,  cohort, mouse,glicko_rank, dom2)
+lh <- df1 %>% select(LH,  cohort, mouse,glicko_rank, dom2)
+pro <- df1 %>% select(Prolactin, cohort,glicko_rank, mouse, dom2)
+tsh <- df1 %>% select(TSH,  cohort, mouse,glicko_rank, dom2)
 
 
+hist(acth$ACTH) #non-normalish?
+acthx<-glmer(ACTH~dom2+(1|mouse)+(1|cohort), data =acth, family = Gamma(link = "log"))
+summary(acthx) #non significant 
 
+hist(bdnf$BDNF) #normal-ish?
+bdnfx<-lmer(BDNF~dom2+(1|mouse)+(1|cohort), data =bdnf)
+summary(bdnfx)# nothing is significant 
+
+hist(fsh$FSH)
+fx<-lmer(FSH~dom2+(1|mouse)+(1|cohort), data =fsh)
+summary(fx)# nothing is significant 
+
+hist(gh$GH) #not normal 
+gx<-glmer(GH~dom2+(1|mouse)+(1|cohort), data =gh, family = Gamma(link = "log"))  
+summary(gx)#Model isn't working 
+
+hist(lh$LH) #not normal 
+lx<-lmer(LH~dom2+(1|mouse)+(1|cohort)+(1|glicko_rank), data =lh)
+summary(lx)# # nothing is significant 
+
+hist(pro$Prolactin) #not normal 
+px<-glmer(Prolactin~dom2+(1|mouse)+(1|cohort), data =pro, family = Gamma(link = "log"))
+summary(px)# #subordinate lower p < .0001
+
+
+hist(tsh$TSH) #not normal 
+tx<-glmer(TSH~dom2+(1|mouse)+(1|cohort), data =tsh, family = Gamma(link = "log"))
+summary(tx)# # subordinates higher  p = 0.00237 
