@@ -32,10 +32,10 @@ head(mdf)
 
 #pre data 
 
-pre<- mdf %>% filter(time == "Pre") %>% select(-Secretin)
+pre<- mdf %>% filter(time == "Pre") 
 head(pre)
 
-pre.long <- pre %>% pivot_longer(cols = 2:10, names_to="analyte") 
+pre.long <- pre %>% pivot_longer(cols = 2:11, names_to="analyte") 
 pre.long1 <- pre.long %>% filter(analyte !='Cpeptide2')%>% filter(analyte !='Insulin')%>% filter(analyte !='Leptin')
 
 ci <- pre.long %>% filter(analyte !='Amylin')%>% filter(analyte !='IL6')%>% filter(analyte !='Ghrelin')%>% 
@@ -53,20 +53,22 @@ ggplot(ci, aes(dom, value))+
   facet_wrap(~analyte)+
   theme_minimal()
 
+ci %>% group_by(dom, analyte) %>% summarise(mean = mean(analyte, na.rm =F))
+
 
 #post 
-post<- mdf %>% filter(time == "Post") %>% select(-Secretin)
+post<- mdf %>% filter(time == "Post")
 head(post)
 
 
-post.long <- post %>% pivot_longer(cols = 2:10, names_to="analyte")  
+post.long <- post %>% pivot_longer(cols = 2:11, names_to="analyte")  
 
 post.long1 <- post.long %>% filter(analyte !='Cpeptide2')%>% filter(analyte !='Insulin')%>% filter(analyte !='Leptin')
 
 ci <- post.long %>% filter(analyte !='Amylin')%>% filter(analyte !='IL6')%>% filter(analyte !='Ghrelin')%>% 
   filter(analyte !='MCP1_CCL2') %>% filter(analyte !="PYY") %>% filter(analyte !="TNFa")
 
-ggplot(post.long1, aes(dom, value))+
+ggplot(ci, aes(dom, value))+
   geom_boxplot() +
   geom_jitter()+
   facet_wrap(~analyte, scales = "free_y")+
@@ -125,10 +127,16 @@ durbinWatsonTest(resid(cpepx))
 shapiro.test(resid(cpepx))#normal
 
 #Pre group housing 
-cpep2 <- mdf %>% dplyr::select(Cpeptide2, time, cohort, mouse, dom)%>% filter(time == 'Pre')
+cpep2 <- mdf %>% dplyr::select(Cpeptide2, time, cohort, mouse, dom)
 
 cpepx2<-glmer(Cpeptide2~dom+(1|mouse)+(1|cohort), data =cpep2,family = Gamma(link = "log"))
 summary(cpepx2)
+
+ggplot(cpep2,aes(time,Cpeptide2))+
+  geom_boxplot()+
+  geom_jitter()+
+  facet_wrap(~dom)
+
 
 acf(resid(cpepx2))
 qqPlot(resid(cpepx2))
@@ -238,11 +246,14 @@ tnf <-mdf %>% dplyr::select(TNFa, time, cohort, mouse, dom)
 tnfx<-glmer(TNFa~dom+time+(1|mouse)+(1|cohort), data =tnf,family = Gamma(link = "log"))
 summary(tnfx)  
 
-sec <-mdf %>% dplyr::select(Secretin, time, cohort, mouse, dom) %>% filter(time == "Pre")
+sec <-mdf %>% dplyr::select(Secretin, time, cohort, mouse, dom) %>% filter(time == "Post")
 hist(sec$Secretin)
 secx<-glmer(Secretin~dom+(1|mouse)+(1|cohort), data =sec,family = Gamma(link = "log"))
 summary(secx) #sign pre group housing, decreases with group housing?
-
+ggplot(sec,aes(time,Secretin))+
+  geom_boxplot()+
+  geom_jitter()+
+  facet_wrap(~dom)
 
 ## individual differences 
 head(mdf)
@@ -287,8 +298,8 @@ ggplot(df.s, aes(x=time , y = value, group = dom)) +
           y=  "Concentration (pg/ml)") +
   scale_color_manual(values = viridis::viridis(3)) +
    facet_wrap(~ analyte, scales ="free") +
-  # facet_wrap(vars(analyte, dom), scales = "free")+
-  newggtheme 
+  facet_wrap(vars(analyte, dom), scales = "free")
+  # newggtheme 
 
 
 # just getting pre and post with insulin and cpeptide
