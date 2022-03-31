@@ -1,4 +1,6 @@
 library(tidyverse)
+library(MASS)
+library(car)
 
 #source
 #rank data
@@ -148,22 +150,56 @@ bdnfx<-lmer(BDNF~dom2+(1|mouse)+(1|cohort), data =bdnf)
 summary(bdnfx)# nothing is significant 
 
 hist(fsh$FSH)
-fx<-lmer(FSH~dom2+(1|mouse)+(1|cohort), data =fsh)
+fx<-glmer(FSH~dom2+(1|mouse)+(1|cohort), data =fsh,family = Gamma(link = "log") )
 summary(fx)# nothing is significant 
 
 hist(gh$GH) #not normal 
 gx<-glmer(GH~dom2+(1|mouse)+(1|cohort), data =gh, family = Gamma(link = "log"))  
-summary(gx)#Model isn't working 
+summary(gx)#Model isn't working -- maybe is fine?
+
+acf(resid(gx))
+qqPlot(resid(gx))
+hist(resid(gx))
+plot(gx)#not great... 
+
+durbinWatsonTest(resid(gx))
+shapiro.test(resid(gx))#normal
+
 
 hist(lh$LH) #not normal 
 lx<-lmer(LH~dom2+(1|mouse)+(1|cohort)+(1|glicko_rank), data =lh)
 summary(lx)# # nothing is significant 
 
+acf(resid(lx))
+qqPlot(resid(lx))
+hist(resid(lx))
+plot(lx)#wtf?
+
+durbinWatsonTest(resid(lx))
+shapiro.test(resid(lx))#not normal
+
+
 hist(pro$Prolactin) #not normal 
 px<-glmer(Prolactin~dom2+(1|mouse)+(1|cohort), data =pro, family = Gamma(link = "log"))
 summary(px)# #subordinate lower p < .0001
+
+acf(resid(px))
+qqPlot(resid(px))
+hist(resid(px))
+plot(px)#not great... 
+
+durbinWatsonTest(resid(px))
+shapiro.test(resid(px))#normal
 
 
 hist(tsh$TSH) #not normal 
 tx<-glmer(TSH~dom2+(1|mouse)+(1|cohort), data =tsh, family = Gamma(link = "log"))
 summary(tx)# # subordinates higher  p = 0.00237 
+
+acf(resid(tx))
+qqPlot(resid(tx))
+hist(resid(tx))
+plot(tx)#not great... 
+
+durbinWatsonTest(resid(tx))
+shapiro.test(resid(tx))#normal

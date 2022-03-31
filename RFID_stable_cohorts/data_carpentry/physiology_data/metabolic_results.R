@@ -77,49 +77,170 @@ ggplot(post.long1, aes(dom, value))+
 
 
 library(lmerTest)
-ins <- mdf %>% select(Insulin, time, cohort, mouse, dom) 
-cpep <- mdf %>% select(Cpeptide2, time, cohort, mouse, dom)
-il6 <-  mdf %>% select(IL6, time, cohort, mouse, dom)
-lep <- mdf %>% select(Leptin, time, cohort, mouse, dom)
-pyy <- mdf %>% select(PYY, time, cohort, mouse, dom)
-ghr <- mdf %>% select(Ghrelin, time, cohort, mouse, dom)
-MC <- mdf %>% select(MCP1_CCL2, time, cohort, mouse, dom)
-amy <- mdf %>% select(Amylin, time, cohort, mouse, dom)
-tnf <-mdf %>% select(TNFa, time, cohort, mouse, dom) %>% filter(time == 'Post')
+ins <- mdf %>% dplyr::select(Insulin, time, cohort, mouse, dom) %>% filter(time == 'Post')
+cpep <- mdf %>% dplyr::select(Cpeptide2, time, cohort, mouse, dom)%>% filter(time == 'Post')
+il6 <-  mdf %>% dplyr::select(IL6, time, cohort, mouse, dom)%>% filter(time == 'Post')
+lep <- mdf %>% dplyr::select(Leptin, time, cohort, mouse, dom)%>% filter(time == 'Post')
+pyy <- mdf %>% dplyr::select(PYY, time, cohort, mouse, dom)%>% filter(time == 'Post')
+ghr <- mdf %>% dplyr::select(Ghrelin, time, cohort, mouse, dom)%>% filter(time == 'Post')
+MC <- mdf %>% dplyr::select(MCP1_CCL2, time, cohort, mouse, dom)%>% filter(time == 'Post')
+amy <- mdf %>% dplyr::select(Amylin, time, cohort, mouse, dom)%>% filter(time == 'Post')
+tnf <-mdf %>% dplyr::select(TNFa, time, cohort, mouse, dom) %>% filter(time == 'Post')
 
-sec <-mdf %>% select(Secretin, time, cohort, mouse, dom)
+sec <-mdf %>% dplyr::select(Secretin, time, cohort, mouse, dom)
 hist(lep$Leptin)
 
-insx<-glmer(Insulin~dom+time+(1|mouse)+(1|cohort), data =ins,family = Gamma(link = "log"))
-summary(insx) # sign pre and post, no effect of group housing
+insx<-glmer(Insulin~dom+(1|mouse)+(1|cohort), data =ins,family = Gamma(link = "log"))
+summary(insx) 
+acf(resid(insx))
+qqPlot(resid(insx))
+hist(resid(insx))
+plot(insx)
 
-cpepx<-glmer(Cpeptide2~dom+time+(1|mouse)+(1|cohort), data =cpep,family = Gamma(link = "log"))
-summary(cpepx)#sign pre and post, increase with group housing
+durbinWatsonTest(resid(insx))
+shapiro.test(resid(insx))#normal
 
-il6x<-glmer(IL6~dom+time+(1|cohort), data =il6,family = Gamma(link = "log"))
-summary(il6x) # just pre significant not post, no effect of group housing
+ins <- mdf %>% dplyr::select(Insulin, time, cohort, mouse, dom) %>% filter(time == 'Pre')
+insx2<-glmer(Insulin~dom+(1|mouse)+(1|cohort), data =ins,family = Gamma(link = "log"))
+summary(insx2) 
 
-lepx<-glmer(Leptin~dom+time+(1|mouse)+(1|cohort), data =lep,family = Gamma(link = "log"))
+acf(resid(insx2))
+qqPlot(resid(insx2))
+hist(resid(insx2))
+plot(insx2)
+
+durbinWatsonTest(resid(insx2))
+shapiro.test(resid(insx2))#normal
+
+
+cpepx<-glmer(Cpeptide2~dom+(1|mouse)+(1|cohort), data =cpep,family = Gamma(link = "log"))
+summary(cpepx)
+
+acf(resid(cpepx))
+qqPlot(resid(cpepx))
+hist(resid(cpepx))
+plot(cpepx)
+
+durbinWatsonTest(resid(cpepx))
+shapiro.test(resid(cpepx))#normal
+
+#Pre group housing 
+cpep2 <- mdf %>% dplyr::select(Cpeptide2, time, cohort, mouse, dom)%>% filter(time == 'Pre')
+
+cpepx2<-glmer(Cpeptide2~dom+(1|mouse)+(1|cohort), data =cpep2,family = Gamma(link = "log"))
+summary(cpepx2)
+
+acf(resid(cpepx2))
+qqPlot(resid(cpepx2))
+hist(resid(cpepx2))
+plot(cpepx2)# super weird 
+
+durbinWatsonTest(resid(cpepx2))
+shapiro.test(resid(cpepx2))#normal
+
+il6x<-glmer(IL6~dom+(1|mouse)+(1|cohort), data =il6,family = Gamma(link = "log"))
+summary(il6x) 
+
+il62 <-  mdf %>% dplyr::select(IL6, time, cohort, mouse, dom)%>% filter(time == 'Pre')
+il6x2<-glmer(IL6~dom+(1|mouse)+(1|cohort), data =il62,family = Gamma(link = "log"))
+summary(il6x2)
+
+acf(resid(il6x2))
+qqPlot(resid(il6x2))
+hist(resid(il6x2))
+plot(il6x2)# super weird 
+
+durbinWatsonTest(resid(il6x2))
+shapiro.test(resid(il6x2))#normal
+
+
+
+lepx<-glmer(Leptin~dom+(1|mouse)+(1|cohort), data =lep,family = Gamma(link = "log"))
 summary(lepx) # different pre to post group housing but no effect on status 
 
-pyyx<-glmer(PYY~dom+time+(1|mouse)+(1|cohort), data =pyy,family = Gamma(link = "log"))
-summary(pyyx) # different pre to post group housing but no effect on status 
+lep2 <- mdf %>% dplyr::select(Leptin, time, cohort, mouse, dom)
+lepx2<-glmer(Leptin~dom+time+(1|mouse)+(1|cohort), data =lep2,family = Gamma(link = "log"))
+summary(lepx2) 
 
-ghrx<-glmer(Ghrelin~dom+time+(1|mouse)+(1|cohort), data =ghr,family = Gamma(link = "log"))
-summary(ghrx) #sign pre and post, no effect on group housing
+ggplot(lep2,aes(time,Leptin))+
+  geom_boxplot()+
+  geom_jitter()+
+  facet_wrap(~dom)
+
+hist(pyy$PYY)
+
+pyyx<-lmer(PYY~dom+(1|mouse)+(1|cohort), data =pyy)
+summary(pyyx)
+
+pyy <- mdf %>% dplyr::select(PYY, time, cohort, mouse, dom)%>% filter(time == 'Pre')
+
+ghrx<-glmer(Ghrelin~dom+(1|mouse)+(1|cohort), data =ghr,family = Gamma(link = "log"))
+summary(ghrx) 
+
+acf(resid(ghrx))
+qqPlot(resid(ghrx))
+hist(resid(ghrx))
+plot(ghrx)# super weird 
+
+durbinWatsonTest(resid(ghrx))
+shapiro.test(resid(ghrx))#normal
+
+
+ghr2 <- mdf %>% dplyr::select(Ghrelin, time, cohort, mouse, dom)%>% filter(time == 'Pre')
+
+ghrx2<-glmer(Ghrelin~dom+(1|mouse)+(1|cohort), data =ghr2,family = Gamma(link = "log"))
+summary(ghrx2) 
+
+
+acf(resid(ghrx2))
+qqPlot(resid(ghrx2))
+hist(resid(ghrx2))
+plot(ghrx2)# super weird 
+
+durbinWatsonTest(resid(ghrx2))
+shapiro.test(resid(ghrx2))#normal
+
 
 hist(MC$MCP1_CCL2)
 MCx<-lmer(MCP1_CCL2~dom+time+(1|mouse)+(1|cohort), data =MC)
-summary(MCx) #nothing is significant
+summary(MCx)
+MC <- mdf %>% dplyr::select(MCP1_CCL2, time, cohort, mouse, dom)
+
+
+
+
 
 amyx<-glmer(Amylin~dom+(1|mouse)+(1|cohort), data =amy,family = Gamma(link = "log"))
 summary(amyx) #nothing is significant
 
+amy2 <- mdf %>% dplyr::select(Amylin, time, cohort, mouse, dom)
+amyx<-glmer(Amylin~dom+time+(1|mouse)+(1|cohort), data =amy2,family = Gamma(link = "log"))
+summary(amyx) #nothing is significant
+
+ggplot(amy2,aes(time,Amylin))+
+  geom_boxplot()+
+  geom_jitter()+
+  facet_wrap(~dom)
+
+acf(resid(amyx))
+qqPlot(resid(amyx))
+hist(resid(amyx))
+plot(amyx)# super weird 
+
+durbinWatsonTest(resid(amyx))
+shapiro.test(resid(amyx))#normal
+
+
 tnfx<-glmer(TNFa~dom+(1|mouse)+(1|cohort), data =tnf,family = Gamma(link = "log"))
-summary(tnfx) #sign pre group housing. 
+summary(tnfx) #nothing significant 
 
+tnf <-mdf %>% dplyr::select(TNFa, time, cohort, mouse, dom) 
+tnfx<-glmer(TNFa~dom+time+(1|mouse)+(1|cohort), data =tnf,family = Gamma(link = "log"))
+summary(tnfx)  
 
-secx<-glmer(Secretin~dom+time+(1|mouse)+(1|cohort), data =sec,family = Gamma(link = "log"))
+sec <-mdf %>% dplyr::select(Secretin, time, cohort, mouse, dom) %>% filter(time == "Pre")
+hist(sec$Secretin)
+secx<-glmer(Secretin~dom+(1|mouse)+(1|cohort), data =sec,family = Gamma(link = "log"))
 summary(secx) #sign pre group housing, decreases with group housing?
 
 
