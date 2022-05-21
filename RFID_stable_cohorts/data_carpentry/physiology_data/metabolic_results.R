@@ -30,6 +30,34 @@ mdf <- m %>% full_join(rank) %>% filter(ID != "C10M5")
 head(mdf)
 
 
+m.long <-mdf %>% pivot_longer(cols = 2:11, names_to="analyte") 
+m.long$ID <- substr(m.long$ID, 5,9)
+m.long$ID <- gsub("_", "", m.long$ID)
+
+m.long$time <- factor(m.long$time, levels = c("Pre", "Post"))
+###
+ ggplot(m.long, aes(x=time , y = value)) +
+  geom_line(aes(group = ID, color=dom), size = .75, alpha = .75) +
+  geom_point(aes(color=dom), alpha = .75, size = 1)+
+  scale_color_manual(values = c("#238A8DFF", "#FDE725FF"), name = "Rank")+
+  labs(x = "",
+          y=  "Concentration (pg/ml)") +
+  facet_wrap(~analyte, scales = "free_y")+
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=15),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 15)
+  )
+
+
+
 #pre data 
 
 pre<- mdf %>% filter(time == "Pre") 
@@ -75,24 +103,58 @@ ggplot(ci, aes(dom, value))+
   theme_minimal()
 
 
+pre <- m.long %>% filter(time == "Pre")
+
+post <- m.long %>% filter(time == "Post")
+
+diff <- m.long %>%pivot_wider(., names_from = time, values_from = value) %>% 
+  mutate(diff = Pre - Post)
+
+ggplot(diff, aes(dom, diff,color =dom, fill = dom))+
+  geom_boxjitter(outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.4,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  facet_wrap(~analyte, scales = "free_y")+
+  labs(title = "",
+       x = "",
+       y = " Difference in Concentration (pg/ml)") +
+  scale_color_manual(values = viridis::viridis(4)) +
+  scale_fill_manual(values = viridis::viridis(4))+theme_classic() +
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        legend.position = 'none',
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank() 
+  )
 
 
 
 library(lmerTest)
-ins <- mdf %>% dplyr::select(Insulin, time, cohort, mouse, dom) %>% filter(time == 'Post')
-cpep <- mdf %>% dplyr::select(Cpeptide2, time, cohort, mouse, dom)%>% filter(time == 'Post')
-il6 <-  mdf %>% dplyr::select(IL6, time, cohort, mouse, dom)%>% filter(time == 'Post')
-lep <- mdf %>% dplyr::select(Leptin, time, cohort, mouse, dom)%>% filter(time == 'Post')
-pyy <- mdf %>% dplyr::select(PYY, time, cohort, mouse, dom)%>% filter(time == 'Post')
-ghr <- mdf %>% dplyr::select(Ghrelin, time, cohort, mouse, dom)%>% filter(time == 'Post')
-MC <- mdf %>% dplyr::select(MCP1_CCL2, time, cohort, mouse, dom)%>% filter(time == 'Post')
-amy <- mdf %>% dplyr::select(Amylin, time, cohort, mouse, dom)%>% filter(time == 'Post')
-tnf <-mdf %>% dplyr::select(TNFa, time, cohort, mouse, dom) %>% filter(time == 'Post')
+d.list <- diff %>% split(.$analyte)
 
-sec <-mdf %>% dplyr::select(Secretin, time, cohort, mouse, dom)
+
+names(d.list)
+
+ins <- d.list$Insulin
+cpep <- d.list$Cpeptide2
+il6 <-  d.list$IL6
+lep <- d.list$Leptin
+pyy <- d.list$PYY
+ghr <- d.list$Ghrelin
+MC <- d.list$MCP1_CCL2
+amy <- d.list$Amylin
+tnf <-d.list$TNFa
+sec <- d.list$Secretin
 hist(lep$Leptin)
 
-insx<-glmer(Insulin~dom+(1|mouse)+(1|cohort), data =ins,family = Gamma(link = "log"))
+insx<-lmer(diff~dom+(1|mouse)+(1|cohort), data =sec)
 summary(insx) 
 acf(resid(insx))
 qqPlot(resid(insx))
@@ -115,7 +177,7 @@ durbinWatsonTest(resid(insx2))
 shapiro.test(resid(insx2))#normal
 
 
-cpepx<-glmer(Cpeptide2~dom+(1|mouse)+(1|cohort), data =cpep,family = Gamma(link = "log"))
+cpepx<-lmer(diff~dom+(1|mouse)+(1|cohort), data =cpep)
 summary(cpepx)
 
 acf(resid(cpepx))

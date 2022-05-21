@@ -45,8 +45,7 @@ m1$TSH <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m1$TSH))
 m1$LH <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m1$LH))
 
 
-m1 <- m1 %>% filter(BDNF <20) %>% filter(GH <20000)%>% 
-  select(-ID)
+m1 <- m1 %>% filter(BDNF <20) %>% filter(GH <12000)
 
 df <- m1 %>% left_join(rank)
 head(df)
@@ -56,16 +55,36 @@ df$dom2 <- ifelse(df$dom == "Dominant", "Dominant", "Subordinate")
 
 
 df1 <- df %>% filter(time == "Post")
+df1$ID <- substr(df1$ID, 5,9)
+df1$ID <- gsub("_", "", df1$ID)
+df1$ID 
+
+df.long <- df1 %>% pivot_longer(cols = 2:7, names_to="analyte") 
 
 
-df.long <- df %>% pivot_longer(cols = 1:7, names_to="analyte") 
-
-
-ggplot(df.long, aes(dom2, value))+
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter()+
-  facet_wrap(~analyte,  scales="free_y")+
-  theme_minimal()
+ggplot(df.long, aes(dom, value, color = dom, fill = dom))+
+  geom_boxjitter(outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.4,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  facet_wrap(~analyte, scales = "free_y")+
+  labs(title = "",
+       x = "",
+       y = "Concentration (pg/ml)") +
+  scale_color_manual(values = viridis::viridis(3)) +
+  scale_fill_manual(values = viridis::viridis(3))+theme_classic() +
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        legend.position = 'none',
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank() 
+  )
 
 
 
