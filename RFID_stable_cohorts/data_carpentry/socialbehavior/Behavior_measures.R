@@ -144,8 +144,8 @@ dss.df.all %>% filter(cohort != "6") %>%
   ) -> ds.long.summary
 
 
-  ggplot() + 
-    geom_line(data=dss.df.all, aes(x=rank, y=ds, group=cohort), alpha=.3, color="gray57") +
+ds_plot <-   ggplot() + 
+    geom_line(data=dss.df.all, aes(x=rank, y=ds, group=cohort), alpha=.5, color="gray57") +
     theme_classic() +
     xlab("Mouse Rank") +
     ylab("David's Scores") +
@@ -156,7 +156,8 @@ dss.df.all %>% filter(cohort != "6") %>%
                aes(x=rank, y=median), size=3, shape=21, fill="white")+
     scale_x_continuous(breaks=1:10)+
     theme(legend.position = "none", text = element_text(size=20))
-
+ggsave('rfid/RFID_stable_cohorts/imgs/ds.png', ds_plot, dpi = 200)
+dev.off()
 
 ## get ds_rank df
   
