@@ -156,7 +156,7 @@ ds_plot <-   ggplot() +
                aes(x=rank, y=median), size=3, shape=21, fill="white")+
     scale_x_continuous(breaks=1:10)+
     theme(legend.position = "none", text = element_text(size=20))
-ggsave('rfid/RFID_stable_cohorts/imgs/ds.png', ds_plot, dpi = 200)
+ggsave('RFID_stable_cohorts/imgs/ds.png', ds_plot, height = 6, width =6, dpi = 300)
 dev.off()
 
 ## get ds_rank df
