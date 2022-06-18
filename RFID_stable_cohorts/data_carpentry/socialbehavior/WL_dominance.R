@@ -130,6 +130,13 @@ write.csv(wl_df, "RFID_stable_cohorts/data_clean/socialbehavior/WL_data.csv", ro
 
 #David scores
 
+get_matrix <- function(df){
+  df <-df[df$score==1,]
+  mat <-compete::org_matrix(compete::get_wl_matrix(df[,c('winner','loser')]),
+                            method = "ds")
+  return(mat)
+}
+
 df <- read_csv("RFID_stable_cohorts/data_clean/socialbehavior/WL_data.csv")
 head(df)
 
@@ -299,7 +306,7 @@ pre.glicko.ratings <- Map(cbind, pre.glicko.ratings, id = names(pre.glicko))
 glick.dt <- data.table::rbindlist(pre.glicko.ratings)
 glick.dt
 
-# glick.dt <- glick.dt %>% filter( id != "8")
+glick.dt <- glick.dt %>% filter(id != "6")
 
 range(glick.dt$value)
 
@@ -319,12 +326,11 @@ glick.dt <- glick.dt %>% full_join(finalranks)
 glick.dt$finalrank <- as.character(glick.dt$finalrank) # won't allow a number for linetype
 glick.dt$id <- factor(glick.dt$id, levels = c(1:10))
 
-glick6 <- glick.dt %>% filter(id !=6)
 
-glicko_p <- ggplot(glick6, aes(x = event, y = value, col=finalrank, linetype=finalrank))+
+glicko_p <- ggplot(glick.dt, aes(x = event, y = value, col=finalrank, linetype=finalrank))+
   geom_line(lwd=1) +
   scale_color_manual(values = c("firebrick2", "darkorange3", "chocolate2","goldenrod2", "darkgray","black"))+
-  facet_wrap(~id, ncol = 3)+
+  facet_wrap(~id, ncol = 5)+
   ylab("Glicko Rating") +
   xlab("Event") +
   scale_y_continuous(breaks = c(seq(1600,2800,400)))+
@@ -352,6 +358,64 @@ ggsave("RFID_stable_cohorts/imgs/glicko_plots_without6.png", glicko_p, height = 
 
 
 
+### Do for all glickos with out cohort 6 
+pre.glicko <- pre.glicko[c(1:6,8:10)]
+pre.glicko.ratings <- lapply(pre.glicko, extract_ratings)
+
+names(pre.glicko) <- c("1","9", "2", "3", "4", "5", "6", "7", "8")
+pre.glicko.ratings <- Map(cbind, pre.glicko.ratings, id = names(pre.glicko))
+
+
+## Plot All.
+glick.dt <- data.table::rbindlist(pre.glicko.ratings)
+glick.dt
+
+
+range(glick.dt$value)
+
+mycolors=c("black", "grey", "orange", "red")
+ltypes=c(1,2,3,1)
+linewd=1
+ylim1=1600
+ylim2=3000
+
+#need a final rank value - doing it with tidyverse seems fastest
+library(tidyverse)
+glick.dt %>% group_by(id) %>%
+  filter(event==max(event)) %>%
+  select(ids, finalrank = rank, id) -> finalranks
+
+glick.dt <- glick.dt %>% full_join(finalranks)
+glick.dt$finalrank <- as.character(glick.dt$finalrank) # won't allow a number for linetype
+glick.dt$id <- factor(glick.dt$id, levels = c(1:9))
+
+
+glicko_p <- ggplot(glick.dt, aes(x = event, y = value, col=finalrank, linetype=finalrank))+
+  geom_line(lwd=1) +
+  scale_color_manual(values = c("firebrick2", "darkorange3", "chocolate2","goldenrod2", "darkgray","black"))+
+  facet_wrap(~id, ncol = 3)+
+  ylab("Glicko Rating") +
+  xlab("Event") +
+  scale_y_continuous(breaks = c(seq(1600,2800,400)))+
+  theme(plot.title = element_text(hjust = 0, vjust = 1, size = rel(1.7)),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        panel.grid.major.y = element_line(color = "gray75",linetype = 'dotted'),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background  = element_blank(),
+        strip.text = element_text(size=rel(1.1)),
+        text = element_text(color="gray20", size=15),
+        axis.text = element_text(size=rel(1.0)),
+        axis.text.x = element_text(color="gray20", size=rel(1.0)),
+        axis.text.y = element_text(color="gray20", size=rel(1.0)),
+        axis.title.x = element_text(size=rel(1.0), vjust=0),
+        axis.title.y = element_text(size=rel(1.0), vjust=1),
+        axis.ticks.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "none")
+
+ggsave("RFID_stable_cohorts/imgs/glicko_plots_without6.png", glicko_p, height = 12, width = 12, dpi = 300)
 
 
 
