@@ -22,10 +22,10 @@ m$time <- ifelse(grepl("pre",m$ID), "Pre", "Post")
 m$cohort  <-  as.numeric(gsub(".*?([0-9]+).*", "\\1", m$ID))
 m$mouse <- as.numeric(substrRight(m$ID,1))
 
-m$Secretin <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m$Secretin))
+m$Secretin <- as.numeric(regmatches(m$Secretin,regexpr("[[:digit:]]+\\.[[:digit:]]+",m$Secretin)))
 
 #join rank data
-#we didn't have plasma for C10M5
+#we didn't have plasma for C10M5 - one last dominant mouse
 mdf <- m %>% full_join(rank) %>% filter(ID != "C10M5")
 head(mdf)
 
@@ -222,6 +222,16 @@ plot(il6x2)# super weird
 
 durbinWatsonTest(resid(il6x2))
 shapiro.test(resid(il6x2))#normal
+
+
+
+
+
+
+
+
+
+
 
 
 

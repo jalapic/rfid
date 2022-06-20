@@ -38,7 +38,7 @@ m1 <- m  %>% filter(ID != "post_C10M2")%>%
 
 head(m1)
 
-m1$BDNF <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m1$BDNF))
+m$BDNF <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m$BDNF))
 m1$GH <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m1$GH))
 m1$Prolactin <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m1$Prolactin))
 m1$TSH <- as.numeric(gsub("[^[:alnum:]\\-\\.\\s]", "", m1$TSH))
