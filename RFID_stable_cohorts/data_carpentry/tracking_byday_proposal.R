@@ -30,7 +30,7 @@ total <- dms %>% group_by(cohort,glicko_rank,day,zone) %>%
   summarize(tot_ms = sum(duration, na.rm = T)) %>% unique(.)
 
 total <- total %>% group_by(cohort,glicko_rank, zone) %>% 
-  summarise(mt = mean(tot_ms))
+  mutate(mt = mean(tot_ms))
 
 
 head(total)
@@ -517,7 +517,7 @@ head(jp)
 
 
 
-jp1 <-jp %>% dplyr::select(1,3,4,10) %>% unique() %>% filter(day != 11) 
+jp1 <-jp %>% dplyr::select(4,10) %>% unique() %>% filter(day != 11) 
 head(jp1)
 
 
@@ -595,20 +595,20 @@ jp <- dms %>% filter(cohort != 6)%>% group_by(glicko_rank,day) %>%
  mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
 head(jp)
 
+colnames(jp1)
 
-
-jp1 <- jp %>% dplyr::select(1,3,4,10) %>% unique()
+jp1 <- jp %>% dplyr::select(2,3,5,7,13) %>% unique(.) 
 head(jp1)
 
 
-jp2 <- jp1 %>% group_by(glicko_rank) %>% mutate(acum = cumsum(total))
+jp2 <- jp1 %>% group_by(mouse,cohort) %>% mutate(acum = cumsum(total))
 jp2$day <- as.factor(jp2$day)
 jp2 <- na.omit(jp2)
-jp2 <- jp2 %>% filter(day !=11) 
+jp2 <- jp2 %>% filter(day !=11)
+head(jp2)
 
 
-
-ggplot(jp2, aes(day,acum, color = glicko_rank))+
+ p2 <- ggplot(jp2, aes(day,acum, color = glicko_rank))+
   geom_line(aes(group = glicko_rank), size = 1, alpha=.8)+
   geom_point(aes(group =acum), alpha = .6, size = 3)+
   scale_color_manual(values = viridis::viridis(6)) +
@@ -616,19 +616,129 @@ ggplot(jp2, aes(day,acum, color = glicko_rank))+
   theme_minimal()+
   labs(color = "Rank")+
   theme( strip.background  = element_rect(fill = NA, color = "black"),
-         axis.text.x = element_text(size= 10) ,
-         axis.text.y = element_text(size= 10),
-         strip.text = element_text(size = 11),
-         text = element_text(size= 15))+
-  ylab("Total Cage Changes") +
+         axis.text.x = element_text(size= 15) ,
+         axis.text.y = element_text(size= 15),
+         strip.text = element_text(size =20),
+         text = element_text(size= 20))+
+  ylab("Total Cage Transitions") +
   xlab("Day")
 
+ggsave("RFID_stable_cohorts/imgs/total_cage_changes.png", p2,height = 5, width = 5, dpi = 300)
 
-hist(jp2$acum)
+
+##for SBN 
+
+cpep <- cpep %>% mutate(analyte = "C-Peptide2")
+sbn <- ins %>% rbind(ghr,cpep) %>% filter(time == "GH")
+sbn$glicko_rank <- as.numeric(sbn$glicko_rank)
+tot <- jp2 %>% filter(glicko_rank != 2)%>% filter(glicko_rank != 3)%>% filter(glicko_rank != 4)%>% filter(glicko_rank != 5)
+tot$glicko_rank <- as.numeric(tot$glicko_rank)
+
+sbn2 <- sbn %>% full_join(tot) %>% filter(day == 10) 
+
+sbn2 <- na.omit(sbn2)
+
+sbn.list <- sbn2 %>%  split(.$analyte)
+
+sbn.list %>% map(~cor.test(., value, acum))
+
+
+x <- sbn2 %>%  filter(analyte == "") %>% filter(glicko_rank == 1)
+
+cor.test(x$value, x$acum)
+sbn2$analyte <- factor(sbn2$analyte, levels = c("Insulin", "C-Peptide2", "Ghrelin"))
+ p2 <- ggplot(sbn2, aes(acum, value, color = as.factor(glicko_rank), fill = as.factor(glicko_rank)))+
+  geom_point(size = 3, shape = 21, alpha = 0.6)+
+  geom_smooth(method = "lm", alpha = 0.2, size = 1.2,se =F)+
+  scale_color_manual(name="GH Rank",values = viridis::viridis(2)) +
+  scale_fill_manual(name="GH Rank",values = viridis::viridis(2))+
+  labs(y = "GH Concentration (pg/ml)",
+       x = "Total Cage Transitions") +
+  facet_wrap(~analyte, scales = "free_y")+ 
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 20)
+  )
+
+ 
+ p2
+ggsave("RFID_stable_cohorts/imgs/met_tot.png", p2, width = 14, height = 5, dpi = 300)
+ 
+
+
+
+cpep <- cpep %>% mutate(analyte = "C-Peptide2")
+sbn <- ghr %>% rbind(ins,cpep) %>% filter (time == "PH")
+sbn$glicko_rank <- as.numeric(sbn$glicko_rank)
+tot <- jp2 %>% filter(glicko_rank != 2)%>% filter(glicko_rank != 3)%>% filter(glicko_rank != 4)%>% filter(glicko_rank != 5)
+tot$glicko_rank <- as.numeric(tot$glicko_rank)
+
+sbn2 <- sbn %>% full_join(tot) %>% filter(day == 10) %>% unique(.)
+
+sbn2 <- na.omit(sbn2)
+# sbn2$time <- factor(sbn2$time, levels =c("Pre", "Post"))
+# sbn2$time <- ifelse(sbn2$time == "Post",'Post Concentration (pg/ml)', "Pre Concentration (pg/ml)")
+
+ sbn2$analyte <- factor(sbn2$analyte, levels = c("Insulin", "C-Peptide2", "Ghrelin"))
+
+ df <- read_csv("RFID_stable_cohorts/data_raw/id_data.csv")
+ head(df) 
+ 
+ df1 <- df %>% dplyr::select(1,3,11, 13)
+ sbn2 <- sbn2 %>% full_join(df1)
+ 
+ head(sbn2)
+ 
+ sbn2 <- na.omit(sbn2)
+ 
+ 
+ 
+ sbn2$pre_rank <- ifelse(sbn2$pre_rank == "D", 1, 6)
+ p3 <- ggplot(sbn2, aes(acum, value, color = as.factor(glicko_rank), fill = as.factor(glicko_rank)))+
+  geom_point(size = 3, shape = 21, alpha = 0.6)+
+  geom_smooth(method = "lm", alpha = 0.2, size = 1.2,se =F)+
+  scale_color_manual(name="GH Rank",values = viridis::viridis(2)) +
+  scale_fill_manual(name="GH Rank",values = viridis::viridis(2))+
+  labs(y = "PH Concentration (pg/ml)",
+       x = "Total Cage Transitions") +
+  facet_wrap(~analyte, scales = "free_y")+ 
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 20))
+
+
+p3
+p2
+
+mt <- gridExtra::grid.arrange(p3,p2)
+
+ggsave("RFID_stable_cohorts/imgs/met_tot_pp_GH.png", mt, width = 14, height = 10, dpi = 300)
+
+
+
+
+
+ hist(jp2$acum)
 jp2$day <- as.integer(jp2$day)
 hist(jp2$total)
 
-jp2$glicko_rank <- factor(jp2$glicko_rank, levels= c(2,3,4,5,6,1))
+jp2$glicko_rank <- factor(jp2$glicko_rank, levels= c(2,3,4,5,6,1)) 
 
 tm <-glmer(total~glicko_rank+day +(1|cohort), data =jp2,family = Gamma(link = "log"))
 summary(tm)

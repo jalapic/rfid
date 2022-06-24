@@ -12,6 +12,36 @@ m.long$ID <- gsub("_", "", m.long$ID)
 head(m.long)
 
 
+df <- read_csv("RFID_stable_cohorts/data_raw/id_data.csv")
+head(df) 
+
+df1 <- df %>% dplyr::select(1,3,11, 13)
+
+mat <- m.long %>% full_join(df1) %>% dplyr::select(1:4, 7:12)
+
+lat <- mat %>% filter(analyte == 'Leptin') %>% filter(time == 'Post')
+
+lat_p <- ggplot(lat, aes(weight_AT, value, color = as.factor(glicko_rank), fill = as.factor(glicko_rank)))+
+  geom_point(size = 3, shape = 21, alpha = 0.6)+
+  geom_smooth(method = "lm", alpha = 0.2, size = 1.2,se =F)+
+  scale_color_manual(name="GH Rank",values = viridis::viridis(2)) +
+  scale_fill_manual(name="GH Rank",values = viridis::viridis(2))+
+  labs(y = "GH Plasma Leptin Concentration (pg/ml)",
+       x = "eWAT Weight (g)") +
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 20))
+
+ggsave("RFID_stable_cohorts/imgs/l_WAT.png",lat_p, height = 6, width  = 6, dpi = 300)
+
 ggplot(m.long, aes(x=time , y = value)) +
   geom_line(aes(group = ID, color=dom), size = .75, alpha = .75) +
   geom_point(aes(color=dom), alpha = .75, size = 1)+
@@ -33,7 +63,8 @@ ggplot(m.long, aes(x=time , y = value)) +
   )
 
 m.long$time <- factor(m.long$time, levels = c("Pre", "Post"))
-
+m.long$time  <- ifelse(m.long$time == "Pre", "PH", 'GH')
+m.long$time <- factor(m.long$time, levels = c("PH", "GH"))
 
 a.list <- m.long %>% split(.$analyte)
 lapply(a.list,head)
@@ -124,6 +155,33 @@ tnf <-a.list$TNFa
 sec <- a.list$Secretin
 
 
+cin <- ins %>% rbind(cpep)
+head(cin)
+
+ccin <- cin %>% dplyr::select(-y_max) %>% pivot_wider(names_from = analyte, values_from = value) %>% unique()
+
+
+
+cinp <- ggplot(ccin, aes(Cpeptide2, Insulin, color = as.factor(glicko_rank), fill = as.factor(glicko_rank)))+
+  geom_point(size = 3, shape = 21, alpha = 0.6)+
+  geom_smooth(method = "lm", alpha = 0.2, size = 1.2,se =F)+
+  scale_color_manual(name="GH Rank",values = viridis::viridis(2)) +
+  scale_fill_manual(name="GH Rank",values = viridis::viridis(2))+
+  labs(y = "GH Plasma Insulin Concentration (pg/ml)",
+       x = "GH Plasma C-Peptide2 Concentration (pg/ml)") +
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 20))
+
+ggsave("RFID_stable_cohorts/imgs/Ins_Cpep.png",cinp, height = 6, width  = 6, dpi = 300)
 #ins
 hist(ins$value)
 insx<-glmer(value~dom+time+(1|mouse)+(1|cohort), data =ins,family = Gamma(link = "log"))
@@ -473,11 +531,14 @@ head(df)
 
 ed <- df %>% dplyr::select(1:11,15) %>% filter(time  == 'Post')
 
-ed.long <-  ed %>% pivot_longer(cols = 2:7, names_to="analyte") 
+ed.long <-  ed %>% pivot_longer(cols = 2:8, names_to="analyte") 
 ed.long$ID <- substr(ed.long$ID, 5,9)
 ed.long$ID <- gsub("_", "", ed.long$ID)
 
 
+ed.list <- ed.long %>% split(.$analyte)
+
+grubbs.flag(ed.list$TSH$value)
 
 raw <- ggplot(ed.long, aes(x=dom , y = value, color =dom, fill = dom)) +
   geom_boxjitter(outlier.color = NA, jitter.shape = NA,
@@ -505,7 +566,7 @@ raw <- ggplot(ed.long, aes(x=dom , y = value, color =dom, fill = dom)) +
         strip.text.x = element_text(size = 15),
         legend.position = "none")
 
-ggsave("RFID_stable_cohorts/imgs/raw_endocrine.png", raw, height = 10, width = 12)
+ggsave("RFID_stable_cohorts/imgs/raw_endocrine.png", raw, height = 10, width = 30)
 
 
 
@@ -521,7 +582,7 @@ m1 <- m  %>% filter(ID != "post_C10M2")%>%
   filter(ID != "post_C10M5") %>%
   filter(ID != "post_C4M2")
 # 
-  m1 <- m1 %>% filter(BDNF <20) %>% filter(GH <15000)
+  m1 <- m1 %>% filter(BDNF <20) %>% filter(LH <350) %>% filter(Prolactin < 10000)
 
 
 df <- m1 %>% left_join(rank)
@@ -529,29 +590,32 @@ head(df)
 
 ed <- df %>% dplyr::select(1:11,15) %>% filter(time  == 'Post')
 
-ed.long <-  ed %>% pivot_longer(cols = 2:7, names_to="analyte") 
+ed.long <-  ed %>% pivot_longer(cols = 2:8, names_to="analyte") 
 ed.long$ID <- substr(ed.long$ID, 5,9)
 ed.long$ID <- gsub("_", "", ed.long$ID)
 
-ed.long %>% 
-  group_by(analyte) %>% 
-  mutate(my_limit = max(value +20)) %>% ungroup(.) %>%  
-  dplyr::select(my_limit) -> my_limit
-         
+ed.long$time <- ifelse(ed.long$time == "Post", "GH", "PH")
+ed.long$time<- factor (ed.long$time, levels = c("PH", "GH"))
+
+ed.list <- ed.long %>% split(.$analyte)
+
+ins
 
 
-filtered <- ggplot(ed.long, aes(x=dom , y = value, color =dom, fill = dom)) +
-  geom_boxjitter(outlier.color = NA, jitter.shape = 21,
-                 alpha = 0.4,
-                 jitter.height = 0, jitter.width = 0.03, errorbar.draw = TRUE,
+endo <- function (df){
+filtered <- ggplot(df, aes(x=dom , y = value, color =dom, fill = dom)) +
+  geom_boxjitter(outlier.color = NA, jitter.shape = 21,jitter.size = 2,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
                  position = position_dodge(0.85))+
   # geom_line(aes(group = cohort),position = position_dodge( 0.0), size = .6, color = "black") +
   # geom_point(aes(group = ID),position = position_dodge( 0.03), size = 3, alpha =0.4) +
   facet_wrap(~analyte, scales = "free_y")+
   xlab("")+
   ylab("Concentration (pg/ml)")+
-  scale_color_viridis(discrete = TRUE)+
-  scale_fill_viridis(discrete = TRUE)+
+  scale_color_manual(values = c("#BD1100","#000004", '#ed6925'))+
+  scale_fill_manual(values = c("#BD1100","#000004", '#ed6925'))+
+  expand_limits(y = c(NA, max(df$value)+15))+
   theme(axis.text.x = element_text(vjust = 1, size = 15),
         axis.text.y = element_text(hjust = 0.5, size = 15),
         panel.grid.major = element_blank(),
@@ -559,11 +623,175 @@ filtered <- ggplot(ed.long, aes(x=dom , y = value, color =dom, fill = dom)) +
         panel.border = element_blank(),
         panel.background = element_blank(),
         plot.background = element_blank(),
-        axis.title = element_text(size = 15),
-        axis.text= element_text(color="#3C3C3C", size=15),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
         strip.background = element_blank(),
-        strip.text.x = element_text(size = 15),
+        strip.text.x = element_text(size = 20),
         legend.position = "none")
-filtered
-ggsave("RFID_stable_cohorts/imgs/_filtered_major_endocrine_withoutlines.png", filtered, height = 10, width = 12)
+return(filtered)
+
+}
+
+plots <- lapply(ed.list,endo)
+
+met2 <- egg::ggarrange(plots=plots, nrow = 1,  ncol = 7)
+
+ggsave("RFID_stable_cohorts/imgs/_filtered_major_endocrine_withoutlines.png", met2, height = 5, width = 35)
+
+
+
+
+df <- read_csv("RFID_stable_cohorts/data_raw/id_data.csv")
+head(df) 
+
+df1 <- df %>% dplyr::select(1,3,11, 13)
+
+
+
+#stats
+library(lmerTest)
+
+#ACTH
+a <- ed.list$ACTH
+a2 <- a %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+
+hist(a$value)
+ax<-lmer(value~dom+(1|mouse)+(1|cohort), data =a)
+summary(ax) 
+acf(resid(ax))
+qqPlot(resid(ax))
+plot(ax)
+shapiro.test(resid(ax))#normal
+
+
+ax2<-lmer(value~dom2+(1|mouse)+(1|cohort), data =a2)
+summary(ax2) 
+acf(resid(ax2))
+qqPlot(resid(ax2))
+plot(ax2)
+shapiro.test(resid(ax2))#normal
+
+#bdnf
+b <- ed.list$BDNF
+b2 <- b %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+hist(b$value)
+bx<-glmer(value~dom+(1|mouse)+(1|cohort), data =b, family = Gamma(link = "log"))
+summary(bx) 
+acf(resid(bx))
+qqPlot(resid(bx))
+plot(bx)
+shapiro.test(resid(bx))#normal
+
+
+
+bx2<-glmer(value~dom2+(1|mouse)+(1|cohort), data =b2, family = Gamma(link = "log"))
+summary(bx2) 
+acf(resid(bx2))
+qqPlot(resid(bx2))
+plot(bx2)
+shapiro.test(resid(bx2))#normal
+
+
+#FSH
+f <- ed.list$FSH
+f2 <- f %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+hist(f$value)
+fx<-glmer(value~dom+(1|mouse)+(1|cohort), data =f, family = Gamma(link = "log"))
+summary(fx) 
+acf(resid(fx))
+qqPlot(resid(fx))
+plot(fx)
+shapiro.test(resid(fx))#normal
+
+
+
+fx2<-glmer(value~dom2+(1|mouse)+(1|cohort), data =f2, family = Gamma(link = "log"))
+summary(fx2) 
+acf(resid(fx2))
+qqPlot(resid(fx2))
+plot(fx2)
+shapiro.test(resid(fx2))#normal
+
+#GH
+g <- ed.list$GH
+
+g2 <- g %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+hist(g$value)
+gx<-glmer(value~dom+(1|mouse)+(1|cohort), data =g, family = Gamma(link = "log"))
+summary(gx) 
+acf(resid(gx))
+qqPlot(resid(gx))
+plot(gx)
+shapiro.test(resid(gx))#normal
+
+
+
+gx2<-glmer(value~dom2+(1|mouse)+(1|cohort), data =g2, family = Gamma(link = "log"))
+summary(gx2) 
+acf(resid(gx2))
+qqPlot(resid(gx2))
+plot(gx2)
+shapiro.test(resid(gx2))#normal
+
+#lh
+l <- ed.list$LH
+l2 <- l %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+hist(l$value)
+lx<-glmer(value~dom+(1|mouse)+(1|cohort), data =l, family = Gamma(link = "log"))
+summary(lx) 
+acf(resid(lx))
+qqPlot(resid(lx))
+plot(lx)
+shapiro.test(resid(lx))#normal
+
+
+
+lx2<-glmer(value~dom2+(1|mouse)+(1|cohort), data =l2, family = Gamma(link = "log"))
+summary(lx2) 
+acf(resid(lx2))
+qqPlot(resid(lx2))
+plot(lx2)
+shapiro.test(resid(lx2))#normal
+
+
+#prolactin
+p <- ed.list$Prolactin
+p2 <- p %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+hist(p$value)
+px<-glmer(value~dom+(1|mouse)+(1|cohort), data =p, family = Gamma(link = "log"))
+summary(px) 
+acf(resid(px))
+qqPlot(resid(px))
+plot(px)
+shapiro.test(resid(px))#normal
+
+
+
+px2<-glmer(value~dom2+(1|mouse)+(1|cohort), data =p2, family = Gamma(link = "log"))
+summary(px2) 
+acf(resid(px2))
+qqPlot(resid(px2))
+plot(px2)
+shapiro.test(resid(px2))#normal
+
+
+#TSH
+t <- ed.list$TSH
+t2 <- t %>% mutate(dom2 = factor(dom, levels = c("Subdominant", "Subordinate", "Dominant")))
+hist(t$value)
+tx<-glmer(value~dom+(1|mouse)+(1|cohort), data =t, family = Gamma(link = "log"))
+summary(tx) 
+acf(resid(tx))
+qqPlot(resid(tx))
+plot(tx)
+shapiro.test(resid(tx))#normal
+
+
+
+tx2<-glmer(value~dom2+(1|mouse)+(1|cohort), data =t2, family = Gamma(link = "log"))
+summary(tx2) 
+acf(resid(tx2))
+qqPlot(resid(tx2))
+plot(tx2)
+shapiro.test(resid(tx2))#normal
 
