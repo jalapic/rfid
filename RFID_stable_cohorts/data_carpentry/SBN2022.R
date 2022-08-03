@@ -40,7 +40,7 @@ lat_p <- ggplot(lat, aes(weight_AT, value, color = as.factor(glicko_rank), fill 
         strip.background = element_blank(),
         strip.text.x = element_text(size = 20))
 
-ggsave("RFID_stable_cohorts/imgs/l_WAT.png",lat_p, height = 6, width  = 6, dpi = 300)
+ggsave("RFID_stable_cohorts/imgs/l_WAT.png",lat_p, height = 6, width  = 7, dpi = 300)
 
 ggplot(m.long, aes(x=time , y = value)) +
   geom_line(aes(group = ID, color=dom), size = .75, alpha = .75) +
@@ -181,7 +181,7 @@ cinp <- ggplot(ccin, aes(Cpeptide2, Insulin, color = as.factor(glicko_rank), fil
         strip.background = element_blank(),
         strip.text.x = element_text(size = 20))
 
-ggsave("RFID_stable_cohorts/imgs/Ins_Cpep.png",cinp, height = 6, width  = 6, dpi = 300)
+ggsave("RFID_stable_cohorts/imgs/Ins_Cpep.png",cinp, height = 6, width  = 7, dpi = 300)
 #ins
 hist(ins$value)
 insx<-glmer(value~dom+time+(1|mouse)+(1|cohort), data =ins,family = Gamma(link = "log"))

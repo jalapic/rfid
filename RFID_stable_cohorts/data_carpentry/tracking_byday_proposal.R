@@ -601,7 +601,7 @@ jp1 <- jp %>% dplyr::select(2,3,5,7,13) %>% unique(.)
 head(jp1)
 
 
-jp2 <- jp1 %>% group_by(mouse,cohort) %>% mutate(acum = cumsum(total))
+jp2 <- jp1 %>% group_by(mouse, glicko_rank) %>% mutate(acum = cumsum(total))
 jp2$day <- as.factor(jp2$day)
 jp2 <- na.omit(jp2)
 jp2 <- jp2 %>% filter(day !=11)
@@ -636,14 +636,8 @@ tot$glicko_rank <- as.numeric(tot$glicko_rank)
 
 sbn2 <- sbn %>% full_join(tot) %>% filter(day == 10) 
 
-sbn2 <- na.omit(sbn2)
-
-sbn.list <- sbn2 %>%  split(.$analyte)
-
-sbn.list %>% map(~cor.test(., value, acum))
-
-
-x <- sbn2 %>%  filter(analyte == "") %>% filter(glicko_rank == 1)
+sbn2$analyte
+x <- sbn2 %>%  filter(analyte == "Ghrelin") %>% filter(glicko_rank == 1)
 
 cor.test(x$value, x$acum)
 sbn2$analyte <- factor(sbn2$analyte, levels = c("Insulin", "C-Peptide2", "Ghrelin"))
