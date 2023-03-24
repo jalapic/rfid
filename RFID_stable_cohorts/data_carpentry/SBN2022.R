@@ -12,12 +12,15 @@ m.long$ID <- gsub("_", "", m.long$ID)
 head(m.long)
 
 
+
 df <- read_csv("RFID_stable_cohorts/data_raw/id_data.csv")
 head(df) 
 
 df1 <- df %>% dplyr::select(1,3,11, 13)
 
 mat <- m.long %>% full_join(df1) %>% dplyr::select(1:4, 7:12)
+
+mat
 
 lat <- mat %>% filter(analyte == 'Leptin') %>% filter(time == 'Post')
 
@@ -135,11 +138,14 @@ p10 <- plots[[10]]+ggtitle("TNF-alpha")+ theme(plot.title = element_text(hjust =
 met <- gridExtra::grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,ncol=5)
 
 print(met)
-ggsave("RFID_stable_cohorts/imgs/metabolic_prepost.png", met, height = 10, width= 30, dpi = 600)
+
+jc <- gridExtra::grid.arrange(p5, p2, p3, ncol = 3)
+ggsave("RFID_stable_cohorts/imgs/jp.png",jc, height = 5, width  = 18, dpi = 300)
 
 
 ###statistics 
 library(lmerTest)
+ggsave("RFID_stable_cohorts/imgs/metabolic_prepost.png", met, height = 10, width= 30, dpi = 600)
 
 
 
@@ -192,7 +198,7 @@ plot(insx)
 shapiro.test(resid(insx))#normal
 
 #post 
-ins_post <- ins %>% filter(time == "Post")
+ins_post <- ins %>% filter(time == "GH")
 hist(ins_post$value)
 ins_post<-glmer(value~dom+(1|mouse)+(1|cohort), data =ins_post ,family = Gamma(link = "log"))
 summary(ins_post) 
@@ -223,7 +229,7 @@ plot(cpepx)
 shapiro.test(resid(cpepx))#normal
 
 #post 
-cpost <- cpep %>% filter(time == "Post")
+cpost <- cpep %>% filter(time == "GH")
 hist(cpost$value)
 c_post<-glmer(value~dom+(1|mouse)+(1|cohort), data =cpost ,family = Gamma(link = "log"))
 summary(c_post) 
@@ -379,7 +385,7 @@ plot(ghrx)
 shapiro.test(resid(ghrx))#normal
 
 #post 
-gpost <- ghr %>% filter(time == "Post")
+gpost <- ghr %>% filter(time == "GH")
 hist(gpost$value)
 g_post<-glmer(value~dom+(1|mouse)+(1|cohort), data =gpost ,family = Gamma(link = "log")) 
 summary(g_post) 
@@ -794,4 +800,32 @@ acf(resid(tx2))
 qqPlot(resid(tx2))
 plot(tx2)
 shapiro.test(resid(tx2))#normal
+
+
+
+
+one <-mat %>% filter(time == "Post") %>% filter(analyte == 'Ghrelin')
+
+
+
+mat
+
+
+
+ggplot(one, aes(dom, value, color = dom, fill = dom))+
+  geom_point(aes(group =ID, color =dom), alpha = .4, size = 3)+
+  geom_line(aes(group = cohort),color ="gray", size = 1, alpha=1) +
+  labs(x = "",
+       y=  "Ghrelin (pg/ml)") +
+  scale_color_manual(values = viridis::viridis(2))+
+  scale_fill_manual(values = viridis::viridis(2))+
+  newggtheme+
+  theme(legend.position = "none")
+
+
+
+
+
+
+
 

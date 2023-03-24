@@ -30,7 +30,11 @@ behavsX <-
 
 behavsX %in% behavs$behavior # if have any FALSE need to update 'behavs' file.
 
-
+# newbehavs <- behavsX[!(behavsX %in% behavs$behavior)]
+# newbehavs<- newbehavs[order(newbehavs)]
+# newbehavs <- as.data.frame(newbehavs)
+# colnames(newbehavs)<-"behavior"
+# write.csv(newbehavs, "newbehavs.csv", row.names=F)
 
 # Add in score column.... X = scores in behavs 
 add_score <- function(df){
@@ -87,18 +91,26 @@ xfiles1 <- lapply(xfiles, function(x) x[,c('ts','Cage','winner','loser','score')
 lapply(xfiles1, head)
 lapply(xfiles1, tail)
 
-
+# 
+ # post.l1 -> xfiles1
 # Fix score
 # doing in loop as doesn't seem to work with lapply, don't know why
 ## I am not sure what this does ?
 for(i in 1:length(xfiles1)){
-  xfiles1[[i]]$score <- ifelse(myfiles1[[i]]$score==0.5, 0.5, 1)
+  xfiles1[[i]]$score <- ifelse(xfiles1[[i]]$score==0.5, 0.5, 1)
 }
 
 head(xfiles1[[1]])
 
-df1 <- xfiles1 %>% map2_df(.,names(.), ~mutate(.x, cohort = .y))
-head(df1)
+df19 <- xfiles1[[1]]  %>% filter(Cage != "Cage 5") %>%  split(.$Cage) 
+
+  
+#   df19$Cage <- gsub("Cage 3 - control", "Cage 3", df19$Cage)
+#   df19$Cage <- gsub("Cage 2", "Cage 2 - control", df19$Cage)
+# 
+# df19 <- df19  %>% split(.$Cage)  
+  
+  # df20 <- xfiles1[[2]] %>% split(.$Cage)
 
 library(compete)
 
@@ -109,7 +121,7 @@ get_matrix <- function(df){
   return(mat)
 }
 
-mats <- lapply(xfiles1, get_matrix)
+mats <- lapply(df19, get_matrix)
 mats
 
 dscores <- lapply(mats, compete::ds)
