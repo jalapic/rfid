@@ -4,7 +4,7 @@ rank <- read_csv("RFID_stable_cohorts/data_clean/socialbehavior/rank_data.csv")
 head(rank)
 
 
-arc <- read_csv("RFID_stable_cohorts/data_raw/RNAscope/ARC.csv", locale=locale(encoding="latin1"))
+arc <- read_csv("RFID_stable_cohorts/data_raw/RNAscope/ARC_summary.csv", locale=locale(encoding="latin1"))
 head(arc)
 colnames(arc)
 #count inside col 10:21
@@ -17,6 +17,38 @@ arcx <- arc %>% pivot_longer(., cols = 10:21, names_to = 'target') %>%
 inside <- arcx%>% select(cohort, mouse, section, Accepted, target, value, prop_inside)
 
 all <- rank %>% full_join(inside) %>% na.omit(.)
+
+ta <- arc%>% full_join(rank) %>% na.omit(.) %>% unique(.)
+table(ta$ds_rank, ta$area)
+
+
+colnames(ta)
+
+
+arcx <- ta %>% pivot_longer(., cols = 23:34, names_to = 'target') %>% 
+  mutate(prop_touching = value/Accepted) 
+colnames(arcx)
+
+axx <- arcx %>% mutate(dom_group = as.factor(ifelse(.$ds_rank == 1, "DOM", "SUB")))
+axx$area <- gsub("E", "A", axx$area)
+axx$target <- gsub(" Count Touching", "", axx$target)
+
+
+ggplot(axx, aes(area, prop_touching, color = dom_group))+
+  geom_boxjitter(aes(fill = dom_group), outlier.color = NA, jitter.shape = 21,
+                 alpha = 0.5,
+                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 position = position_dodge(0.85)) +
+  facet_wrap(~target, scales = "free")+
+  scale_color_viridis(discrete = TRUE)+
+  scale_fill_viridis(discrete = TRUE)+
+  ylab("positive/total cells")+
+  theme_classic()+
+  theme(text = element_text(size=20)) 
+
+
+
+
 
 
 
@@ -38,6 +70,12 @@ all2 <- rank %>% full_join(outside) %>% na.omit(.)
 
 colnames(all2)
 
+
+
+
+
+
+
 all2x <- all2 %>% mutate(dom_group = as.factor(ifelse(.$ds_rank == 1, "DOM", "SUB")))
 all2x$target <- gsub(" Count Touching", "", all2x$target)
 
@@ -50,7 +88,7 @@ ggplot(all2, aes(as.factor(ds_rank), prop_touching)) +
   facet_wrap(~target, scales = "free")+ 
   theme_minimal()
 
-ggplot(all2x, aes(dom_group, prop_touching)) +
+ggplot(all2, aes(dom_group, prop_touching)) +
   geom_boxplot(outlier.shape = NA)+
   geom_jitter()+
   facet_wrap(~target, scales = "free_y")+ 
@@ -63,6 +101,10 @@ geom_boxplot(outlier.shape=NA)+
   facet_wrap(~target, scales = "free_y")+ 
   theme_minimal()
 
+
+ta <- unique(all2x)
+
+table(ta$dom_group, ta$area)
 
 all2x <- all2x %>% filter(area == "M")
 
@@ -127,33 +169,33 @@ table(all2x$target)
 
 #CRH
 crh <- al$CRH
-hist(crh$value)
+hist(crh$prop)
 
-cm <-lmer(value~dom_group+(1|mouse)+(1|cohort), data =crh)
+cm <-lmer(prop~dom_group+(1|mouse)+(1|cohort), data =crh)
 summary(cm)
 
  
 #TRH
 trh <- al$TRH
-hist(trh$value)
+hist(trh$prop)
 
-tm <-lmer(value~dom_group+(mouse|cohort), data =trh)
+tm <-lmer(prop~dom_group+(mouse|cohort), data =trh)
 summary(tm)
 
 
 #ghrh
 ghh <- al$GHRH
-hist(ghh$value)
+hist(ghh$prop)
 
-gm <-lmer(value~dom_group+section+(1|cohort), data =ghh)
+gm <-lmer(prop~dom_group+(1|cohort), data =ghh)
 summary(gm)
 
 
 
-#ghrl
+#ghrl # sign 
 gh <- al$Ghrl
-hist(gh$value)
-gm2 <-lmer(value~dom_group+section+(1|cohort), data =gh)
+hist(gh$prop)
+gm2 <-lmer(prop~dom_group+(1|cohort), data =gh)
 summary(gm2)
 
 
@@ -161,65 +203,65 @@ summary(gm2)
 
 #kiss #sign 
 kiss<- al$Kiss1
-hist(kiss$value)
+hist(kiss$prop)
 
-km <-lmer(value~dom_group+ section+(1|cohort), data =kiss)
+km <-lmer(prop~dom_group+(1|cohort), data =kiss)
 summary(km)
 
 
 #agrp  ##### sign 
 ag <- al$AgRP
-hist(ag$value)
+hist(ag$prop)
 
-agm <-lmer(value~dom_group+(1|cohort), data =ag)
+agm <-lmer(prop~dom_group+(1|cohort), data =ag)
 summary(agm)
 
 
 
 #npy
 npy <- al$NPY
-hist(npy$value)
+hist(npy$prop)
 
-nm <-lmer(value~dom_group+(1|cohort), data =npy)
+nm <-lmer(prop~dom_group+(1|cohort), data =npy)
 summary(nm)
 
 
 
 #pomc # sig
 pomc <- al$POMC
-hist(pomc$value)
+hist(pomc$prop)
 
-pm <-lmer(value~dom_group+(1|cohort), data =pomc)
+pm <-lmer(prop~dom_group+(1|cohort), data =pomc)
 summary(pm)
 
 
 
-#lep
+#lep #sign
 lep <- al$LepRb
-hist(lep$value)
-lm <-lmer(value~dom_group+(1|cohort), data =lep)
+hist(lep$prop)
+lm <-lmer(prop~dom_group+(1|cohort), data =lep)
 summary(lm)
 
 
 #ins
 ins <- al$INR
-hist(ins$value)
+hist(ins$prop)
 
-inm <-lmer(value~dom_group+(1|cohort), data =ins)
+inm <-lmer(prop~dom_group+(1|cohort), data =ins)
 summary(inm)
 
 
-#GHSR1a
+#GHSR1a ## sign
 ghr <- al$GHSR1a
-hist(ghr$value)
+hist(ghr$prop)
 
-ghrm <-lmer(value~dom_group+(1|cohort), data =ghr)
+ghrm <-lmer(prop~dom_group+(1|cohort), data =ghr)
 summary(ghrm)
 
 
 #MC4R
 mc <- al$MC4R
-hist(mc$value)
+hist(mc$prop)
 
-mcm <-lmer(value~dom_group+(1|cohort), data =mc)
+mcm <-lmer(prop~dom_group+(1|cohort), data =mc)
 summary(mcm)

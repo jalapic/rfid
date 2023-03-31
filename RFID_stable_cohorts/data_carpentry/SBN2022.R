@@ -12,6 +12,213 @@ m.long$ID <- gsub("_", "", m.long$ID)
 head(m.long)
 
 
+head(mdf)
+
+bns <- mdf %>% select(1:3,5:6,12:18)
+
+
+b.long <- bns %>% pivot_longer(cols = 1:5, names_to = "analyte")
+
+
+b.1 <-bns %>% unique(.) %>%group_by(ID) %>%  pivot_longer(cols = 1:4, names_to = "analyte") %>%  group_by(ID,analyte) %>% 
+  pivot_wider(names_from = time, values_from = value) %>% unique(. ) %>% 
+  mutate(diff = Post - Pre) %>% ungroup()
+
+
+x <- bns %>% select(-ID) %>%  unique(. ) %>% pivot_longer(cols = 1:4, names_to = "analyte") %>% 
+  pivot_wider(names_from = time, values_from = value) %>% 
+  mutate(diff = Pre-Post)
+
+x <- bns %>%  unique(. ) %>% filter(time == "Pre") %>% pivot_longer(cols = 2:5, names_to = "analyte") %>% select(cohort, dom, analyte, value) %>% 
+  pivot_wider(names_from = dom, values_from = value) %>% 
+  mutate(diff = Dominant - Subordinate)
+
+
+
+x <- na.omit(x)
+
+xx <-x  %>% pivot_longer(cols = 3:4, names_to = "dom")%>% group_by(dom, analyte) %>%
+  mutate(median = median(diff)) %>%
+            mutate(lqr = quantile(diff,.25)) %>%
+            mutate(uqr = quantile(diff,.75)) %>%
+  mutate(sig = ifelse(lqr*uqr >= 0 ,  "Sig", ""))
+
+# xx
+# 
+# xx %>%
+#   ggplot(aes(y = analyte, x = median,color = sig))+
+#   geom_vline(xintercept = 0, linetype = "dashed", color = "grey")+
+#   geom_point(size = 3.5)+
+#   geom_segment(data = xx %>% filter(.width == 0.66),
+#                aes(x = lqr, xend = uqr), size = 1.5)+
+#   geom_segment(data = xx %>% filter(.width == 0.95),
+#                aes(y = analyte, yend = analyte,
+#                    x = lqr, xend = uqr), size = 0.75)+
+#   theme_base() +
+#   labs(x = "Subordinate       --       Estimates (median ± 95% CI)       --       Dominant",
+#        y = "")
+# 
+# 
+# 
+# 
+# 
+#
+
+xx$analyte <- factor(xx$analyte, levels = c('Insulin','Cpeptide2',"Leptin", "Ghrelin"))
+
+
+pre <- ggplot(xx, aes(y = analyte, x = median, color = sig))+
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey")+
+    geom_point(size = 3.5)+
+geom_segment(aes(y = analyte, yend =analyte,
+                 x = lqr, xend = uqr), size = 1.5,xx) +
+  geom_segment(aes(y = analyte, yend = analyte,
+                   x = lqr, xend = uqr), size = 0.75,xx) +
+  labs(x = "Subordinate       --       Estimates (median ± 95% CI)       --       Dominant",
+       y = "")+
+  theme_classic()+
+  theme(legend.position = "none",
+        plot.background = element_blank(),
+        axis.title.x = element_text(size = 12),
+        plot.title = element_text(size = 14),  axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        axis.title = element_text(size = 20))+
+  scale_color_manual(values = c("black","red")) 
+
+
+
+
+
+
+y <- bns %>%  unique(. ) %>% filter(time == "Post") %>% pivot_longer(cols = 2:5, names_to = "analyte") %>% select(cohort, dom, analyte, value) %>% 
+  pivot_wider(names_from = dom, values_from = value) %>% 
+  mutate(diff = Dominant - Subordinate)
+
+
+
+y <- na.omit(y)
+
+yy <-y  %>% pivot_longer(cols = 3:4, names_to = "dom")%>% group_by(analyte) %>%
+  mutate(median = median(diff)) %>%
+  mutate(lqr = quantile(diff,.25)) %>%
+  mutate(uqr = quantile(diff,.75)) %>%
+  mutate(sig = ifelse(lqr*uqr >=0 ,  "Sig", ""))
+
+
+
+post <- ggplot(yy, aes(y = analyte, x = median, color = sig))+
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey")+
+  geom_point(size = 3.5)+
+  geom_segment(aes(y = analyte, yend =analyte,
+                   x = lqr, xend = uqr), size = 1.5,yy) +
+  geom_segment(aes(y = analyte, yend = analyte,
+                   x = lqr, xend = uqr), size = 0.75,yy) +
+  labs(x = "Subordinate       --       Estimates (median ± 95% CI)       --       Dominant",
+       y = "")+
+  theme_classic()+
+  theme(legend.position = "none",
+        plot.background = element_blank(),
+        axis.title.x = element_text(size = 12),
+        plot.title = element_text(size = 14),  axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        axis.title = element_text(size = 20))+
+  scale_color_manual(values = c("black","red")) 
+
+
+
+y2 <- bns %>% select(-ID) %>%  unique(. ) %>% pivot_longer(cols = 1:4, names_to = "analyte") %>% 
+  pivot_wider(names_from = time, values_from = value) %>% 
+  mutate(diff = Pre-Post)
+
+
+
+
+y2 <- na.omit(y)
+
+yy <-y2  %>% group_by( dom, analyte) %>%
+  mutate(median = median(diff)) %>%
+  mutate(lqr = quantile(diff,.25)) %>%
+  mutate(uqr = quantile(diff,.75)) %>%
+  mutate(sig = ifelse(lqr*uqr >=0 ,  "Sig", ""))
+
+
+yy$analyte <- factor(yy$analyte, levels = c( "Insulin", "Cpeptide2", "Leptin", "Ghrelin"))
+
+yy1 <- yy %>% filter(dom == "Dominant")
+
+
+ p1 <- ggplot(yy1, aes(y = analyte, x = median, color = sig))+
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey")+
+  geom_point(size = 3.5)+
+  geom_segment(aes(y = analyte, yend =analyte,
+                   x = lqr, xend = uqr), size = 1.5,yy1) +
+  geom_segment(aes(y = analyte, yend = analyte,
+                   x = lqr, xend = uqr), size = 0.75,yy1) +
+  labs(x = "PH      --       IQR      --       GH",
+       y = "")+
+  
+  theme_classic()+
+   ggtitle("Dominants") +
+  theme(legend.position = "none",
+        plot.background = element_blank(),
+        axis.title.x = element_text(size = 12),
+        plot.title = element_text(vjust = 0, size = 14),  axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        axis.title = element_text(size = 20))+
+  scale_color_manual(values = c("black","red")) 
+
+ 
+ yy2 <- yy %>% filter(dom == "Subordinate")
+
+
+ p2<- ggplot(yy2, aes(y = analyte, x = median, color = sig))+
+   geom_vline(xintercept = 0, linetype = "dashed", color = "grey")+
+   geom_point(size = 3.5)+
+   geom_segment(aes(y = analyte, yend =analyte,
+                    x = lqr, xend = uqr), size = 1.5,yy2) +
+   geom_segment(aes(y = analyte, yend = analyte,
+                    x = lqr, xend = uqr), size = 0.75,yy2) +
+   labs(x = "PH      --       IQR       --       GH",
+        y = "")+
+   
+   theme_classic()+
+   ggtitle("Subordinates") +
+   theme(legend.position = "none",
+         plot.background = element_blank(),
+         axis.title.x = element_text(size = 12),
+         plot.title = element_text(vjust = 0, size = 14),  axis.text.x = element_text(vjust = 1, size = 15),
+         axis.text.y = element_text(hjust = 0.5, size = 15),
+         axis.title = element_text(size = 20))+
+   scale_color_manual(values = c("black","red")) 
+ 
+
+ 
+ gridExtra::grid.arrange(p1, p2, nrow = 1) 
+
+post
+
+
+
+c <- xx %>%  filter(analyte == "Cpeptide2")
+
+m <- lmer(analyte ~ diff + (1|cohort), data = xx )
+
+t.test()
+
+
+
+ggplot(xx, aes(x=analyte , y = diff)) +
+  geom_point() +
+  
+  # geom_line(aes(group = cohort),position = position_dodge( 0.0), size = .6, color = "black") +
+  # geom_point(aes(group = ID),position = position_dodge(  0.0), size = 3, alpha =0.4) +
+  facet_wrap(~analyte)+
+  xlab("")+
+  ylab("Concentration (pg/ml)")
+
+
+
+
 
 df <- read_csv("RFID_stable_cohorts/data_raw/id_data.csv")
 head(df) 
@@ -68,6 +275,12 @@ ggplot(m.long, aes(x=time , y = value)) +
 m.long$time <- factor(m.long$time, levels = c("Pre", "Post"))
 m.long$time  <- ifelse(m.long$time == "Pre", "PH", 'GH')
 m.long$time <- factor(m.long$time, levels = c("PH", "GH"))
+
+
+
+head(m.long)
+
+
 
 a.list <- m.long %>% split(.$analyte)
 lapply(a.list,head)
@@ -137,6 +350,8 @@ p10 <- plots[[10]]+ggtitle("TNF-alpha")+ theme(plot.title = element_text(hjust =
 
 met <- gridExtra::grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,ncol=5)
 
+
+met <- gridExtra::grid.arrange(p2,p3,p5,p6,ncol=2)
 print(met)
 
 jc <- gridExtra::grid.arrange(p5, p2, p3, ncol = 3)
