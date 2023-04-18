@@ -13,7 +13,6 @@ rank$dom <- ifelse(rank$glicko_rank == 1, "Dominant", rank$glicko_rank)
 rank$dom <- ifelse(rank$glicko_rank == 2, "Subdominant", rank$dom)
 rank$dom <- ifelse(rank$glicko_rank == 6, "Subordinate", rank$dom)
 
-rank$id <- as.character(rank$id)
 colnames(rank)[3]<- "mouse"
 
 id$mouse <- as.character(id$mouse)
@@ -66,6 +65,11 @@ ggplot(dstat, aes(dom,weight_GD1))+
   ylab("Final Body Weight (g)")+
   xlab("") +
   ylim(30,45)
+
+
+
+
+
 
 
  

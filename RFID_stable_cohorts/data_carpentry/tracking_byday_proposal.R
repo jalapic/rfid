@@ -26,11 +26,11 @@ table(dms$zone)
 #there is some NAS in the zone - need to fix later. 
 total <- na.omit(total)
 
-total <- dms %>% group_by(cohort,glicko_rank,day,zone) %>%
+total <- dms %>% group_by(cohort,mouse,glicko_rank,day,zone) %>%
   summarize(tot_ms = sum(duration, na.rm = T)) %>% unique(.)
 
 total <- total %>% group_by(cohort,glicko_rank, zone) %>% 
-  mutate(mt = mean(tot_ms))
+  mutate(mt = mean(tot_ms)) %>% unique(.)
 
 
 head(total)
@@ -775,5 +775,96 @@ zx1 %>% arrange(-avg)
   xlab("Mouse Rank ")
 
 
+str(an)
+str(total) 
 
-         
+jp <- dms %>% filter(cohort != 6)%>% group_by(glicko_rank,day) %>% 
+  mutate(.,zd = start-lag(start)) %>% 
+  mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
+head(jp)
+
+colnames(jp1)
+
+jp1 <- jp  %>% unique(.) 
+head(jp1)
+
+unique(jp1$day)
+jp1$day <- as.factor(jp1$day)
+
+
+jp2 <- jp1 %>% group_by(mouse, glicko_rank) %>% mutate(acum = cumsum(total))
+jp2$day <- as.factor(jp2$day)
+jp2 <- na.omit(jp2)
+jp2 <- jp2 %>% filter(day !=11)
+head(jp2)
+
+an <-  lep %>% rbind(cpep, ins, ghr)
+x <- an %>% select(-glicko_rank) %>% full_join(jp2)
+x <- unique(x)
+
+head(x)
+x2 <- x %>%  filter(day == 11)
+head(x2)
+
+
+
+jp <- dms %>% filter(cohort != 6)%>% group_by(cohort,mouse) %>% 
+  mutate(.,zd = start-lag(start)) %>% 
+  mutate(., total = sum(!is.na(zd))) %>% ungroup(.)
+head(jp)
+
+x3 <- jp %>% select(1:4,10)%>% filter(glicko_rank != 2)%>%
+  filter(glicko_rank != 3) %>% filter(glicko_rank != 4)  %>% filter(glicko_rank != 5) %>% unique(.)
+
+
+# x33 <- x3 %>% group_by(cohort, glicko_rank) %>% summarise(tot = max(acum)) 
+ x3x<- an %>% select(cohort, mouse, analyte, value, dom) %>% full_join(x3) %>% unique(.)  %>% na.omit(.)
+
+
+
+
+ggplot(x3x, aes(total, value, color=dom , fill =dom))+
+  geom_point(size = 3, shape = 21, alpha = 0.6)+
+  geom_smooth(method = "lm", alpha = 0.2, size = 1.2,se =F)+
+  scale_color_viridis(discrete = TRUE)+
+  scale_fill_viridis(discrete = TRUE)+
+  labs(y = "Concentration (pg/ml)",
+       x = "Total Cage Transitions") +
+  facet_wrap(~analyte, scales = "free_y")+ 
+  theme(axis.text.x = element_text(vjust = 1, size = 15),
+        axis.text.y = element_text(hjust = 0.5, size = 15),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_blank(),
+        axis.title = element_text(size = 20),
+        axis.text= element_text(color="#3C3C3C", size=20),
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 20))
+
+
+
+library(lmerTest)
+
+tl <- x3x %>% filter(analyte == "Leptin")
+tc<- x3x %>% filter(analyte == "Cpeptide2")
+ti<- x3x %>% filter(analyte == "Insulin")
+tg<- x3x %>% filter(analyte == "Ghrelin")
+
+head(tl)
+
+hist(tl$total)
+tlx <- lmer(value~dom*total +(cohort|mouse), data =tl)
+summary(tlx)
+
+
+tcx <- lmer(value~dom+total+(cohort|mouse), data =tc)
+summary(tcx)
+
+tix <- lmer(value~dom+total +(cohort|mouse), data =ti)
+summary(tix)
+
+
+tgx <- lmer(value~dom*total +(cohort|mouse), data =tg)
+summary(tgx)

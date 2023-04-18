@@ -61,8 +61,9 @@ lapply(xfiles, colnames)
 
 
 ll <- xfiles %>% map(~pivot_longer(., cols =6:17, names_to = 'target')) %>% 
-  map(~group_by(.,target)) %>% map(~mutate(.,nn =(sum(value!=0)))) %>% 
-  map(~mutate(., prop = nn/max(Number))) %>% 
+  map(~group_by(.,mouse, cohort, target)) %>% map(~mutate(.,nn =(sum(value!=0)))) %>% 
+  map(~mutate(., N = nrow(.))) %>% 
+  map(~mutate(., prop = nn/max(Number))) %>%  
   map(~select(., mouse, cohort, area, target, nn, prop)) %>% 
   map(~unique(.))
 
@@ -104,12 +105,12 @@ ggplot(allx, aes(dom_group, prop, color = interaction(area)))+
 all2x <- allx %>% filter( area == "M")
 
 
-all2x$target <- factor(all2x$target, level = c("CRH", "TRH", "GHRH", "Kiss1", "LepRb", "AgRP", "NPY", "Ghrl", "POMC", "INR", "GHSR1a", "MC4R"))
+# all2x$target <- factor(all2x$target, level = c("CRH", "TRH", "GHRH", "Kiss1", "LepRb", "AgRP", "NPY", "Ghrl", "POMC", "INR", "GHSR1a", "MC4R"))
 
 ggplot(all2x, aes(dom_group, prop, color = dom_group))+
   geom_boxjitter(aes(fill = dom_group), outlier.color = NA, jitter.shape = 21,
                  alpha = 0.5,
-                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
+                 , jitter.width = 0.030, errorbar.draw = TRUE,
                  position = position_dodge(0.85)) +
   facet_wrap(~target, scales = "free", ncol =3)+
   scale_color_viridis(discrete = TRUE)+

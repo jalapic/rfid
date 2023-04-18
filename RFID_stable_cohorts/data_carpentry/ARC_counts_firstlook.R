@@ -53,11 +53,13 @@ ggplot(axx, aes(area, prop_touching, color = dom_group))+
 
 
 
+
 ggplot(all, aes(as.factor(ds_rank), prop_inside)) +
   geom_boxplot()+
   geom_jitter()+
   facet_wrap(~target, scales = "free")+ 
   theme_minimal()
+
 
 
 
@@ -72,9 +74,46 @@ colnames(all2)
 
 
 
+lepr <- all2x %>% filter(target == "LepRb")
 
+str(lepr)
+str(lep)
 
+lepr <-  lepr %>% mutate(count = value) %>% select(mouse,cohort,count, prop_touching)
 
+ xx <- lepr %>% full_join(lep) %>% na.omit(.)
+
+ ggplot(xx, aes(prop_touching, value, color = dom)) +
+   geom_point()+
+   stat_smooth(method = "lm", se= F, aes(color = dom))+
+   theme_minimal()+
+   scale_color_viridis(discrete = TRUE)+
+   xlab("Ghrelin concentration (pg/ml)")+
+   ylab("ARC Ghrl postive/total cells")+
+   theme_minimal()+
+   theme(axis.text.x = element_text(vjust = 1, size = 15),
+         axis.text.y = element_text(hjust = 0.5, size = 15),
+         panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank(),
+         panel.border = element_blank(),
+         panel.background = element_blank(),
+         plot.background = element_blank(),
+         axis.title = element_text(size = 20),
+         axis.text= element_text(color="#3C3C3C", size=15),
+         strip.background = element_blank(),
+         strip.text.x = element_text(size = 15))
+ 
+ 
+ bg <- all2x %>% filter(target == "Ghrl")
+ 
+ 
+  bg<-  bg %>% mutate(count = value) %>% select(mouse,cohort,count, prop_touching)
+ 
+ xx <- bg %>% full_join(ghr) %>% na.omit(.)
+ 
+ 
+ 
+ 
 
 all2x <- all2 %>% mutate(dom_group = as.factor(ifelse(.$ds_rank == 1, "DOM", "SUB")))
 all2x$target <- gsub(" Count Touching", "", all2x$target)
@@ -265,3 +304,5 @@ hist(mc$prop)
 
 mcm <-lmer(prop~dom_group+(1|cohort), data =mc)
 summary(mcm)
+
+
