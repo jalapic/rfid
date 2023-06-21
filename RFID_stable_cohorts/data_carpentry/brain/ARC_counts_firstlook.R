@@ -66,7 +66,7 @@ ggplot(all, aes(as.factor(ds_rank), prop_inside)) +
 arcxx <- arc %>% pivot_longer(., cols = 23:34, names_to = 'target') %>% 
   mutate(prop_touching = value/Accepted) 
 
-outside <- arcxx%>% select(cohort, mouse, section, Accepted, target, area, value, prop_touching)
+outside <- arcxx%>% dplyr::select(cohort, mouse, section, Accepted, target, area, value, prop_touching)
 
 all2 <- rank %>% full_join(outside) %>% na.omit(.)
 
@@ -152,17 +152,13 @@ all2x <- all2x %>% filter(area == "M")
 
 library(viridis)
 
-ggplot(all2x, aes(dom_group, prop_touching, color = dom_group))+
-  geom_boxjitter(aes(fill = dom_group), outlier.color = NA, jitter.shape = 21,
-                 alpha = 0.5,
-                 jitter.height = 0.02, jitter.width = 0.030, errorbar.draw = TRUE,
-                 position = position_dodge(0.85)) +
-  facet_wrap(~target, scales = "free")+
-  scale_color_viridis(discrete = TRUE)+
-  scale_fill_viridis(discrete = TRUE)+
-  theme_classic()+
-  theme(legend.position = "none", text = element_text(size=20)) +
-  scale_y_continuous(expand = expansion(.3)) 
+ap <- ggplot(all2x, aes(dom_group, prop_touching, fill = dom_group))+
+  gc
+
+all2$target <- factor(all2$target, levels = c("CRH", "TRH", "GHRH", "Kiss1", "LepRb", "AgRP", "NPY", "Ghrl", "POMC", "INR", "GHSR1a", "MC4R"))
+
+ap
+ggsave("RFID_stable_cohorts/imgs/ARC_raw.png", ap,height = 9, width =8 , dpi = 300)
 
 
 

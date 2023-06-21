@@ -44,6 +44,7 @@ la2 <- la %>% map(~group_by(.,day,glicko_rank)) %>%
   map(~mutate(., total = sum(!is.na(zd))))
 dfnames <- c(1:10)
 
+
 zx <- dms %>% group_by(cohort,glicko_rank,day,zone) %>% 
   mutate(.,zd = start-lag(start)) %>% 
   mutate(., total = sum(!is.na(zd)))
@@ -59,3 +60,6 @@ head(df)
 
 rfid_all <- df %>% full_join(move)
 saveRDS(rfid_all, "RFID_stable_cohorts/data_clean/RFID_blood_fordiscriminateanalysis.RDS")
+
+
+head(rfid_all)

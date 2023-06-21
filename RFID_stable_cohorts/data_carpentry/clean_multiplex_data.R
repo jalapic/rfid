@@ -88,7 +88,7 @@ df1 <- df %>% filter(dom != "Subdominant")
 colnames(df1)
 df1x <- df1 %>% dplyr::select(1:13)
 
-all <- mdf %>% full_join(df1x)
+all <- mdf %>% full_join(df1x) %>% filter(time == 'Post')
 
 
-write.csv(all, "RFID_stable_cohorts/data_clean/all_blood.csv", row.names =F)
+write.csv(all, "RFID_stable_cohorts/data_clean/all_blood_Post.csv", row.names =F)
