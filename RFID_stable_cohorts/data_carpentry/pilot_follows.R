@@ -14,8 +14,12 @@ ddf <- read_csv("RFID_stable_cohorts/data_carpentry/transitions.csv")
 
 # from df_code1.R
 coh3 <- batchB_clean %>% filter(cohort==3)
-coh3$ms <- as.numeric(as.POSIXct(coh3$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
-coh3$ms <- coh3$ms - min(coh3$ms)
+
+seconds <- as.numeric(as.POSIXct(coh3$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh3$datetimestamp,21,24), sep="."))*1000
+coh3$ms <- millisecs-min(millisecs)
+
+
 
 plot(coh3$ms)
            
