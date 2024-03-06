@@ -14,7 +14,11 @@ ddf <- read_csv("RFID_stable_cohorts/data_carpentry/transitions.csv")
 
 # from df_code1.R
 coh3 <- batchB_clean %>% filter(cohort==3)
-coh3$ms <- coh3$cantimestamp
+coh3$ms <- as.numeric(as.POSIXct(coh3$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+coh3$ms <- coh3$ms - min(coh3$ms)
+
+plot(coh3$ms)
+           
 
 table(coh3$mouse) 
 l3 <- split(coh3, coh3$mouse)
@@ -25,17 +29,17 @@ lapply(l3, function(x) table(x$type))  # why so many errors?
 
 
 
-# from df_code1.R
-coh4 <- batchB_clean %>% filter(cohort==4)
-coh4$ms <- coh4$cantimestamp
-
-table(coh4$mouse) 
-l4 <- split(coh4, coh4$mouse)
-l4 <- lapply(l4, make_df)
-l4 <- lapply(l4, add_type)
-unlist(lapply(l4, function(x) sum(is.na(x$type)))) # some missing
-lapply(l4, function(x) table(x$type))  # why so many errors?
-
+# # from df_code1.R
+# coh4 <- batchB_clean %>% filter(cohort==4)
+# coh4$ms <- coh4$cantimestamp
+# 
+# table(coh4$mouse) 
+# l4 <- split(coh4, coh4$mouse)
+# l4 <- lapply(l4, make_df)
+# l4 <- lapply(l4, add_type)
+# unlist(lapply(l4, function(x) sum(is.na(x$type)))) # some missing
+# lapply(l4, function(x) table(x$type))  # why so many errors?
+# 
 
 ## Notice that "tt" we have are in the range of 3000-6000 per animal - what proportion of these are follows?
 ## Need to figure out how to leverage both back_tag and leg_tag.
@@ -45,11 +49,13 @@ lapply(l4, function(x) table(x$type))  # why so many errors?
 
 ### Follows
 
+## collapse to one time if within eg 5 ms of each other
+
 # for one transition type
   vecs <- map(l3, ~ .x %>% filter(trans == "2-1:2-2") %>% pull(ms))
   vecs0 <- which(unlist(lapply(vecs, length))==0)
   vecs1 <- drop_els(vecs, vecs0)
-  new_pairs(vecs1, window=1000)
+  new_pairs(vecs1, window=1)
  
   
   vecs <- map(l3, ~ .x %>% filter(trans == "9-1:9-2") %>% pull(ms))
@@ -66,14 +72,14 @@ get_pairs_tubes <- function(l, tubetype, win) {
   vecs <- map(l, ~ .x %>% filter(trans == tubetype) %>% pull(ms))
   vecs0 <- which(unlist(lapply(vecs, length))==0)
   vecs1 <- drop_els(vecs, vecs0)
-  dd <- new_pairs(vecs1, window=win)
+  dd <- find_pairs(vecs1, window=win)
   return(dd)
 }
 
 result <- NULL  
 
 for(i in 1:length(tubetrans)){
-result[[i]] <-  get_pairs_tubes(l3, tubetrans[[i]], win=1000)
+result[[i]] <-  get_pairs_tubes(l3, tubetrans[[i]], win=1)
 } 
 
 
