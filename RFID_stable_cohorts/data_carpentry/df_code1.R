@@ -156,7 +156,7 @@ id <- id_data %>%
 
 data4 <- data %>%
   filter(batch == "D")
-batchD <- id %>% full_join(data4)
+batchD <- data4 %>% full_join(id)
 
 ggplot(batchD, aes(x = deviceid, group = cohort, fill = cohort)) + geom_histogram() + facet_grid(cohort ~ .)
 #no opposite cage setups appear in this cohort! woohoo!

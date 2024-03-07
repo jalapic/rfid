@@ -198,6 +198,63 @@ compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
 
 
 
+# cohort 7
+coh7 <- batchD_clean %>% filter(cohort==7)
+
+# putting into continuous milliseconds
+seconds <- as.numeric(as.POSIXct(coh7$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh7$datetimestamp,21,24), sep="."))*1000
+coh7$ms <- millisecs-min(millisecs)
+
+# get vectors of tube transitions per mouse
+l7 <- split(coh7, coh7$mouse)
+l7 <- lapply(l7, make_df)
+l7 <- lapply(l7, add_type)
+unlist(lapply(l7, function(x) sum(is.na(x$type)))) #
+lapply(l7, function(x) table(x$type))  # 
+
+# get pairs of tube transitions within a window
+out <- map_dfr(tubetrans, ~ get_pairs_df(l7, tt = .x, win = 500), .id = "tubetrans")
+out  
+
+# hierarchy dynamics
+compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
+compete::get_di_matrix(compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))$best_matrix)
+compete::devries(compete::get_wl_matrix(out[c(5,4)]))
+
+
+
+# cohort 8
+coh8 <- batchD_clean %>% filter(cohort==8)
+
+# putting into continuous milliseconds
+seconds <- as.numeric(as.POSIXct(coh8$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh8$datetimestamp,21,24), sep="."))*1000
+coh8$ms <- millisecs-min(millisecs)
+
+# get vectors of tube transitions per mouse
+l8 <- split(coh8, coh8$mouse)
+l8 <- lapply(l8, make_df)
+l8 <- lapply(l8, add_type)
+unlist(lapply(l8, function(x) sum(is.na(x$type)))) #
+lapply(l8, function(x) table(x$type))  # 
+
+# get pairs of tube transitions within a window
+out <- map_dfr(tubetrans2, ~ get_pairs_df(l8, tt = .x, win = 500), .id = "tubetrans")
+out  
+
+# hierarchy dynamics
+compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
+compete::get_di_matrix(compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))$best_matrix)
+compete::devries(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ds(compete::get_wl_matrix(out[c(5,4)]))
+
+
 ## histogram of diftimes would be good.
 # it's just random noise
 # result1 <- NULL  
