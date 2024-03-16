@@ -255,31 +255,3 @@ compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
 compete::ds(compete::get_wl_matrix(out[c(5,4)]))
 
 
-## histogram of diftimes would be good.
-# it's just random noise
-# result1 <- NULL  
-# 
-# for(i in 1:length(tubetrans)){
-#   result1[[i]] <-  get_pairs_tubes(l3, tubetrans[[i]], win=1000000)
-# } 
-# 
-# ddt <- data.table::rbindlist(map2(result1, tubetrans, ~ mutate(.x, tubetype = .y)))
-# ddt$atime <- pmin(ddt$number_from_element1, ddt$number_from_element2)
-# ddt$btime <- pmax(ddt$number_from_element1, ddt$number_from_element2)
-# ddt$diftime <- ddt$btime - ddt$atime
-# ddt$winner <- ifelse(ddt$number_from_element1==ddt$btime, ddt$element1, ddt$element2)
-# ddt$loser <- ifelse(ddt$number_from_element1==ddt$atime, ddt$element1, ddt$element2)
-# ddt$winner <- names(l3)[ddt$winner]
-# ddt$loser <- names(l3)[ddt$loser]
-# ddt
-# 
-# #histogram of difference times
-# 
-# ggplot(ddt, aes(x=diftime)) + geom_histogram(binwidth = 1000, color='black',fill='white')
-# 
-# 
-# 
-# 
-# 
-# 
-# 
