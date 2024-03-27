@@ -56,17 +56,17 @@ lapply(l3, function(x) table(x$type))  #
 ## collapse to one time if within eg 5 ms of each other
 
 # for one transition type
-  vecs <- map(l3, ~ .x %>% filter(trans == "2-1:2-2") %>% pull(ms))
-  vecs0 <- which(unlist(lapply(vecs, length))==0)
-  vecs1 <- drop_els(vecs, vecs0)
-  new_pairs(vecs1, window=1)
- 
-  
-  vecs <- map(l3, ~ .x %>% filter(trans == "9-1:9-2") %>% pull(ms))
-  vecs0 <- which(unlist(lapply(vecs, length))==0)
-  vecs1 <- drop_els(vecs, vecs0)
-  new_pairs(vecs1, window=500)
-  new_pairs(vecs1, window=10000)
+  # vecs <- map(l3, ~ .x %>% filter(trans == "2-1:2-2") %>% pull(ms))
+  # vecs0 <- which(unlist(lapply(vecs, length))==0)
+  # vecs1 <- drop_els(vecs, vecs0)
+  # new_pairs(vecs1, window=1)
+  # 
+  # 
+  # vecs <- map(l3, ~ .x %>% filter(trans == "9-1:9-2") %>% pull(ms))
+  # vecs0 <- which(unlist(lapply(vecs, length))==0)
+  # vecs1 <- drop_els(vecs, vecs0)
+  # new_pairs(vecs1, window=500)
+  # new_pairs(vecs1, window=10000)
 
   
 out <- map_dfr(tubetrans, ~ get_pairs_df(l3, tt = .x, win = 500), .id = "tubetrans")
