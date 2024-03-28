@@ -255,3 +255,67 @@ compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
 compete::ds(compete::get_wl_matrix(out[c(5,4)]))
 
 
+
+
+
+# cohort 9
+coh9 <- batchE_clean %>% filter(cohort==9)
+
+# putting into continuous milliseconds
+seconds <- as.numeric(as.POSIXct(coh9$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh9$datetimestamp,21,24), sep="."))*1000
+coh9$ms <- millisecs-min(millisecs)
+
+# get vectors of tube transitions per mouse
+l9 <- split(coh9, coh9$mouse)
+l9 <- lapply(l9, make_df)
+l9 <- lapply(l9, add_type)
+unlist(lapply(l9, function(x) sum(is.na(x$type)))) #
+lapply(l9, function(x) table(x$type))  # 
+
+# get pairs of tube transitions within a window
+out <- map_dfr(tubetrans, ~ get_pairs_df(l9, tt = .x, win = 500), .id = "tubetrans")
+out  
+
+# hierarchy dynamics
+compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
+compete::get_di_matrix(compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))$best_matrix)
+compete::devries(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ds(compete::get_wl_matrix(out[c(5,4)]))
+
+
+
+
+
+# cohort 10
+coh10 <- batchE_clean %>% filter(cohort==10)
+
+# putting into continuous milliseconds
+seconds <- as.numeric(as.POSIXct(coh10$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh10$datetimestamp,21,24), sep="."))*1000
+coh10$ms <- millisecs-min(millisecs)
+
+# get vectors of tube transitions per mouse
+l10 <- split(coh10, coh10$mouse)
+l10 <- lapply(l10, make_df)
+l10 <- lapply(l10, add_type)
+unlist(lapply(l10, function(x) sum(is.na(x$type)))) #
+lapply(l10, function(x) table(x$type))  # 
+
+# get pairs of tube transitions within a window
+out <- map_dfr(tubetrans2, ~ get_pairs_df(l10, tt = .x, win = 500), .id = "tubetrans")
+out  
+
+# hierarchy dynamics
+compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
+compete::get_di_matrix(compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))$best_matrix)
+compete::devries(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ds(compete::get_wl_matrix(out[c(5,4)]))
