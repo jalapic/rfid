@@ -71,7 +71,9 @@ lapply(l3, function(x) table(x$type))  #
   
 out <- map_dfr(tubetrans, ~ get_pairs_df(l3, tt = .x, win = 500), .id = "tubetrans")
 out  
-  
+rows <- which(out[,2]>=out[,3])
+out[rows,]
+
 
 compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
 compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
@@ -131,6 +133,10 @@ lapply(l4, function(x) table(x$type))  #
 # get pairs of tube transitions within a window
 out <- map_dfr(tubetrans2, ~ get_pairs_df(l4, tt = .x, win = 500), .id = "tubetrans")
 out  
+
+rows <- which(out[,2]>=out[,3])
+out[rows,]
+
 
 # hierarchy dynamics
 compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
@@ -255,6 +261,7 @@ compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
 compete::ds(compete::get_wl_matrix(out[c(5,4)]))
 
 
+<<<<<<< HEAD
 
 
 
@@ -319,3 +326,9 @@ compete::devries(compete::get_wl_matrix(out[c(5,4)]))
 compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
 
 compete::ds(compete::get_wl_matrix(out[c(5,4)]))
+=======
+wlmat <- compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+
+rowSums(wlmat)/sum(wlmat)
+compete::ds(wlmat, norm=T)
+>>>>>>> 8b16cf43f9bada16e6b115a6d877b0587fb73506
