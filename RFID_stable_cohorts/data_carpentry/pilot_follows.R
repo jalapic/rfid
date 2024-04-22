@@ -57,22 +57,24 @@ lapply(l3, function(x) table(x$type))  #
 ## collapse to one time if within eg 5 ms of each other
 
 # for one transition type
-  vecs <- map(l3, ~ .x %>% filter(trans == "2-1:2-2") %>% pull(ms))
-  vecs0 <- which(unlist(lapply(vecs, length))==0)
-  vecs1 <- drop_els(vecs, vecs0)
-  new_pairs(vecs1, window=1)
- 
-  
-  vecs <- map(l3, ~ .x %>% filter(trans == "9-1:9-2") %>% pull(ms))
-  vecs0 <- which(unlist(lapply(vecs, length))==0)
-  vecs1 <- drop_els(vecs, vecs0)
-  new_pairs(vecs1, window=500)
-  new_pairs(vecs1, window=10000)
+  # vecs <- map(l3, ~ .x %>% filter(trans == "2-1:2-2") %>% pull(ms))
+  # vecs0 <- which(unlist(lapply(vecs, length))==0)
+  # vecs1 <- drop_els(vecs, vecs0)
+  # new_pairs(vecs1, window=1)
+  # 
+  # 
+  # vecs <- map(l3, ~ .x %>% filter(trans == "9-1:9-2") %>% pull(ms))
+  # vecs0 <- which(unlist(lapply(vecs, length))==0)
+  # vecs1 <- drop_els(vecs, vecs0)
+  # new_pairs(vecs1, window=500)
+  # new_pairs(vecs1, window=10000)
 
   
 out <- map_dfr(tubetrans, ~ get_pairs_df(l3, tt = .x, win = 500), .id = "tubetrans")
 out  
-  
+rows <- which(out[,2]>=out[,3])
+out[rows,]
+
 
 compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
 compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
@@ -132,6 +134,10 @@ lapply(l4, function(x) table(x$type))  #
 # get pairs of tube transitions within a window
 out <- map_dfr(tubetrans2, ~ get_pairs_df(l4, tt = .x, win = 500), .id = "tubetrans")
 out  
+
+rows <- which(out[,2]>=out[,3])
+out[rows,]
+
 
 # hierarchy dynamics
 compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
@@ -256,31 +262,74 @@ compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
 compete::ds(compete::get_wl_matrix(out[c(5,4)]))
 
 
-## histogram of diftimes would be good.
-# it's just random noise
-# result1 <- NULL  
-# 
-# for(i in 1:length(tubetrans)){
-#   result1[[i]] <-  get_pairs_tubes(l3, tubetrans[[i]], win=1000000)
-# } 
-# 
-# ddt <- data.table::rbindlist(map2(result1, tubetrans, ~ mutate(.x, tubetype = .y)))
-# ddt$atime <- pmin(ddt$number_from_element1, ddt$number_from_element2)
-# ddt$btime <- pmax(ddt$number_from_element1, ddt$number_from_element2)
-# ddt$diftime <- ddt$btime - ddt$atime
-# ddt$winner <- ifelse(ddt$number_from_element1==ddt$btime, ddt$element1, ddt$element2)
-# ddt$loser <- ifelse(ddt$number_from_element1==ddt$atime, ddt$element1, ddt$element2)
-# ddt$winner <- names(l3)[ddt$winner]
-# ddt$loser <- names(l3)[ddt$loser]
-# ddt
-# 
-# #histogram of difference times
-# 
-# ggplot(ddt, aes(x=diftime)) + geom_histogram(binwidth = 1000, color='black',fill='white')
-# 
-# 
-# 
-# 
-# 
-# 
-# 
+<<<<<<< HEAD
+
+
+
+# cohort 9
+coh9 <- batchE_clean %>% filter(cohort==9)
+
+# putting into continuous milliseconds
+seconds <- as.numeric(as.POSIXct(coh9$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh9$datetimestamp,21,24), sep="."))*1000
+coh9$ms <- millisecs-min(millisecs)
+
+# get vectors of tube transitions per mouse
+l9 <- split(coh9, coh9$mouse)
+l9 <- lapply(l9, make_df)
+l9 <- lapply(l9, add_type)
+unlist(lapply(l9, function(x) sum(is.na(x$type)))) #
+lapply(l9, function(x) table(x$type))  # 
+
+# get pairs of tube transitions within a window
+out <- map_dfr(tubetrans, ~ get_pairs_df(l9, tt = .x, win = 500), .id = "tubetrans")
+out  
+
+# hierarchy dynamics
+compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
+compete::get_di_matrix(compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))$best_matrix)
+compete::devries(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ds(compete::get_wl_matrix(out[c(5,4)]))
+
+
+
+
+
+# cohort 10
+coh10 <- batchE_clean %>% filter(cohort==10)
+
+# putting into continuous milliseconds
+seconds <- as.numeric(as.POSIXct(coh10$datetimestamp, format="%d.%m.%Y %H:%M:%S:%OS"))
+millisecs <- as.numeric(paste(seconds, substr(coh10$datetimestamp,21,24), sep="."))*1000
+coh10$ms <- millisecs-min(millisecs)
+
+# get vectors of tube transitions per mouse
+l10 <- split(coh10, coh10$mouse)
+l10 <- lapply(l10, make_df)
+l10 <- lapply(l10, add_type)
+unlist(lapply(l10, function(x) sum(is.na(x$type)))) #
+lapply(l10, function(x) table(x$type))  # 
+
+# get pairs of tube transitions within a window
+out <- map_dfr(tubetrans2, ~ get_pairs_df(l10, tt = .x, win = 500), .id = "tubetrans")
+out  
+
+# hierarchy dynamics
+compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))
+compete::get_di_matrix(compete::isi13(compete::org_matrix(compete::get_wl_matrix(out[c(5,4)])))$best_matrix)
+compete::devries(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ttri_test(compete::get_wl_matrix(out[c(5,4)]))
+
+compete::ds(compete::get_wl_matrix(out[c(5,4)]))
+=======
+wlmat <- compete::org_matrix(compete::get_wl_matrix(out[c(5,4)]),method='ds')
+
+rowSums(wlmat)/sum(wlmat)
+compete::ds(wlmat, norm=T)
+>>>>>>> 8b16cf43f9bada16e6b115a6d877b0587fb73506
