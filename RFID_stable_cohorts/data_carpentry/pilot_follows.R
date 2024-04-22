@@ -25,6 +25,7 @@ plot(coh3$ms)
            
 
 table(coh3$mouse) 
+table(coh3$mouse) 
 l3 <- split(coh3, coh3$mouse)
 l3 <- lapply(l3, make_df)
 l3 <- lapply(l3, add_type)
